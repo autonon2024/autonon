@@ -112,6 +112,24 @@
       border-radius: 6px; font-size: 0.83rem; color: var(--text-main); outline: none; text-align: right;
     }
 
+    .section-checkbox {
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
+    }
+    .section-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary-orange);
+    }
+
     .image-upload-container {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 8px;
     }
@@ -341,13 +359,25 @@
           </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:11px; justify-content:center; font-size:0.95rem; font-weight:bold;" onclick="sendDirectReportWithAttachmentsWhatsApp()">
-            <i class="fa-brands fa-whatsapp" style="font-size:1.1rem;"></i> إرسال تفاصيل الفحص والمرفقات بالواتساب للعميل (مع بقاء السيارة معلقة)
-          </button>
+        <!-- قسم الأقسام المحول إليها السيارة -->
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px;">
+          <label style="font-size:0.8rem; font-weight:bold; color:var(--primary-orange); display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+            <i class="fa-solid fa-sitemap"></i> الأقسام المحول إليها السيارة:
+          </label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="ميكانيكا"> 🛠️ ميكانيكا</label>
+            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="كهرباء"> ⚡ كهرباء</label>
+            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="عفشة وفرامل"> 🔩 عفشة وفرامل</label>
+            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="تكييف"> ❄️ تكييف</label>
+            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="فحص وبرمجة"> 💻 فحص وبرمجة</label>
+            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="صيانة سريعة"> 🛢️ صيانة سريعة</label>
+          </div>
+        </div>
 
-          <button type="button" class="btn-action-sm" style="background:#10b981; color:white; padding:10px; justify-content:center; font-size:0.9rem;" onclick="finishDiagnosisAndTransferToDepartment()">
-            <i class="fa-solid fa-circle-check"></i> إنهاء التشخيص وتحويل السيارة للقسم المختص
+        <!-- أزرار الإجراءات والتحويل -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button type="button" class="btn-action-sm" style="background:#16a34a; color:white; padding:12px; justify-content:center; font-size:0.95rem; font-weight:bold;" onclick="finishDiagnosisAndTransferToDepartment()">
+            <i class="fa-solid fa-paper-plane"></i> إرسال للفني (تخصيص كوريك تلقائي)
           </button>
 
           <button type="button" id="btnHoldCar" class="btn-action-sm btn-hold" style="padding:9px; justify-content:center; font-size:0.85rem;" onclick="markCarAsSuspended()"><i class="fa-solid fa-pause-circle"></i> تحويل السيارة إلى معلقة (مع حفظ الصور والوصف كـ PDF وتنبيه العميل)</button>
@@ -464,6 +494,8 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    const TOTAL_LIFTS = 6; // إجمالي عدد الكوريكات المتاحة بالمركز
 
     let currentSelectedCarDocId = null;
     let selectedPartsArr = [];
@@ -595,7 +627,7 @@
               <td><button class="btn-action-sm btn-primary" onclick='selectCarForDiag(${JSON.stringify(car)})'><i class="fa-solid fa-folder-open"></i> فتح</button></td>
             </tr>
           `;
-        } else if (car.status !== 'DONE' && car.status !== 'DIAG_DONE') {
+        } else if (car.status !== 'DONE' && car.status !== 'DIAG_DONE' && car.status !== 'sent_to_tech') {
           waitingCount++;
           waitingTbody.innerHTML += `
             <tr>
@@ -642,6 +674,15 @@
 
       document.getElementById('obdCodesInput').value = car.obdCodes || '';
       document.getElementById('diagIssueText').value = car.diagnosisDetails || '';
+
+      // تحديد الأقسام المختارة إن وجدت
+      document.querySelectorAll('input[name="targetSection"]').forEach(cb => cb.checked = false);
+      if (car.targetSections && Array.isArray(car.targetSections)) {
+        car.targetSections.forEach(sec => {
+          const cb = document.querySelector(`input[name="targetSection"][value="${sec}"]`);
+          if (cb) cb.checked = true;
+        });
+      }
 
       capturedImagesArr = car.images || [];
       renderCapturedImages();
@@ -754,47 +795,81 @@
       } catch (err) { alert("خطأ: " + err.message); }
     }
 
-    async function sendDirectReportWithAttachmentsWhatsApp() {
-      if (!currentSelectedCarDocId) { alert("يرجى اختيار سيارة من القائمة أولاً!"); return; }
-      
-      await saveDiagnosisToDatabase({
-        status: 'SUSPENDED',
-        suspendedReason: 'في انتظار اكتمال التشخيص والمرفقات النهائية'
-      });
+    /**
+     * دالة البحث التلقائي عن أول كوريك غير مشغول في الورشة
+     */
+    async function getNextAvailableLift() {
+      try {
+        const activeCarsSnapshot = await db.collection('cars')
+          .where('status', 'in', ['sent_to_tech', 'in_repair'])
+          .get();
 
-      const phone = document.getElementById('diagPhone').value;
-      const clientName = document.getElementById('diagClientName').value;
-      const brand = document.getElementById('diagBrand').value;
-      const model = document.getElementById('diagModel').value;
-      const nextOilOdo = document.getElementById('nextOilOdometer').value;
-      const diagText = document.getElementById('diagIssueText').value;
-      const obd = document.getElementById('obdCodesInput').value;
-      const totalCost = calculateTotalCost();
+        const occupiedLifts = [];
+        activeCarsSnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.assignedLiftNumber) {
+            occupiedLifts.push(data.assignedLiftNumber);
+          }
+        });
 
-      let imgDescSummary = capturedImagesArr.length > 0 
-        ? `\n\n📸 *صور الفحص الفني والعيوب (${capturedImagesArr.length}):*\n` + capturedImagesArr.map((img, i) => `صورة ${i+1}: ${img.description || 'بدون وصف'}`).join('\n') 
-        : '';
-      
-      let pdfNote = attachedDzPdfFile ? `\n📄 تقرير التشخيص الإلكتروني المرفق: ${attachedDzPdfFile.name}` : '';
-
-      const reportUrl = `https://mohamedali792002.github.io/auto-non-reception/report.html?id=${currentSelectedCarDocId}`;
-
-      const msg = `تقرير الفحص الفني (معلق) - مركز أوتو نون (NON)\n-----------------------------------\nأهلاً بك أ/ ${clientName}\nسيارتك: ${brand} ${model}\n\n📝 نتيجة الفحص: ${diagText}\n💻 أكواد الأعطال (OBD): ${obd || 'لا يوجد'}\n🛢️ تغيير الزيت القادم: *${nextOilOdo} كم*${imgDescSummary}${pdfNote}\n\n💰 التكلفة التقديرية: *${totalCost} ج.م*\n\n🔗 *رابط تقرير الفحص والمرفقات الكامل:* \n${reportUrl}\n\nالسيارة ما زالت قيد المتابعة المعلقة لحين الإنهاء والتسليم.`;
-
-      window.open(`https://wa.me/2${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-      alert("تم إرسال تقرير الفحص والعيوب مع رابط التقرير والمرفقات بالواتساب بنجاح!");
+        for (let liftNum = 1; liftNum <= TOTAL_LIFTS; liftNum++) {
+          if (!occupiedLifts.includes(liftNum)) {
+            return liftNum;
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error("خطأ في تحديد الكوريك التلقائي:", error);
+        return null;
+      }
     }
 
+    /**
+     * إنهاء التشخيص وتحديد الكوريك والأقسام تلقائياً وإرسال السيارة للفني
+     */
     async function finishDiagnosisAndTransferToDepartment() {
       if (!currentSelectedCarDocId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-      
+
+      // 1. جمع الأقسام المختارة
+      const selectedSections = [];
+      const checkboxes = document.querySelectorAll('input[name="targetSection"]:checked');
+      checkboxes.forEach(cb => selectedSections.push(cb.value));
+
+      if (selectedSections.length === 0) {
+        alert("⚠️ يرجى اختيار قسم واحد على الأقل محول إليه السيارة!");
+        return;
+      }
+
+      // 2. التوزيع التلقائي للكوريك
+      const availableLift = await getNextAvailableLift();
+      let liftName = "";
+      let liftNumber = null;
+
+      if (availableLift !== null) {
+        liftNumber = availableLift;
+        liftName = `كوريك رقم ${availableLift}`;
+      } else {
+        liftName = "قائمة الانتظار (جميع الكوريكات مشغولة)";
+      }
+
+      const confirmMsg = `سوف يتم تحويل السيارة للفني بالورشة:\n\n` +
+                         `📌 الأقسام المحولة: ${selectedSections.join('، ')}\n` +
+                         `🏗️ الكوريك المخصص: ${liftName}\n\nهل تريد تأكيد الإرسال؟`;
+
+      if (!confirm(confirmMsg)) return;
+
       try {
         await saveDiagnosisToDatabase({
-          status: 'DIAG_DONE'
+          targetSections: selectedSections,
+          assignedLift: liftName,
+          assignedLiftNumber: liftNumber,
+          status: 'sent_to_tech',
+          sentToTechAt: new Date().toISOString()
         });
-        alert("تم إنهاء التشخيص بنجاح، وتم نقل وتحويل السيارة إلى القسم المختص!");
+
+        alert(`✅ تم إرسال السيارة بنجاح!\nتم تخصيص [${liftName}] للسيارة.`);
       } catch (err) {
-        alert("خطأ أثناء الإنهاء: " + err.message);
+        alert("خطأ أثناء الإرسال: " + err.message);
       }
     }
 
@@ -851,7 +926,13 @@
     function closePreviewModal() { document.getElementById('previewModal').style.display = 'none'; }
 
     async function confirmAndSendWhatsApp() {
-      sendDirectReportWithAttachmentsWhatsApp();
+      const phone = document.getElementById('diagPhone').value;
+      const clientName = document.getElementById('diagClientName').value;
+      const brand = document.getElementById('diagBrand').value;
+      const model = document.getElementById('diagModel').value;
+      const reportUrl = `https://mohamedali792002.github.io/auto-non-reception/report.html?id=${currentSelectedCarDocId}`;
+      const msg = `مرحباً أ/ ${clientName}،\nإليك تقرير الفحص الفني لسيارتك (${brand} ${model}):\n\n🔗 ${reportUrl}\n\nمركز أوتو نون (NON)`;
+      window.open(`https://wa.me/2${phone}?text=${encodeURIComponent(msg)}`, '_blank');
       closePreviewModal();
     }
 
@@ -931,7 +1012,7 @@
 
         if (query || fromDate || toDate) return matchesSearch && matchesDate;
         if (isHistoryVisible) return true;
-        return car.status === 'DIAG_DONE';
+        return car.status === 'DIAG_DONE' || car.status === 'sent_to_tech';
       });
 
       if (filtered.length === 0) {
