@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بوابة الفني - مركز أوتو نون</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root { 
+      --primary: #ea580c; 
+      --bg: #0f172a; 
+      --card: #1e293b; 
+      --text: #f8fafc; 
+      --green: #10b981; 
+      --red: #ef4444; 
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 15px; text-align: center; }
+
+    .login-box, .portal-box { background: var(--card); max-width: 480px; margin: 30px auto; padding: 25px; border-radius: 16px; border: 1px solid #334155; }
+    input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; text-align: right; font-size: 0.95rem; }
+
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 8px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-orange { background: var(--primary); color: white; }
+    .btn-green { background: var(--green); color: white; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-warning { background: var(--warning); color: #0f172a; }
+    .btn-wa { background: #25d366; color: white; text-decoration: none; }
+
+    .timer-display { font-size: 2.5rem; font-family: monospace; font-weight: bold; color: #38bdf8; background: #0f172a; padding: 15px; border-radius: 10px; border: 2px dashed #38bdf8; margin: 15px 0; }
+    .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; }
+    
+    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; }
+    .badge-working { background: #0284c7; color: white; }
+    .badge-hold { background: var(--warning); color: #0f172a; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- شاشة تسجيل دخول الفني -->
+  <div id="loginSection" class="login-box">
+    <h2 style="color:var(--primary);"><i class="fa-solid fa-wrench"></i> دخول الفني - أوتو نون</h2>
+    <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:15px;">ادخل الرقم السري أو السيريال الثابت</p>
+    <input type="text" id="techSerialInput" placeholder="NON-TECH-1001" style="text-align: center;" onkeydown="if(event.key === 'Enter') loginTechnician()">
+    <button id="loginBtn" class="btn btn-orange" onclick="loginTechnician()"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
+  </div>
+
+  <!-- لوحة تحكم الفني بعد الدخول -->
+  <div id="portalSection" class="portal-box" style="display:none;">
+    <h3 id="techWelcomeName" style="color:var(--primary);">أهلاً بالفني</h3>
+    <p id="techDeptBadge" style="color:#94a3b8; font-weight:bold;"></p>
+
+    <!-- بيانات السيارة الحالية -->
+    <div style="background:#0f172a; padding:15px; border-radius:10px; margin:15px 0; border:1px solid #334155; text-align:right;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h4 style="color:#38bdf8; margin:0;"><i class="fa-solid fa-car"></i> السيارة المخصصة:</h4>
+        <span id="carStatusBadge" class="status-badge badge-working">قيد الصيانة</span>
+      </div>
+      <hr style="border-color:#1e293b; margin:10px 0;">
+      <p><strong>رقم السيارة:</strong> <span id="carPlate">س ر ج 123</span></p>
+      <p><strong>نوع العطل / الصيانة:</strong> <span id="carIssue">تغيير زيت وفحص فرامل</span></p>
+      <p><strong>اسم العميل:</strong> <span id="customerName">محمد أحمد</span></p>
+    </div>
+
+    <!-- مؤقت الصيانة (التايمر) -->
+    <div>
+      <p style="font-size:0.9rem; font-weight:bold;">⏱️ تايمر مدة الصيانة:</p>
+      <div class="timer-display" id="timerDisplay">00:00:00</div>
+      <button id="startBtn" class="btn btn-green" onclick="startRepair()"><i class="fa-solid fa-play"></i> بدء الصيانة</button>
+      <button id="endBtn" class="btn btn-red" onclick="endRepair()" style="display:none;"><i class="fa-solid fa-stop"></i> إنهاء العمل وتسليم السيارة</button>
+    </div>
+
+    <hr style="margin:20px 0; border-color:#334155;">
+
+    <!-- قسم التشخيص والتقرير Diagnostic Section -->
+    <div style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #334155; text-align:right;">
+      <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fa-solid fa-stethoscope"></i> تقرير التشخيص والمرفقات</h4>
+      
+      <label style="font-size:0.85rem; color:#94a3b8;">تفاصيل التشخيص الفني:</label>
+      <textarea id="diagNotes" placeholder="أدخل تفاصيل التقرير والتشخيص الفني للسيارة..." rows="3"></textarea>
+
+      <label style="font-size:0.85rem; color:#94a3b8;">رابط المرفقات / الصور (Drive أو Cloud):</label>
+      <input type="url" id="attachmentUrl" placeholder="https://drive.google.com/..." dir="ltr">
+
+      <label style="font-size:0.85rem; color:#94a3b8;">رقم هاتف العميل (واتساب):</label>
+      <input type="tel" id="clientPhone" placeholder="201000000000" value="201000000000" dir="ltr">
+
+      <!-- أزرار التحكم في التشخيص -->
+      <button class="btn btn-warning" onclick="holdCar()"><i class="fa-solid fa-circle-pause"></i> تعليق السيارة</button>
+      <button class="btn btn-wa" onclick="sendReportToWhatsApp()"><i class="fa-brands fa-whatsapp"></i> إرسال التقرير والمرفقات للعميل واتساب</button>
+    </div>
+
+    <!-- إضافة مشكلة وقطع غيار إضافية -->
+    <button class="btn btn-orange" onclick="openExtraIssueModal()"><i class="fa-solid fa-triangle-exclamation"></i> اكتشاف مشكلة إضافية / طلب قطعة غيار</button>
+  </div>
+
+  <!-- مودال طلب قطع الغيار وإخطار العميل والتشخيص -->
+  <div id="extraIssueModal" class="modal">
+    <div class="login-box" style="width:90%;">
+      <h3 style="color:var(--primary); margin-bottom:10px;"><i class="fa-solid fa-microscope"></i> إضافة عطل وطلب قطعة غيار</h3>
+      <textarea id="extraIssueDesc" placeholder="وصف العطل الإضافي المكتشف..." rows="3"></textarea>
+      <input type="text" id="partName" placeholder="اسم قطعة الغيار المطلوبة" style="text-align:center;">
+      <input type="number" id="partPrice" placeholder="السعر التقديري (جنيه)" style="text-align:center;">
+      
+      <button class="btn btn-green" onclick="submitExtraPartRequest()"><i class="fa-solid fa-paper-plane"></i> إرسال للتشخيص والحسابات</button>
+      <button class="btn btn-red" onclick="closeExtraModal()" style="margin-top:5px;">إغلاق</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentTech = null;
+    let timerInterval = null;
+    let secondsElapsed = 0;
+
+    async function loginTechnician() {
+      const serialInput = document.getElementById('techSerialInput');
+      const loginBtn = document.getElementById('loginBtn');
+      let rawSerial = serialInput.value.trim().toUpperCase();
+
+      if (!rawSerial) {
+        alert("يرجى إدخال الرقم السري أو السيريال أولاً!");
+        return;
+      }
+
+      let serial = rawSerial.startsWith('NON-TECH-') ? rawSerial : `NON-TECH-${rawSerial}`;
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق...';
+
+      try {
+        const doc = await db.collection('technicians').doc(serial).get();
+
+        if (!doc.exists) {
+          alert("السيريال غير صحيح أو غير موجود في النظام!");
+          return;
+        }
+
+        currentTech = { serialNum: doc.id, ...doc.data() };
+
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('portalSection').style.display = 'block';
+
+        document.getElementById('techWelcomeName').innerText = `أهلاً بك: ${currentTech.name || 'فني أوتو نون'}`;
+        document.getElementById('techDeptBadge').innerText = `قسم: ${currentTech.department || 'عام'}`;
+
+      } catch (error) {
+        console.error("Login Error:", error);
+        alert("حدث خطأ أثناء الاتصال بقاعدة البيانات.");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول';
+      }
+    }
+
+    function startRepair() {
+      if (!currentTech || !currentTech.serialNum) return;
+
+      db.collection('technicians').doc(currentTech.serialNum).update({
+        status: 'BUSY',
+        currentCar: document.getElementById('carPlate').innerText
+      });
+
+      document.getElementById('startBtn').style.display = 'none';
+      document.getElementById('endBtn').style.display = 'flex';
+
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        let hrs = Math.floor(secondsElapsed / 3600).toString().padStart(2, '0');
+        let mins = Math.floor((secondsElapsed % 3600) / 60).toString().padStart(2, '0');
+        let secs = (secondsElapsed % 60).toString().padStart(2, '0');
+        document.getElementById('timerDisplay').innerText = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function endRepair() {
+      if (!currentTech || !currentTech.serialNum) return;
+
+      clearInterval(timerInterval);
+
+      db.collection('technicians').doc(currentTech.serialNum).update({
+        status: 'AVAILABLE',
+        currentCar: 'لا يوجد'
+      });
+
+      alert(`تم إنهاء العمل بنجاح! استغرقت الصيانة: ${document.getElementById('timerDisplay').innerText}`);
+      document.getElementById('startBtn').style.display = 'flex';
+      document.getElementById('endBtn').style.display = 'none';
+      secondsElapsed = 0;
+      document.getElementById('timerDisplay').innerText = "00:00:00";
+    }
+
+    // --- دالة تعليق السيارة ---
+    async function holdCar() {
+      const carPlate = document.getElementById('carPlate').innerText;
+      const reason = prompt("يرجى إدخال سبب تعليق السيارة:", "في انتظار موافقة العميل / قطع غيار غير متوفرة");
+      
+      if (!reason) return;
+
+      try {
+        // 1. تحديث حالة السيارة والتشخيص في Firebase
+        await db.collection('diagnoses').add({
+          carPlate: carPlate,
+          techSerial: currentTech ? currentTech.serialNum : '',
+          techName: currentTech ? currentTech.name : '',
+          status: 'ON_HOLD',
+          holdReason: reason,
+          createdAt: new Date().toISOString()
+        });
+
+        // 2. إيقاف التايمر إن كان يعمل
+        if (timerInterval) clearInterval(timerInterval);
+
+        // 3. تحديث شارة الشاشة
+        const badge = document.getElementById('carStatusBadge');
+        badge.innerText = `معلقة: ${reason}`;
+        badge.className = "status-badge badge-hold";
+
+        alert(`تم تعليق العمل على السيارة (${carPlate}) بنجاح.`);
+      } catch (error) {
+        console.error("Hold Car Error:", error);
+        alert("حدث خطأ أثناء حفظ حالة التعليق في النظام.");
+      }
+    }
+
+    // --- دالة إرسال تقرير التشخيص والمرفقات عبر الواتساب ---
+    function sendReportToWhatsApp() {
+      const carPlate = document.getElementById('carPlate').innerText;
+      const customerName = document.getElementById('customerName').innerText;
+      const diagNotes = document.getElementById('diagNotes').value.trim();
+      const attachmentUrl = document.getElementById('attachmentUrl').value.trim();
+      const clientPhone = document.getElementById('clientPhone').value.trim().replace(/\D/g, '');
+
+      if (!diagNotes) {
+        alert("يرجى إدخال تفاصيل تقرير التشخيص قبل الإرسال!");
+        return;
+      }
+
+      if (!clientPhone) {
+        alert("يرجى إدخال رقم هاتف العميل!");
+        return;
+      }
+
+      // إعداد نص الرسالة
+      let msg = `مرحباً بك أ/ *${customerName}* 🚗\nإليك تقرير الفحص والتشخيص لسيارتك رقم (*${carPlate}*) من مركز *أوتو نون (NON)*:\n\n`;
+      msg += `📝 *تقرير التشخيص:* \n${diagNotes}\n\n`;
+
+      if (attachmentUrl) {
+        msg += `📁 *رابط صور ومرفقات الفحص:* \n${attachmentUrl}\n\n`;
+      }
+
+      msg += `يرجى المراجعة والتأكيد لإكمال باقي إجراءات الصيانة. شكراً لثقتكم بنا! 🙏`;
+
+      // فتح رابط الواتساب مباشرة
+      const waUrl = `https://wa.me/${clientPhone}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    function openExtraIssueModal() { document.getElementById('extraIssueModal').style.display = 'flex'; }
+    function closeExtraModal() { document.getElementById('extraIssueModal').style.display = 'none'; }
+
+    async function submitExtraPartRequest() {
+      const desc = document.getElementById('extraIssueDesc').value;
+      const part = document.getElementById('partName').value;
+      const price = document.getElementById('partPrice').value;
+
+      if (!part || !price) { alert("ادخل اسم قطعة الغيار وسعرها!"); return; }
+
+      await db.collection('additional_parts').add({
+        techSerial: currentTech ? currentTech.serialNum : '',
+        techName: currentTech ? currentTech.name : '',
+        carPlate: document.getElementById('carPlate').innerText,
+        issueDescription: desc,
+        partName: part,
+        partPrice: parseFloat(price),
+        status: 'PENDING',
+        createdAt: new Date().toISOString()
+      });
+
+      alert("تم إرسال الطلب تلقائياً لصفحة التشخيص والحسابات!");
+      closeExtraModal();
+    }
+  </script>
+</body>
+</html>
