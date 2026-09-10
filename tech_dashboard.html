@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون - لوحة إدارة الأقسام الحضور والواتساب</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --text-main: #0f172a;
+      --border-color: #e2e8f0;
+      --input-bg: #ffffff;
+      --btn-green: #10b981;
+      --btn-blue: #0284c7;
+      --btn-purple: #8b5cf6;
+      --btn-danger: #ef4444;
+      --btn-wa: #25d366;
+    }
+
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background 0.2s, color 0.2s; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; font-size: 0.9rem; direction: rtl; text-align: right; }
+
+    .header-top-bar {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px;
+      flex-wrap: wrap; background: var(--card-bg); padding: 12px 18px; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border-color);
+    }
+    .brand-logo { font-size: 1.2rem; font-weight: bold; color: var(--primary-orange); display: flex; align-items: center; gap: 8px; }
+
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 6px; }
+    .tab-btn {
+      padding: 9px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      cursor: pointer; font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 14px; margin-bottom: 14px; }
+    .card-title { color: var(--primary-orange); font-size: 0.95rem; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .form-field { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+    .form-field label { font-size: 0.78rem; font-weight: bold; opacity: 0.85; }
+    .form-field input, .form-field select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); background: var(--input-bg);
+      border-radius: 6px; font-size: 0.83rem; color: var(--text-main); outline: none;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.82rem; }
+    th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 8px; text-align: right; font-weight: bold; white-space: nowrap; }
+    td { padding: 8px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+
+    .btn-action { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+    .btn-primary { background: var(--primary-orange); color: white; }
+    .btn-green { background: var(--btn-green); color: white; }
+    .btn-blue { background: var(--btn-blue); color: white; }
+    .btn-purple { background: var(--btn-purple); color: white; }
+    .btn-danger { background: var(--btn-danger); color: white; }
+    .btn-wa { background: var(--btn-wa); color: white; }
+
+    .status-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; color: white; display: inline-block; }
+    .bg-green { background: #10b981; }
+    .bg-red { background: #ef4444; }
+    .bg-orange { background: #f59e0b; }
+    .bg-blue { background: #0284c7; }
+
+    .serial-box {
+      font-family: monospace; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px;
+      background: rgba(234, 88, 12, 0.1); color: var(--primary-orange); padding: 3px 6px; border-radius: 6px; border: 1px dashed var(--primary-orange); display: inline-block;
+    }
+
+    /* شريط المسح الضوئي وإدخال السيريال */
+    .scan-attendance-box {
+      background: linear-gradient(135deg, rgba(234,88,12,0.1), rgba(2,132,199,0.1));
+      border: 2px dashed var(--primary-orange); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 16px;
+    }
+    .serial-input-wrapper {
+      display: inline-flex; align-items: center; background: var(--input-bg); border: 2px solid var(--primary-orange);
+      border-radius: 8px; overflow: hidden; margin-top: 10px; max-width: 450px; width: 100%;
+    }
+    .serial-prefix {
+      background: var(--primary-orange); color: white; padding: 10px 14px; font-weight: bold; font-family: monospace; font-size: 1.1rem;
+    }
+    .scan-input-number {
+      border: none; padding: 10px; font-size: 1.2rem; font-weight: bold; outline: none; width: 100%; background: transparent; color: var(--text-main); text-align: center; letter-spacing: 2px;
+    }
+    .btn-scan-submit {
+      background: var(--btn-green); color: white; border: none; padding: 10px 18px; font-weight: bold; font-size: 0.95rem; cursor: pointer; white-space: nowrap;
+    }
+
+    .lift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+    .lift-card { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; background: var(--card-bg); display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+    .lift-card.active-lift { border-color: #10b981; }
+    .lift-card.disabled-lift { border-color: #ef4444; background: rgba(239, 68, 68, 0.02); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 999; }
+    .modal-content { background: var(--card-bg); width: 95%; max-width: 550px; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
+
+    /* التجاوب مع الهواتف والأجهزة */
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .header-top-bar { flex-direction: column; align-items: flex-start; }
+      .serial-input-wrapper { flex-direction: column; }
+      .serial-prefix { width: 100%; text-align: center; }
+      .btn-scan-submit { width: 100%; }
+    }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- شريط العنوان الرئيسي -->
+  <div class="header-top-bar">
+    <div class="brand-logo"><i class="fa-solid fa-users-gear"></i> <span>مركز أوتو نون (NON) - إداره الأطقم والحضور</span></div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn-action btn-purple" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> المظهر</button>
+      <a href="tech_portal.html" class="btn-action btn-blue" target="_blank"><i class="fa-solid fa-right-to-bracket"></i> بوابة الفنيين والتايمر</a>
+      <a href="diagnosis.html" class="btn-action btn-primary"><i class="fa-solid fa-stethoscope"></i> التشخيص</a>
+      <a href="index.html" class="btn-action btn-green"><i class="fa-solid fa-house"></i> الاستقبال</a>
+    </div>
+  </div>
+
+  <!-- تبويبات النظام -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('attendance-section', this)"><i class="fa-solid fa-barcode"></i> الحضور والانصراف بالسيريال</button>
+    <button class="tab-btn" onclick="switchTab('dept-section', this)"><i class="fa-solid fa-id-card"></i> قائمة الفنيين والموظفين والواتساب</button>
+    <button class="tab-btn" onclick="switchTab('tech-section', this)"><i class="fa-solid fa-user-wrench"></i> حالة وتوزيع الفنيين</button>
+    <button class="tab-btn" onclick="switchTab('lift-section', this)"><i class="fa-solid fa-car-tunnel"></i> الكواريك والرافعات الهيدروليكية</button>
+    <button class="tab-btn" onclick="switchTab('tool-section', this)"><i class="fa-solid fa-toolbox"></i> استعارة وحساب أيام العُدَد</button>
+  </div>
+
+  <!-- 0. الحضور والانصراف بالسيريال -->
+  <div id="attendance-section" class="tab-content active">
+    <div class="scan-attendance-box">
+      <h3><i class="fa-solid fa-qrcode"></i> تسجيل الحضور والانصراف بالسيريال</h3>
+      <p style="opacity:0.8; margin-top:4px;">ادخل رقم السيريال فقط (مثال: 1001) واضغط Enter أو زر إدخال</p>
+      
+      <div class="serial-input-wrapper">
+        <span class="serial-prefix">NON-TECH-</span>
+        <input type="number" id="serialScannerInput" class="scan-input-number" placeholder="1001" autofocus onkeypress="if(event.key==='Enter') processSerialAttendance()">
+        <button class="btn-scan-submit" onclick="processSerialAttendance()"><i class="fa-solid fa-arrow-right-to-bracket"></i> إدخـال</button>
+      </div>
+
+      <div id="scanStatusAlert" style="margin-top:12px; font-weight:bold; font-size:1.05rem;"></div>
+    </div>
+
+    <div class="card-box">
+      <div class="card-title">
+        <span><i class="fa-solid fa-calendar-check"></i> سجل حضور وانصراف اليوم</span>
+        <span class="status-badge bg-orange">الإجازة الأسبوعية للورشة: الجمعة</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>الموظف / الفني</th>
+              <th>الوظيفة / القسم</th>
+              <th>السيريال Number</th>
+              <th>وقت الحضور</th>
+              <th>وقت الانصراف</th>
+              <th>الحالة</th>
+              <th>حذف</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceTodayTable">
+            <tr><td colspan="7" style="text-align:center;">جاري جلب السجلات...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. قائمة الفنيين والموظفين والواتساب والوظائف الجديدة -->
+  <div id="dept-section" class="tab-content">
+    <div class="grid-container">
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-user-plus"></i> إضافة موظف / مهندس / فني جديد</span></div>
+        <form id="techAccountForm" onsubmit="saveTechnicianAccount(event)">
+          <div class="form-field">
+            <label>الاسم بالكامل:</label>
+            <input type="text" id="accTechName" required placeholder="مثال: م. أحمد السعيد">
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>الوظيفة / القسم:</label>
+              <select id="accDeptName" required>
+                <option value="مدير">👨‍💼 مدير الورشة</option>
+                <option value="مهندس">👷‍♂️ مهندس صيانات وتتشخيص</option>
+                <option value="موظف استقبال">📋 موظف استقبال</option>
+                <option value="ميكانيكا">🛠️ قسم الميكانيكا</option>
+                <option value="كهرباء">⚡ قسم الكهرباء</option>
+                <option value="عفشة وفرامل">🔩 قسم العفشة والفرامل</option>
+                <option value="تكييف">❄️ قسم التكييف</option>
+                <option value="فحص وبرمجة">💻 قسم الفحص والبرمجة</option>
+                <option value="صيانة سريعة">🛢️ قسم الصيانة السريعة</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>رقم الواتساب (بالكود الدولي):</label>
+              <input type="text" id="accTechPhone" required placeholder="2010xxxxxxx">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>رقم السيريال (ادخل الأرقام فقط):</label>
+              <div style="display:flex; align-items:center;">
+                <span style="font-family:monospace; font-weight:bold; background:rgba(0,0,0,0.05); padding:8px;">NON-TECH-</span>
+                <input type="number" id="accSerialNumDigits" required placeholder="1001" style="border-radius:0 6px 6px 0;">
+              </div>
+            </div>
+            <div class="form-field">
+              <label>الإجازة الأسبوعية (يوم):</label>
+              <select id="accWeeklyOff">
+                <option value="الجمعة" selected>الجمعة</option>
+                <option value="الأحد">الأحد</option>
+                <option value="السبت">السبت</option>
+                <option value="الإثنين">الإثنين</option>
+                <option value="الثلاثاء">الثلاثاء</option>
+                <option value="الأربعاء">الأربعاء</option>
+                <option value="الخميس">الخميس</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>عدد أيام العمل المسجلة:</label>
+              <input type="number" id="accWorkDays" value="0" min="0">
+            </div>
+            <div class="form-field">
+              <label>صافي الراتب المستحق (جنيه):</label>
+              <input type="number" id="accNetSalary" value="0" min="0">
+            </div>
+          </div>
+          <button type="submit" class="btn-action btn-green" style="width:100%; justify-content:center; margin-top:8px; padding:10px;"><i class="fa-solid fa-floppy-disk"></i> حفظ الموظف وإرسال الترحيب</button>
+        </form>
+      </div>
+
+      <div class="card-box" style="grid-column: span 1 / -1;">
+        <div class="card-title"><span><i class="fa-solid fa-users-rectangle"></i> قائمة الطاقم والتحكم بالواتساب والتعديل</span></div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>الوظيفة / القسم</th>
+                <th>السيريال الثابت</th>
+                <th>أيام العمل</th>
+                <th>صافي الراتب</th>
+                <th>إجراءات التعديل والحذف</th>
+                <th>إرسال الرسائل عبر الواتساب</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTableBody">
+              <tr><td colspan="7" style="text-align:center;">جاري جلب القائمة...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. حالة وتوزيع الفنيين تلقائياً -->
+  <div id="tech-section" class="tab-content">
+    <div class="card-box">
+      <div class="card-title"><span><i class="fa-solid fa-list-check"></i> حالة الفنيين والمهندسين الحالية</span></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الوظيفة</th>
+              <th>الكوريك / الرافعة</th>
+              <th>الحالة الحالية</th>
+              <th>السيارة الحالية</th>
+            </tr>
+          </thead>
+          <tbody id="techDistroTableBody">
+            <tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. الكواريك والرافعات الهيدروليكية -->
+  <div id="lift-section" class="tab-content">
+    <div class="card-box">
+      <div class="card-title">
+        <span><i class="fa-solid fa-car-tunnel"></i> إدارة وتغيير حالة الكواريك والرافعات الهيدروليكية</span>
+        <button class="btn-action btn-green" onclick="showAddLiftModal()"><i class="fa-solid fa-plus-circle"></i> إضافة كوريك/رافعة هيدروليك</button>
+      </div>
+      <div class="lift-grid" id="liftCardsContainer"></div>
+    </div>
+  </div>
+
+  <!-- 4. استعارة العُدَد وحساب الأيام -->
+  <div id="tool-section" class="tab-content">
+    <div class="grid-container">
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-hand-holding-hand"></i> تسليم واستعارة عُدة/أجهزة</span></div>
+        <form id="toolForm" onsubmit="saveToolLoan(event)">
+          <div class="form-field">
+            <label>اسم العُدة أو الرافعة المستعارة:</label>
+            <input type="text" id="toolName" required placeholder="مثال: جهاز فحص Diagzone / رفع هيدروليك نقال">
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>من قسم:</label>
+              <select id="fromDept" required><option value="ميكانيكا">🛠️ ميكانيكا</option><option value="كهرباء">⚡ كهرباء</option><option value="عفشة وفرامل">🔩 عفشة وفرامل</option></select>
+            </div>
+            <div class="form-field">
+              <label>إلى قسم:</label>
+              <select id="toDept" required><option value="كهرباء">⚡ كهرباء</option><option value="ميكانيكا">🛠️ ميكانيكا</option><option value="عفشة وفرامل">🔩 عفشة وفرامل</option></select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>المستلم:</label>
+            <select id="borrowerTechSelect" required></select>
+          </div>
+          <button type="submit" class="btn-action btn-purple" style="width:100%; justify-content:center; margin-top:8px;"><i class="fa-solid fa-arrow-right-arrow-left"></i> تسليم العُدة</button>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-clock-rotate-left"></i> سجل الاستعارات (حساب الأيام)</span></div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>العُدة</th>
+                <th>المستلم</th>
+                <th>تاريخ الاستعارة</th>
+                <th>عدد أيام الاستعارة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="toolTableBody">
+              <tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال تعديل بيانات الفني/الموظف -->
+  <div class="modal-overlay" id="editTechModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span><i class="fa-solid fa-user-pen"></i> تعديل بيانات الموظف / الفني</span>
+        <button onclick="closeModal('editTechModal')" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-main);">✖</button>
+      </div>
+      <form id="editTechForm" onsubmit="saveEditedTech(event)">
+        <input type="hidden" id="editTechSerial">
+        <div class="form-field">
+          <label>الاسم الكامل:</label>
+          <input type="text" id="editTechName" required>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>الوظيفة / القسم:</label>
+            <select id="editTechDept">
+              <option value="مدير">👨‍💼 مدير الورشة</option>
+              <option value="مهندس">👷‍♂️ مهندس صيانات وتتشخيص</option>
+              <option value="موظف استقبال">📋 موظف استقبال</option>
+              <option value="ميكانيكا">🛠️ ميكانيكا</option>
+              <option value="كهرباء">⚡ كهرباء</option>
+              <option value="عفشة وفرامل">🔩 عفشة وفرامل</option>
+              <option value="تكييف">❄️ تكييف</option>
+              <option value="فحص وبرمجة">💻 فحص وبرمجة</option>
+              <option value="صيانة سريعة">🛢️ صيانة سريعة</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>رقم الواتساب:</label>
+            <input type="text" id="editTechPhone" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>عدد أيام العمل:</label>
+            <input type="number" id="editWorkDays" min="0">
+          </div>
+          <div class="form-field">
+            <label>صافي الراتب (جنيه):</label>
+            <input type="number" id="editNetSalary" min="0">
+          </div>
+        </div>
+        <button type="submit" class="btn-action btn-green" style="width:100%; justify-content:center; margin-top:10px; padding:10px;"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- مودال إضافة رافعة -->
+  <div class="modal-overlay" id="addLiftModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span>إضافة رافعة / رفع هيدروليك</span>
+        <button onclick="closeModal('addLiftModal')" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-main);">✖</button>
+      </div>
+      <div class="form-field">
+        <label>الاسم/الرقم:</label>
+        <input type="text" id="newLiftNum" placeholder="مثال: كوريك هيدروليك 3">
+      </div>
+      <div class="form-field">
+        <label>القسم:</label>
+        <select id="newLiftDept"><option value="ميكانيكا">ميكانيكا</option><option value="عفشة وفرامل">عفشة وفرامل</option><option value="صيانة سريعة">صيانة سريعة</option></select>
+      </div>
+      <button class="btn-action btn-green" onclick="confirmAddNewLift()" style="width:100%; justify-content:center; margin-top:10px; padding:10px;">حفظ الرافعة</button>
+    </div>
+  </div>
+
+  <script>
+    // إعدادات Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let techCache = [];
+
+    // التبديل إلى الوضع الليلي
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    // التنقل بين التبويبات
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+      if (tabId === 'attendance-section') {
+        setTimeout(() => document.getElementById('serialScannerInput').focus(), 100);
+      }
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function showAddLiftModal() { document.getElementById('addLiftModal').style.display = 'flex'; }
+
+    // توليد الرقم العشوائي الافتراضي في خانة التسجيل
+    document.getElementById('accSerialNumDigits').value = Math.floor(1000 + Math.random() * 9000);
+
+    // 0. تسجيل الحضور والانصراف بالسيريال والأرقام فقط
+    async function processSerialAttendance() {
+      const input = document.getElementById('serialScannerInput');
+      const numVal = input.value.trim();
+      const alertElem = document.getElementById('scanStatusAlert');
+
+      if (!numVal) return;
+
+      const fullSerial = `NON-TECH-${numVal}`;
+      const tech = techCache.find(t => t.serialNum.toUpperCase() === fullSerial);
+
+      if (!tech) {
+        alertElem.style.color = '#ef4444';
+        alertElem.innerHTML = `❌ السيريال (${fullSerial}) غير مسجل للنظام!`;
+        input.value = '';
+        return;
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const docId = `${fullSerial}_${todayStr}`;
+      const attRef = db.collection('attendance').doc(docId);
+      const attDoc = await attRef.get();
+      const nowTime = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+      if (!attDoc.exists()) {
+        await attRef.set({
+          serialNum: fullSerial,
+          techName: tech.name,
+          department: tech.department,
+          date: todayStr,
+          checkIn: nowTime,
+          checkOut: '',
+          status: 'حاضر'
+        });
+
+        // زيادة عدد أيام العمل التلقائي
+        await db.collection('technicians').doc(fullSerial).update({
+          workDays: firebase.firestore.FieldValue.increment(1)
+        });
+
+        alertElem.style.color = '#10b981';
+        alertElem.innerHTML = `✅ تم تسجيل **حضور** (${tech.name} - ${tech.department}) الساعة (${nowTime})`;
+      } else {
+        const data = attDoc.data();
+        if (!data.checkOut) {
+          await attRef.update({ checkOut: nowTime, status: 'انصرف' });
+          alertElem.style.color = '#0284c7';
+          alertElem.innerHTML = `👋 تم تسجيل **انصراف** (${tech.name}) الساعة (${nowTime})`;
+        } else {
+          alertElem.style.color = '#f59e0b';
+          alertElem.innerHTML = `⚠️ تم تسجيل الحضور والانصراف لهذا الموظف اليوم بالفعل!`;
+        }
+      }
+      input.value = '';
+    }
+
+    // جلب جدول الحضور
+    db.collection('attendance').where('date', '==', new Date().toISOString().split('T')[0]).onSnapshot(snap => {
+      const tbody = document.getElementById('attendanceTodayTable');
+      tbody.innerHTML = '';
+      if (snap.empty) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا يوجد حضور مسجل اليوم.</td></tr>'; return; }
+      snap.forEach(doc => {
+        const d = doc.data();
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${d.techName}</strong></td>
+            <td>${d.department}</td>
+            <td><span class="serial-box">${d.serialNum}</span></td>
+            <td><strong style="color:#10b981;">${d.checkIn || '—'}</strong></td>
+            <td><strong style="color:#ef4444;">${d.checkOut || 'في العمل'}</strong></td>
+            <td><span class="status-badge bg-green">${d.status}</span></td>
+            <td><button class="btn-action btn-danger" onclick="db.collection('attendance').doc('${doc.id}').delete()"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `;
+      });
+    });
+
+    // 1. حفظ موظف / فني جديد
+    async function saveTechnicianAccount(e) {
+      e.preventDefault();
+      const name = document.getElementById('accTechName').value.trim();
+      const department = document.getElementById('accDeptName').value;
+      const phone = document.getElementById('accTechPhone').value.trim();
+      const digits = document.getElementById('accSerialNumDigits').value.trim();
+      const weeklyOff = document.getElementById('accWeeklyOff').value;
+      const workDays = parseInt(document.getElementById('accWorkDays').value) || 0;
+      const netSalary = parseFloat(document.getElementById('accNetSalary').value) || 0;
+
+      const serialNum = `NON-TECH-${digits}`;
+
+      const techData = {
+        serialNum, name, department, phone, weeklyOff,
+        workDays, netSalary, status: 'AVAILABLE', currentCar: 'لا يوجد'
+      };
+
+      await db.collection('technicians').doc(serialNum).set(techData, { merge: true });
+
+      alert(`تم إضافة (${name}) بالسيريال الثابت: ${serialNum}`);
+      sendWelcomeWA(serialNum); // إرسال الترحيب تلقائياً عبر الواتساب
+
+      document.getElementById('techAccountForm').reset();
+      document.getElementById('accSerialNumDigits').value = Math.floor(1000 + Math.random() * 9000);
+    }
+
+    // جلب القائمة وتجهيز التعديل والواتساب
+    db.collection('technicians').onSnapshot(snap => {
+      const tbody = document.getElementById('accountsTableBody');
+      const distroTbody = document.getElementById('techDistroTableBody');
+      const borrowerSelect = document.getElementById('borrowerTechSelect');
+      tbody.innerHTML = ''; distroTbody.innerHTML = ''; borrowerSelect.innerHTML = '';
+      techCache = [];
+
+      snap.forEach(doc => {
+        const t = doc.data();
+        techCache.push(t);
+        borrowerSelect.innerHTML += `<option value="${t.name}">${t.name} (${t.department})</option>`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${t.name}</strong></td>
+            <td><span class="status-badge bg-blue">${t.department}</span></td>
+            <td><span class="serial-box">${t.serialNum}</span></td>
+            <td><strong>${t.workDays || 0} يوم</strong></td>
+            <td><strong>${t.netSalary || 0} ج.م</strong></td>
+            <td>
+              <button class="btn-action btn-blue" onclick="openEditTechModal('${t.serialNum}')"><i class="fa-solid fa-pen"></i> تعديل</button>
+              <button class="btn-action btn-danger" onclick="deleteTech('${t.serialNum}')"><i class="fa-solid fa-trash"></i> مسح</button>
+            </td>
+            <td>
+              <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                <button class="btn-action btn-wa" onclick="sendWelcomeWA('${t.serialNum}')" title="رسالة الترحيب بالسيريال"><i class="fa-brands fa-whatsapp"></i> ترحيب</button>
+                <button class="btn-action btn-purple" onclick="sendWorkReportWA('${t.serialNum}')" title="تقرير أداء وأيام العمل"><i class="fa-solid fa-file-invoice"></i> تقرير</button>
+                <button class="btn-action btn-primary" onclick="sendDelayWA('${t.serialNum}')" title="رسالة تأخير"><i class="fa-solid fa-clock"></i> تأخير</button>
+                <button class="btn-action btn-danger" onclick="sendAbsenceWA('${t.serialNum}')" title="رسالة غياب"><i class="fa-solid fa-user-xmark"></i> غياب</button>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        let statusBadge = t.status === 'BUSY' ? '<span class="status-badge bg-red">🔴 مشغول</span>' : '<span class="status-badge bg-green">🟢 متاح</span>';
+        distroTbody.innerHTML += `
+          <tr>
+            <td><strong>${t.name}</strong></td>
+            <td>${t.department}</td>
+            <td>${t.assignedLift || 'عام'}</td>
+            <td>${statusBadge}</td>
+            <td><strong>${t.currentCar || 'بدون سيارة'}</strong></td>
+          </tr>
+        `;
+      });
+    });
+
+    // دالة الترجيع لربط الواتساب
+    function openWhatsApp(phone, message) {
+      let cleanPhone = phone.replace(/[^0-9]/g, '');
+      if (!cleanPhone.startsWith('20') && cleanPhone.startsWith('01')) cleanPhone = '20' + cleanPhone.substring(1);
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    // 1. رسالة الترحيب والسيريال
+    function sendWelcomeWA(serial) {
+      const t = techCache.find(x => x.serialNum === serial);
+      if (!t) return;
+      const msg = `أهلاً بك أ./مهندس ${t.name} 👋\nتم تسجيلك بنجاح في مركز أوتو نون (NON) 🚗\n\nالوظيفة/القسم: *${t.department}*\nالسيريال الثابت الخاص بك: *${t.serialNum}*\nعدد أيام العمل المسجلة: *${t.workDays || 0} يوم*\nصافي الراتب المستحق: *${t.netSalary || 0} جنيه*\n\nيرجى احتفاظك بالسيريال لاستخدامه في تسجيل الحضور والانصراف اليومي.`;
+      openWhatsApp(t.phone, msg);
+    }
+
+    // 2. رسالة تقرير أيام العمل
+    function sendWorkReportWA(serial) {
+      const t = techCache.find(x => x.serialNum === serial);
+      if (!t) return;
+      const msg = `تقرير العمل والراتب بمركز أوتو نون (NON) 📊\nالاسم: *${t.name}*\nالسيريال: *${t.serialNum}*\nالوظيفة: ${t.department}\nإجمالي أيام العمل الفعلية: *${t.workDays || 0} يوم*\nصافي الراتب المستحق: *${t.netSalary || 0} جنيه*`;
+      openWhatsApp(t.phone, msg);
+    }
+
+    // 3. رسالة التأخير
+    function sendDelayWA(serial) {
+      const t = techCache.find(x => x.serialNum === serial);
+      if (!t) return;
+      const mins = prompt("ادخل عدد دقائق التأخير اليوم:", "15");
+      if (!mins) return;
+      const msg = `تنبيه من إدارة مركز أوتو نون (NON) ⏰\nعزيزي ${t.name}، تم تسجيل تأخير عليك اليوم بمقدار *${mins} دقيقة*. يرجى الالتزام بمواعيد العمل الرسمية.`;
+      openWhatsApp(t.phone, msg);
+    }
+
+    // 4. رسالة الغياب
+    function sendAbsenceWA(serial) {
+      const t = techCache.find(x => x.serialNum === serial);
+      if (!t) return;
+      const msg = `تنبيه غياب من إدارة مركز أوتو نون (NON) 🚨\nعزيزي ${t.name}، تم تسجيلك اليوم (غائب). يرجى التواصل مع الإدارة لتقديم العذر إن وجد.`;
+      openWhatsApp(t.phone, msg);
+    }
+
+    // التعديل والحذف
+    function openEditTechModal(serial) {
+      const t = techCache.find(x => x.serialNum === serial);
+      if (!t) return;
+      document.getElementById('editTechSerial').value = t.serialNum;
+      document.getElementById('editTechName').value = t.name;
+      document.getElementById('editTechDept').value = t.department;
+      document.getElementById('editTechPhone').value = t.phone;
+      document.getElementById('editWorkDays').value = t.workDays || 0;
+      document.getElementById('editNetSalary').value = t.netSalary || 0;
+      document.getElementById('editTechModal').style.display = 'flex';
+    }
+
+    async function saveEditedTech(e) {
+      e.preventDefault();
+      const serial = document.getElementById('editTechSerial').value;
+      await db.collection('technicians').doc(serial).update({
+        name: document.getElementById('editTechName').value,
+        department: document.getElementById('editTechDept').value,
+        phone: document.getElementById('editTechPhone').value,
+        workDays: parseInt(document.getElementById('editWorkDays').value) || 0,
+        netSalary: parseFloat(document.getElementById('editNetSalary').value) || 0
+      });
+      alert("تم تحديث البيانات بنجاح!");
+      closeModal('editTechModal');
+    }
+
+    async function deleteTech(serial) {
+      if (confirm(`هل أّنت متأكد من مسح الموظف/الفني (${serial})؟`)) {
+        await db.collection('technicians').doc(serial).delete();
+      }
+    }
+
+    // 3. الكواريك والرافعات وتغيير حالتها (تعمل / خارج العمل)
+    async function confirmAddNewLift() {
+      const name = document.getElementById('newLiftNum').value.trim();
+      const department = document.getElementById('newLiftDept').value;
+      if (!name) return;
+      await db.collection('lifts').add({ name, department, status: 'WORKING' });
+      closeModal('addLiftModal');
+    }
+
+    async function toggleLiftStatus(liftId, currentStatus) {
+      const newStatus = currentStatus === 'WORKING' ? 'OUT_OF_SERVICE' : 'WORKING';
+      await db.collection('lifts').doc(liftId).update({ status: newStatus });
+    }
+
+    db.collection('lifts').onSnapshot(snap => {
+      const container = document.getElementById('liftCardsContainer');
+      container.innerHTML = '';
+      if (snap.empty) { initDefaultLifts(); return; }
+      snap.forEach(doc => {
+        const l = doc.data();
+        const id = doc.id;
+        const isWorking = l.status === 'WORKING';
+
+        container.innerHTML += `
+          <div class="lift-card ${isWorking ? 'active-lift' : 'disabled-lift'}">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="color:var(--primary-orange);">⚙️ ${l.name}</h4>
+                <button class="btn-action btn-danger" style="padding:2px 6px;" onclick="db.collection('lifts').doc('${id}').delete()"><i class="fa-solid fa-trash"></i></button>
+              </div>
+              <p style="font-size:0.8rem; font-weight:bold; margin-top:4px;">القسم: ${l.department}</p>
+              <div style="margin-top:6px;">
+                <span class="status-badge ${isWorking ? 'bg-green' : 'bg-red'}">
+                  ${isWorking ? '🟢 تعمل (داخل الخدمة)' : '🔴 خارج العمل (معطلة/صيانة)'}
+                </span>
+              </div>
+            </div>
+            <button class="btn-action ${isWorking ? 'btn-danger' : 'btn-green'}" style="justify-content:center; width:100%;" onclick="toggleLiftStatus('${id}', '${l.status}')">
+              ${isWorking ? 'تحويل إلى: خارج العمل 🔴' : 'تحويل إلى: تعمل 🟢'}
+            </button>
+          </div>
+        `;
+      });
+    });
+
+    async function initDefaultLifts() {
+      const defaults = [
+        { name: 'رفع هيدروليك 1', department: 'ميكانيكا', status: 'WORKING' },
+        { name: 'رفع هيدروليك 2', department: 'عفشة وفرامل', status: 'WORKING' },
+        { name: 'كوريك هيدروليكي سريع', department: 'صيانة سريعة', status: 'WORKING' }
+      ];
+      for (let l of defaults) await db.collection('lifts').add(l);
+    }
+
+    // 4. استعارة العُدَد وحساب الأيام
+    async function saveToolLoan(e) {
+      e.preventDefault();
+      const toolName = document.getElementById('toolName').value;
+      const fromDept = document.getElementById('fromDept').value;
+      const toDept = document.getElementById('toDept').value;
+      const borrowerTech = document.getElementById('borrowerTechSelect').value;
+
+      await db.collection('tool_loans').add({
+        toolName, fromDept, toDept, borrowerTech,
+        status: 'BORROWED',
+        borrowDateTimestamp: Date.now(),
+        borrowDateStr: new Date().toLocaleDateString('ar-EG')
+      });
+      alert("تم تسجيل عملية الاستعارة بنجاح!");
+      document.getElementById('toolForm').reset();
+    }
+
+    db.collection('tool_loans').onSnapshot(snap => {
+      const tbody = document.getElementById('toolTableBody');
+      tbody.innerHTML = '';
+      snap.forEach(doc => {
+        const tool = doc.data();
+        const daysElapsed = Math.floor((Date.now() - tool.borrowDateTimestamp) / (1000 * 60 * 60 * 24));
+        const daysText = daysElapsed === 0 ? 'اليوم (أقل من 24 ساعة)' : `${daysElapsed} يوم`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${tool.toolName}</strong></td>
+            <td>${tool.borrowerTech}</td>
+            <td>${tool.borrowDateStr}</td>
+            <td><span class="status-badge bg-orange">${daysText}</span></td>
+            <td>
+              ${tool.status === 'BORROWED' ? `<button class="btn-action btn-green" onclick="db.collection('tool_loans').doc('${doc.id}').update({status:'RETURNED'})">إرجاع العُدة</button>` : '<span class="status-badge bg-blue">تم الإرجاع</span>'}
+            </td>
+          </tr>
+        `;
+      });
+    });
+  </script>
+</body>
+</html>
