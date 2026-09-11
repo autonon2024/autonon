@@ -585,31 +585,6 @@
     </div>
   </div>
 
-  <!-- مودال المخزن الشامل مع زر إضافة صنف غير مدرج -->
-  <div class="modal-overlay" id="storeModal">
-    <div class="modal-content">
-      <h3 style="color:var(--primary-orange); margin-bottom:10px;"><i class="fa-solid fa-boxes-stacked"></i> قائمة أصناف المخزن:</h3>
-      
-      <input type="text" id="storeSearchInput" placeholder="بحث داخل المخزن..." oninput="renderStoreModalItems()" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px;">
-
-      <div id="storeItemsList" style="max-height:220px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:12px;"></div>
-
-      <div style="background:rgba(234, 88, 12, 0.05); border:1px dashed var(--primary-orange); border-radius:8px; padding:10px; margin-bottom:12px;">
-        <label style="font-weight:bold; color:var(--primary-orange); font-size:0.82rem;"><i class="fa-solid fa-plus-circle"></i> إدراج اسم صنف غير مدرج بالقائمة:</label>
-        <div class="form-grid" style="margin-top:6px;">
-          <input type="text" id="customUnlistedName" placeholder="اسم الصنف غير المدرج...">
-          <input type="number" id="customUnlistedPrice" placeholder="السعر (ج.م)...">
-        </div>
-        <button type="button" class="btn-action-sm btn-primary" style="margin-top:6px; width:100%;" onclick="addUnlistedStoreItem()"><i class="fa-solid fa-plus"></i> إضافة الصنف غير المدرج مباشرة للعميل</button>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <button class="btn-action-sm btn-primary" onclick="confirmStoreSelection()"><i class="fa-solid fa-check"></i> تأكيد إضافة الأصناف المختارة</button>
-        <button class="btn-action-sm" style="background:#64748b; color:white;" onclick="document.getElementById('storeModal').style.display='none'">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // 1. تهيئة Firebase
     const firebaseConfig = {
@@ -636,16 +611,6 @@
     let allCarsLocalData = [];
     let capturedImagesArr = [];
     let attachedDzPdfFile = null;
-
-    // المخزن المحتوي على أصناف افتراضية
-    let storeInventory = [
-      { id: '1', name: 'زيت موتور 5W30', price: 950 },
-      { id: '2', name: 'فلتر زيت تويوتا', price: 250 },
-      { id: '3', name: 'تيل فرامل أمامي', price: 1200 },
-      { id: '4', name: 'طقم بوجيهات', price: 800 },
-      { id: '5', name: 'سير مجموعة الاصلي', price: 450 },
-      { id: '6', name: 'بطارية 70 أمبير', price: 2800 }
-    ];
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 
@@ -900,62 +865,102 @@
       }, 1000);
     }
 
-    // 8. مودال المخزن الشامل واستدعاء الأصناف وغير المدرجة
-    function openStorePartsModal() {
-      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
-      renderStoreModalItems();
-      document.getElementById('storeModal').style.display = 'flex';
-    }
+    // ========================================================
+    // 🛠️ 8. دالة اختيار قطع الغيار أو إضافة صنف غير مدرج لقائمة النواقص
+    // ========================================================
 
-    function renderStoreModalItems() {
-      const q = document.getElementById('storeSearchInput').value.toLowerCase();
-      const container = document.getElementById('storeItemsList');
-      container.innerHTML = '';
-
-      const filtered = storeInventory.filter(i => i.name.toLowerCase().includes(q));
-      if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:10px;">لا توجد أصناف مطابقة بالبحث.</div>`;
+    async function openStorePartsModal() {
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة من القائمة أولاً!");
         return;
       }
 
-      filtered.forEach(item => {
-        container.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid var(--border-color);">
-            <label style="cursor:pointer; font-weight:bold;">
-              <input type="checkbox" class="store-item-cb" value="${item.id}" data-name="${item.name}" data-price="${item.price}"> ${item.name}
-            </label>
-            <span style="color:var(--primary-orange); font-weight:bold;">${item.price} ج.م</span>
-          </div>
-        `;
-      });
+      const queryPart = prompt("أدخل اسم القطعة أو السيريال للبحث عنها بالمخزن:");
+      if (!queryPart) return;
+
+      try {
+        const snap = await db.collection('inventory').get();
+        let matchingItems = [];
+
+        snap.forEach(doc => {
+          const item = { id: doc.id, ...doc.data() };
+          if ((item.partName && item.partName.toLowerCase().includes(queryPart.toLowerCase())) || 
+             (item.partSerial && item.partSerial.toLowerCase().includes(queryPart.toLowerCase()))) {
+            matchingItems.push(item);
+          }
+        });
+
+        if (matchingItems.length === 0) {
+          // الصنف غير مدرج بالفحص -> إدراج أوتوماتيكي لقائمة النواقص
+          if (confirm(`⚠️ القطعة (${queryPart}) غير مدرجة بالقائمة ولا توجد بالمخازن.\n\nهل تريد إدراجها فوراً في "قائمة النواقص المطلوبة" وإرسال طلب للتاجر؟`)) {
+            await addUnlistedPartToShortages(queryPart);
+          }
+          return;
+        }
+
+        // عرض نتائج الأصناف الموجودة بالمخزن
+        let menuText = `نتائج البحث عن (${queryPart}):\n`;
+        matchingItems.forEach((item, index) => {
+          menuText += `${index + 1}. ${item.partName} - [سيريال: ${item.partSerial || 'N/A'}] - المتاح: (${item.qty}) - السعر: ${item.price} ج.م\n`;
+        });
+        menuText += `\nأدخل رقم الصنف للاختيار أو اكتب (0) لإدراج صنف غير مدرج بالنواقص:`;
+
+        const choice = prompt(menuText);
+        if (choice === "0") {
+          await addUnlistedPartToShortages(queryPart);
+          return;
+        }
+
+        const selectedIdx = parseInt(choice) - 1;
+        if (isNaN(selectedIdx) || !matchingItems[selectedIdx]) return;
+
+        const selectedItem = matchingItems[selectedIdx];
+
+        // إدراج الصنف بفاتورة التشخيص وزيادة عداد الأكثر مبيعاً
+        selectedPartsArr.push({
+          id: selectedItem.id,
+          name: selectedItem.partName,
+          price: selectedItem.price
+        });
+
+        // خصم من المخزون وزيادة عداد الأكثر مبيعاً (salesCount)
+        await db.collection('inventory').doc(selectedItem.id).update({
+          qty: Math.max(0, selectedItem.qty - 1),
+          salesCount: (selectedItem.salesCount || 0) + 1
+        });
+
+        updatePartsUI();
+        alert(`✅ تم إدراج (${selectedItem.partName}) وخصمها من المخزن!`);
+
+      } catch (err) {
+        alert("خطأ: " + err.message);
+      }
     }
 
-    function confirmStoreSelection() {
-      const cbs = document.querySelectorAll('.store-item-cb:checked');
-      cbs.forEach(cb => {
-        const name = cb.getAttribute('data-name');
-        const price = parseFloat(cb.getAttribute('data-price')) || 0;
-        selectedPartsArr.push({ name, price });
-      });
+    // 📌 إدراج صنف غير مدرج إلى قائمة النواقص
+    async function addUnlistedPartToShortages(partName) {
+      const clientName = document.getElementById('diagClientName')?.value || 'عميل عام';
+      const brand = document.getElementById('diagBrand')?.value || '';
+      const model = document.getElementById('diagModel')?.value || '';
+      const plate = document.getElementById('diagPlate')?.value || '';
 
-      updatePartsUI();
-      document.getElementById('storeModal').style.display = 'none';
-    }
+      const requiredQty = prompt(`أدخل العدد المطلوب توفيره من (${partName}):`, "1") || "1";
 
-    function addUnlistedStoreItem() {
-      const name = document.getElementById('customUnlistedName').value.trim();
-      const price = parseFloat(document.getElementById('customUnlistedPrice').value) || 0;
+      try {
+        await db.collection('missing_parts').add({
+          partName: partName,
+          qty: parseInt(requiredQty),
+          clientName: clientName,
+          carDetails: `${brand} ${model} (لوحة: ${plate})`,
+          carDocId: currentSelectedCarDocId,
+          createdAt: new Date().toISOString(),
+          status: 'PENDING'
+        });
 
-      if (!name) { alert("يرجى إدخال اسم الصنف غير المدرج!"); return; }
-
-      selectedPartsArr.push({ name, price });
-      storeInventory.push({ id: Date.now().toString(), name, price });
-
-      document.getElementById('customUnlistedName').value = '';
-      document.getElementById('customUnlistedPrice').value = '';
-
-      updatePartsUI();
-      alert(`تم إضافة الصنف غير المدرج (${name}) مباشرة لطلب صيانة العميل!`);
+        alert(`✅ تم إدراج الصنف (${partName}) في قائمة النواقص المطلوبة بنجاح ويمكنك إرسال الكشف للتجار الآن.`);
+      } catch (e) {
+        alert("خطأ أثناء الإضافة للنواقص: " + e.message);
+      }
     }
 
     // 9. الاستماع اللحظي لتغييرات الفايربيز وتغيير حالة السيارة لـ "تحت التشخيص"
