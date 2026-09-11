@@ -405,9 +405,9 @@
         <div style="display:flex; align-items:center; gap:8px;">
           <label style="font-size:0.8rem; font-weight:bold;">عرض السجل:</label>
           <select id="viewFilter" onchange="applyFilters()" style="padding:6px; border-radius:6px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); font-size:0.82rem;">
+            <option value="ALL">📋 كل السجلات والتاريخ (الكل)</option>
             <option value="ACTIVE">🚗 السيارات النشطة بالورشة حالياً</option>
             <option value="DELIVERED">✅ السيارات التي تم تسليمها / إصلاحها</option>
-            <option value="ALL">📋 كل السجلات والتاريخ</option>
           </select>
         </div>
 
@@ -481,7 +481,6 @@
       measurementId: "G-94YDPEKLJJ"
     };
 
-    // Initialize Firebase (Compat API)
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const analytics = firebase.analytics();
@@ -548,7 +547,6 @@
       setTimeout(() => { document.getElementById('themeIcon').className = 'fa-solid fa-sun'; }, 100);
     }
 
-    // الأقسام والخدمات مع دعم التخزين والتعديل المباشر
     const defaultSubDeptData = {
       "ميكانيكا": ["عمرة موتور", "تغيير سير سيرفيس/كاتينة", "صيانة فتيس", "تغيير طلمبة مياه", "تغيير ردياتير", "فحص وتسريب زيت", "فحص رشاشات "],
       "كهرباء": ["فحص كمبيوتر واكواد", "تغيير بطارية", "صيانة دينامو / مارش", "إصلاح تكييف وشحن فريون", "إصلاح ضفيرة وتمديدات"],
@@ -627,7 +625,6 @@
       }
     }
 
-    // دوال الاستيراد والتصدير المحدثة (السيارات، الشاسيه، الأقسام، نوع الخدمة)
     function importCarDatabase(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -657,7 +654,6 @@
             const dept = (row['القسم المحول إليه'] || row['القسم'] || row['Department'] || row['Dept'] || '').toString().trim();
             const service = (row['نوع الخدمة الأساسية'] || row['نوع الخدمة'] || row['الخدمة'] || row['Service'] || '').toString().trim();
 
-            // استيراد الماركة والموديل والمنشأ
             if (origin && brand) {
               if (!updatedCarDb[origin]) updatedCarDb[origin] = {};
               if (!updatedCarDb[origin][brand]) updatedCarDb[origin][brand] = [];
@@ -667,7 +663,6 @@
               countImported++;
             }
 
-            // استيراد إضافة القسم والخدمة الأساسية
             if (dept) {
               if (!updatedSubDeptDb[dept]) {
                 updatedSubDeptDb[dept] = [];
@@ -688,9 +683,9 @@
             initOrigins();
             renderDeptOptions();
 
-            alert('تم استيراد وتحديث قاعدة البيانات (الماركات، الأقسام، نوع الخدمة) بنجاح!');
+            alert('تم استيراد وتحديث قاعدة البيانات بنجاح!');
           } else {
-            alert('لم يتم العثور على أعمدة مطابقة (المنشأ، الماركة، الموديل، القسم المحول إليه، نوع الخدمة الأساسية) في ملف الـ Excel.');
+            alert('لم يتم العثور على أعمدة مطابقة في ملف الـ Excel.');
           }
         } catch (err) {
           alert('حدث خطأ أثناء قراءة ملف الـ Excel: ' + err.message);
@@ -702,8 +697,6 @@
 
     function exportCarDatabase() {
       let flatData = [];
-
-      // تجميع الماركات والموديلات
       let carRows = [];
       for (let origin in carDatabase) {
         for (let brand in carDatabase[origin]) {
@@ -713,7 +706,6 @@
         }
       }
 
-      // تجميع الأقسام والخدمات
       let deptRows = [];
       for (let dept in subDeptData) {
         if (subDeptData[dept].length > 0) {
@@ -725,7 +717,6 @@
         }
       }
 
-      // الدمج في جدول مجمع
       const maxRows = Math.max(carRows.length, deptRows.length);
       for (let i = 0; i < maxRows; i++) {
         const c = carRows[i] || {};
@@ -1133,7 +1124,7 @@
       let queueCounter = 1;
 
       filtered.forEach((car) => {
-        const statusObj = STATUSES[car.status || 'WAITING'];
+        const statusObj = STATUSES[car.status || 'WAITING'] || STATUSES['WAITING'];
 
         let statusOptionsHtml = '';
         Object.keys(STATUSES).forEach(key => {
@@ -1159,7 +1150,7 @@
               </select>
             </td>
             <td>
-              <button onclick='sendWhatsAppMsg(${JSON.stringify(car)})' class="btn btn-success" style="padding:4px 8px; font-size:0.75rem;" title="إرسال السيريال عبر الواتساب"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+              <button onclick='sendWhatsAppMsg(${JSON.stringify(car).replace(/'/g, "&#39;")})' class="btn btn-success" style="padding:4px 8px; font-size:0.75rem;" title="إرسال السيريال عبر الواتساب"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
               <button onclick="deleteCar('${car.docId}')" class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" title="حذف"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>
@@ -1221,7 +1212,7 @@
       pdfTbody.innerHTML = '';
 
       allCarsCache.forEach(car => {
-        const st = STATUSES[car.status || 'WAITING'].label;
+        const st = (STATUSES[car.status || 'WAITING'] || STATUSES['WAITING']).label;
         pdfTbody.innerHTML += `
           <tr>
             <td style="text-align:center; font-weight:bold;">#${car.queueNo}</td>
@@ -1254,7 +1245,8 @@
       if (allCarsCache.length === 0) { alert('لا توجد بيانات للتصدير!'); return; }
       let fullContent = "=== سجل سيارات وصيانة مركز أوتو نون NON ===\n\n";
       allCarsCache.forEach(car => {
-        fullContent += `الدور: #${car.queueNo}\nالتاريخ: ${car.date} - ${car.time}\nالاسم: ${car.name}\nالموبايل: ${car.phone}\nالسيارة: ${car.brand} ${car.model} - اللوحة: ${car.plate}\nالسيريال: ${car.serialNo}\nالقسم: ${car.dept} (${car.subDept})\nالحالة الحالية: ${STATUSES[car.status || 'WAITING'].label}\nالعطل: ${car.issue || 'لا يوجد'}\n\n------------------------------------------------\n\n`;
+        const st = (STATUSES[car.status || 'WAITING'] || STATUSES['WAITING']).label;
+        fullContent += `الدور: #${car.queueNo}\nالتاريخ: ${car.date} - ${car.time}\nالاسم: ${car.name}\nالموبايل: ${car.phone}\nالسيارة: ${car.brand} ${car.model} - اللوحة: ${car.plate}\nالسيريال: ${car.serialNo}\nالقسم: ${car.dept} (${car.subDept})\nالحالة الحالية: ${st}\nالعطل: ${car.issue || 'لا يوجد'}\n\n------------------------------------------------\n\n`;
       });
       const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
