@@ -705,36 +705,92 @@
       await db.collection('lifts').doc(liftId).update({ status: newStatus });
     }
 
-    db.collection('lifts').onSnapshot(snap => {
-      const container = document.getElementById('liftCardsContainer');
-      container.innerHTML = '';
-      if (snap.empty) { initDefaultLifts(); return; }
-      snap.forEach(doc => {
-        const l = doc.data();
-        const id = doc.id;
-        const isWorking = l.status === 'WORKING';
+    // 1. عرض وتحديث حالات الكواريك والرافعات
+db.collection('lifts').onSnapshot(snap => {
+  const container = document.getElementById('liftCardsContainer');
+  if (!container) return;
+  container.innerHTML = '';
 
-        container.innerHTML += `
-          <div class="lift-card ${isWorking ? 'active-lift' : 'disabled-lift'}">
-            <div>
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h4 style="color:var(--primary-orange);">⚙️ ${l.name}</h4>
-                <button class="btn-action btn-danger" style="padding:2px 6px;" onclick="db.collection('lifts').doc('${id}').delete()"><i class="fa-solid fa-trash"></i></button>
-              </div>
-              <p style="font-size:0.8rem; font-weight:bold; margin-top:4px;">القسم: ${l.department}</p>
-              <div style="margin-top:6px;">
-                <span class="status-badge ${isWorking ? 'bg-green' : 'bg-red'}">
-                  ${isWorking ? '🟢 تعمل (داخل الخدمة)' : '🔴 خارج العمل (معطلة/صيانة)'}
-                </span>
-              </div>
-            </div>
-            <button class="btn-action ${isWorking ? 'btn-danger' : 'btn-green'}" style="justify-content:center; width:100%;" onclick="toggleLiftStatus('${id}', '${l.status}')">
-              ${isWorking ? 'تحويل إلى: خارج العمل 🔴' : 'تحويل إلى: تعمل 🟢'}
-            </button>
+  if (snap.empty) { initDefaultLifts(); return; }
+
+  snap.forEach(doc => {
+    const l = doc.data();
+    const id = doc.id;
+    const isWorking = l.status === 'WORKING';
+    const hasCar = l.currentCar && l.currentCar !== 'لا يوجد';
+
+    container.innerHTML += `
+      <div class="lift-card ${!isWorking ? 'disabled-lift' : (hasCar ? 'active-lift' : '')}" style="${hasCar ? 'border-color:#ea580c; background:rgba(234,88,12,0.03);' : ''}">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="color:var(--primary-orange);">⚙️ ${l.name}</h4>
+            <button class="btn-action btn-danger" style="padding:2px 6px;" onclick="db.collection('lifts').doc('${id}').delete()"><i class="fa-solid fa-trash"></i></button>
           </div>
-        `;
-      });
+          <p style="font-size:0.8rem; font-weight:bold; margin-top:4px;">القسم: ${l.department}</p>
+          
+          <div style="margin-top:6px;">
+            <span class="status-badge ${isWorking ? (hasCar ? 'bg-orange' : 'bg-green') : 'bg-red'}">
+              ${!isWorking ? '🔴 خارج العمل (صيانة)' : (hasCar ? '🚗 مشغول بطلب صيانة' : '🟢 متاح للاستخدام')}
+            </span>
+          </div>
+
+          <!-- تفاصيل السيارة والفني المباشر على الكوريك -->
+          <div style="margin-top:8px; background:var(--input-bg); padding:6px; border-radius:6px; font-size:0.78rem; border:1px solid var(--border-color);">
+            <div>🏎️ السيارة: <strong>${l.currentCar || 'لا يوجد'}</strong></div>
+            <div style="margin-top:3px;">👷‍♂️ الفني المعين: <strong style="color:var(--btn-blue);">${l.assignedTechName || 'لم يحدد'}</strong></div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
+          ${hasCar ? `
+            <button class="btn-action btn-green" style="justify-content:center; width:100%;" onclick="clearLiftAndTech('${id}', '${l.assignedTechSerial || ''}', '${l.carDocId || ''}')">
+              <i class="fa-solid fa-check-circle"></i> إنهاء العمل وإخلاء الكوريك
+            </button>
+          ` : ''}
+          <button class="btn-action ${isWorking ? 'btn-danger' : 'btn-green'}" style="justify-content:center; width:100%;" onclick="toggleLiftStatus('${id}', '${l.status}')">
+            ${isWorking ? 'تحويل إلى: خارج العمل 🔴' : 'تحويل إلى: تعمل 🟢'}
+          </button>
+        </div>
+      </div>
+    `;
+  });
+});
+
+// 2. دالة إخلاء الكوريك وإنهاء الصيانة وإعادة الفني لحالة "متاح"
+async function clearLiftAndTech(liftId, techSerial, carDocId) {
+  if (!confirm("هل تريد إنهاء العمل على هذا الكوريك وإعادته كـ (متاح)؟")) return;
+
+  try {
+    // أ. إخلاء الكوريك
+    await db.collection('lifts').doc(liftId).update({
+      currentCar: 'لا يوجد',
+      assignedTechName: '',
+      assignedTechSerial: '',
+      carDocId: ''
     });
+
+    // ب. تحرير الفني وإعادته لحالة متاح
+    if (techSerial) {
+      await db.collection('technicians').doc(techSerial).update({
+        status: 'AVAILABLE',
+        currentCar: 'لا يوجد',
+        assignedLift: 'عام'
+      });
+    }
+
+    // ج. تحديث حالة السيارة بالسيستم إن وجدت
+    if (carDocId) {
+      await db.collection('cars').doc(carDocId).update({
+        status: 'DIAG_DONE',
+        statusLabel: 'مكتمل الصيانة'
+      });
+    }
+
+    alert("✅ تم إخلاء الكوريك وتحرير الفني بنجاح!");
+  } catch (err) {
+    alert("خطأ أثناء الإخلاء: " + err.message);
+  }
+}
 
     async function initDefaultLifts() {
       const defaults = [
