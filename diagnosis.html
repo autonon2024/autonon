@@ -762,7 +762,7 @@
               </div>
               <div class="form-field">
                 <label style="color:#22c55e;">التغيير القادم عند:</label>
-                <input type="number" readonly value="${item.nextOdo || 0}" style="font-weight:bold; color:#22c55e;">
+                <input type="number" id="nextOdo_${idx}" readonly value="${item.nextOdo || 0}" style="font-weight:bold; color:#22c55e;">
               </div>
             </div>
           </div>
@@ -771,15 +771,23 @@
     }
 
     function updateMaintItemData(idx, key, val) {
+      if (!maintenanceCategoriesArr[idx]) return;
+
       if (key === 'currentOdo' || key === 'lifeKm') {
         maintenanceCategoriesArr[idx][key] = parseFloat(val) || 0;
         const cur = maintenanceCategoriesArr[idx].currentOdo || 0;
         const life = maintenanceCategoriesArr[idx].lifeKm || 0;
-        maintenanceCategoriesArr[idx].nextOdo = cur + life;
+        const nextOdo = cur + life;
+        maintenanceCategoriesArr[idx].nextOdo = nextOdo;
+
+        // تحديث خانة "التغيير القادم عند" بصفة مستهدفة بدون إعادة رسم عناصر الـ DOM بالكامل
+        const nextOdoEl = document.getElementById(`nextOdo_${idx}`);
+        if (nextOdoEl) {
+          nextOdoEl.value = nextOdo;
+        }
       } else {
         maintenanceCategoriesArr[idx][key] = val;
       }
-      renderMaintenanceCategoriesUI();
     }
 
     function removeMaintCategory(idx) {
