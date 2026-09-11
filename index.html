@@ -61,7 +61,7 @@
     .dropdown { position: relative; display: inline-block; }
     .dropdown-btn { background: var(--accent); color: var(--btn-text); border: none; padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
     .dropdown-content {
-      display: none; position: absolute; left: 0; top: 105%; background-color: var(--card-bg); min-width: 250px;
+      display: none; position: absolute; left: 0; top: 105%; background-color: var(--card-bg); min-width: 280px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border); z-index: 100; overflow: hidden;
     }
     .dropdown-content a, .dropdown-content label {
@@ -216,9 +216,9 @@
       <div class="dropdown">
         <button class="dropdown-btn"><i class="fa-solid fa-file-arrow-up"></i> استيراد وتصدير البيانات <i class="fa-solid fa-chevron-down"></i></button>
         <div class="dropdown-content">
-          <div class="dropdown-title">🚗 بيانات السيارات (الماركات والموديلات)</div>
-          <label><i class="fa-solid fa-file-excel" style="color:#059669;"></i> استيراد من Excel <input type="file" id="excelCarFile" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importCarDatabase(event)"></label>
-          <a onclick="exportCarDatabase()"><i class="fa-solid fa-file-export" style="color:#2563eb;"></i> تصدير الماركات إلى Excel</a>
+          <div class="dropdown-title">🚗 & ⚙️ البيانات (السيارات، الأقسام، الخدمات، الشاسيه)</div>
+          <label><i class="fa-solid fa-file-excel" style="color:#059669;"></i> استيراد الماركات والأقسام والخدمات من Excel <input type="file" id="excelCarFile" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importCarDatabase(event)"></label>
+          <a onclick="exportCarDatabase()"><i class="fa-solid fa-file-export" style="color:#2563eb;"></i> تصدير البيانات (سيارات، أقسام، خدمات، شاسيه) إلى Excel</a>
           
           <div class="dropdown-title">👤 سجل العملاء والصيانة</div>
           <a onclick="exportAllClientsTXT()"><i class="fa-solid fa-file-lines" style="color:#d97706;"></i> تصدير سجل اليومية (TXT)</a>
@@ -367,12 +367,6 @@
             <label>القسم المحول إليه:</label>
             <select id="carDept" required onchange="handleDeptChange()">
               <option value="">اختر القسم أولاً</option>
-              <option value="ميكانيكا">ميكانيكا</option>
-              <option value="كهرباء">كهرباء</option>
-              <option value="عفشة وتعليق">عفشة وتعليق</option>
-              <option value="سمكرة ودهان">سمكرة ودهان</option>
-              <option value="سروجي وتنجيد">سروجي وتنجيد</option>
-              <option value="صيانة دورية وزيوت">صيانة دورية وزيوت</option>
             </select>
           </div>
           <div class="form-group">
@@ -554,7 +548,8 @@
       setTimeout(() => { document.getElementById('themeIcon').className = 'fa-solid fa-sun'; }, 100);
     }
 
-    const subDeptData = {
+    // الأقسام والخدمات مع دعم التخزين والتعديل المباشر
+    const defaultSubDeptData = {
       "ميكانيكا": ["عمرة موتور", "تغيير سير سيرفيس/كاتينة", "صيانة فتيس", "تغيير طلمبة مياه", "تغيير ردياتير", "فحص وتسريب زيت", "فحص رشاشات "],
       "كهرباء": ["فحص كمبيوتر واكواد", "تغيير بطارية", "صيانة دينامو / مارش", "إصلاح تكييف وشحن فريون", "إصلاح ضفيرة وتمديدات"],
       "عفشة وتعليق": ["تغيير مساعدين", "تغيير مقصات/بيض", "ضبط زوايا واتزان", "تغيير تيل وطنابير", "تربيط عفشة كاملة"],
@@ -562,6 +557,8 @@
       "سروجي وتنجيد": ["تنجيد كراسي", "إصلاح سقف", "تجديد أرضية وفرش", "إصلاح أحزمة أمان"],
       "صيانة دورية وزيوت": ["تغيير زيت موتور وفلتر", "تغيير زيت فتيس", "تغيير فلاتر هواء وتكييف", "صيانة 10,000 كم"]
     };
+
+    let subDeptData = JSON.parse(localStorage.getItem('autonon_sub_dept_db')) || defaultSubDeptData;
 
     const defaultCarData = {
       "اليابان": { "تويوتا": ["كورولا", "كامري", "ياريس"], "نيسان": ["صني", "سنترا", "قشقاي"] },
@@ -579,7 +576,24 @@
         originSelect.innerHTML += `<option value="${origin}">${origin}</option>`;
       });
       filterBrands();
+      renderDeptOptions();
       generateDefaultSerialNumber();
+    }
+
+    function renderDeptOptions() {
+      const deptSelect = document.getElementById('carDept');
+      const selectedVal = deptSelect.value;
+      deptSelect.innerHTML = '<option value="">اختر القسم أولاً</option>';
+      
+      Object.keys(subDeptData).forEach(dept => {
+        deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`;
+      });
+      
+      deptSelect.innerHTML += `<option value="NEW_DEPT">➕ إضافة قسم جديد...</option>`;
+      
+      if (selectedVal && subDeptData[selectedVal]) {
+        deptSelect.value = selectedVal;
+      }
     }
 
     function generateDefaultSerialNumber() {
@@ -613,7 +627,7 @@
       }
     }
 
-    // دوال الاستيراد والتصدير لبيانات السيارات والماركات عبر Excel
+    // دوال الاستيراد والتصدير المحدثة (السيارات، الشاسيه، الأقسام، نوع الخدمة)
     function importCarDatabase(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -632,56 +646,109 @@
             return;
           }
 
-          let newDb = {};
+          let updatedCarDb = JSON.parse(JSON.stringify(carDatabase));
+          let updatedSubDeptDb = JSON.parse(JSON.stringify(subDeptData));
+          let countImported = 0;
+
           jsonSheet.forEach(row => {
             const origin = (row['المنشأ'] || row['Origin'] || '').toString().trim();
             const brand = (row['الماركة'] || row['Brand'] || '').toString().trim();
             const model = (row['الموديل'] || row['Model'] || '').toString().trim();
+            const dept = (row['القسم المحول إليه'] || row['القسم'] || row['Department'] || row['Dept'] || '').toString().trim();
+            const service = (row['نوع الخدمة الأساسية'] || row['نوع الخدمة'] || row['الخدمة'] || row['Service'] || '').toString().trim();
 
+            // استيراد الماركة والموديل والمنشأ
             if (origin && brand) {
-              if (!newDb[origin]) newDb[origin] = {};
-              if (!newDb[origin][brand]) newDb[origin][brand] = [];
-              if (model && !newDb[origin][brand].includes(model)) {
-                newDb[origin][brand].push(model);
+              if (!updatedCarDb[origin]) updatedCarDb[origin] = {};
+              if (!updatedCarDb[origin][brand]) updatedCarDb[origin][brand] = [];
+              if (model && !updatedCarDb[origin][brand].includes(model)) {
+                updatedCarDb[origin][brand].push(model);
               }
+              countImported++;
+            }
+
+            // استيراد إضافة القسم والخدمة الأساسية
+            if (dept) {
+              if (!updatedSubDeptDb[dept]) {
+                updatedSubDeptDb[dept] = [];
+              }
+              if (service && !updatedSubDeptDb[dept].includes(service)) {
+                updatedSubDeptDb[dept].push(service);
+              }
+              countImported++;
             }
           });
 
-          if (Object.keys(newDb).length > 0) {
-            carDatabase = newDb;
+          if (countImported > 0) {
+            carDatabase = updatedCarDb;
+            subDeptData = updatedSubDeptDb;
             localStorage.setItem('autonon_car_db', JSON.stringify(carDatabase));
+            localStorage.setItem('autonon_sub_dept_db', JSON.stringify(subDeptData));
+
             initOrigins();
-            alert('تم استيراد قاعدة بيانات الماركات والموديلات وتحديث النظام بنجاح!');
+            renderDeptOptions();
+
+            alert('تم استيراد وتحديث قاعدة البيانات (الماركات، الأقسام، نوع الخدمة) بنجاح!');
           } else {
-            alert('لم يتم العثور على أعمدة مطابقة (المنشأ، الماركة، الموديل) في ملف الـ Excel.');
+            alert('لم يتم العثور على أعمدة مطابقة (المنشأ، الماركة، الموديل، القسم المحول إليه، نوع الخدمة الأساسية) في ملف الـ Excel.');
           }
         } catch (err) {
           alert('حدث خطأ أثناء قراءة ملف الـ Excel: ' + err.message);
         }
       };
       reader.readAsArrayBuffer(file);
-      event.target.value = ''; // لإتاحة إعادة استيراد نفس الملف إن أُمِر
+      event.target.value = '';
     }
 
     function exportCarDatabase() {
       let flatData = [];
+
+      // تجميع الماركات والموديلات
+      let carRows = [];
       for (let origin in carDatabase) {
         for (let brand in carDatabase[origin]) {
           carDatabase[origin][brand].forEach(model => {
-            flatData.push({ 'المنشأ': origin, 'الماركة': brand, 'الموديل': model });
+            carRows.push({ origin, brand, model });
           });
         }
       }
 
+      // تجميع الأقسام والخدمات
+      let deptRows = [];
+      for (let dept in subDeptData) {
+        if (subDeptData[dept].length > 0) {
+          subDeptData[dept].forEach(service => {
+            deptRows.push({ dept, service });
+          });
+        } else {
+          deptRows.push({ dept, service: '' });
+        }
+      }
+
+      // الدمج في جدول مجمع
+      const maxRows = Math.max(carRows.length, deptRows.length);
+      for (let i = 0; i < maxRows; i++) {
+        const c = carRows[i] || {};
+        const d = deptRows[i] || {};
+        flatData.push({
+          'المنشأ': c.origin || '',
+          'الماركة': c.brand || '',
+          'الموديل': c.model || '',
+          'رقم الشاسيه': '',
+          'القسم المحول إليه': d.dept || '',
+          'نوع الخدمة الأساسية': d.service || ''
+        });
+      }
+
       if (flatData.length === 0) {
-        alert('لا توجد بيانات ماركات للتصدير!');
+        alert('لا توجد بيانات للتصدير!');
         return;
       }
 
       const worksheet = XLSX.utils.json_to_sheet(flatData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "CarBrands");
-      XLSX.writeFile(workbook, "AutoNon_Car_Brands.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Import_Export");
+      XLSX.writeFile(workbook, "AutoNon_Cars_and_Services.xlsx");
     }
 
     function handleColorChange() {
@@ -705,7 +772,26 @@
     }
 
     function handleDeptChange() {
-      const dept = document.getElementById('carDept').value;
+      const deptSelect = document.getElementById('carDept');
+      let dept = deptSelect.value;
+
+      if (dept === 'NEW_DEPT') {
+        const newDeptName = prompt('أدخل اسم القسم الجديد:');
+        if (newDeptName && newDeptName.trim()) {
+          const cleanDept = newDeptName.trim();
+          if (!subDeptData[cleanDept]) {
+            subDeptData[cleanDept] = [];
+            localStorage.setItem('autonon_sub_dept_db', JSON.stringify(subDeptData));
+          }
+          renderDeptOptions();
+          deptSelect.value = cleanDept;
+          dept = cleanDept;
+        } else {
+          deptSelect.value = '';
+          return;
+        }
+      }
+
       const subDeptSelect = document.getElementById('carSubDeptSelect');
       subDeptSelect.innerHTML = '';
 
@@ -715,6 +801,7 @@
         subDeptData[dept].forEach(sub => {
           subDeptSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
         });
+        subDeptSelect.innerHTML += `<option value="NEW_SERVICE">➕ إضافة خدمة جديدة...</option>`;
       } else {
         subDeptSelect.disabled = true;
         subDeptSelect.innerHTML = '<option value="">اختر القسم أولاً لربط الخدمات</option>';
@@ -724,10 +811,30 @@
     }
 
     function handleServiceChange() {
+      const dept = document.getElementById('carDept').value;
       const subDeptSelect = document.getElementById('carSubDeptSelect');
       const detailsContainer = document.getElementById('serviceDetailsContainer');
 
-      if (subDeptSelect.value !== '') {
+      if (subDeptSelect.value === 'NEW_SERVICE') {
+        const newServiceName = prompt('أدخل اسم الخدمة الأساسية الجديدة:');
+        if (newServiceName && newServiceName.trim() && dept && subDeptData[dept]) {
+          const cleanService = newServiceName.trim();
+          if (!subDeptData[dept].includes(cleanService)) {
+            subDeptData[dept].push(cleanService);
+            localStorage.setItem('autonon_sub_dept_db', JSON.stringify(subDeptData));
+          }
+          subDeptSelect.innerHTML = '<option value="">اختر نوع الخدمة المطلوب تنفيذها</option>';
+          subDeptData[dept].forEach(sub => {
+            subDeptSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+          });
+          subDeptSelect.innerHTML += `<option value="NEW_SERVICE">➕ إضافة خدمة جديدة...</option>`;
+          subDeptSelect.value = cleanService;
+        } else {
+          subDeptSelect.value = '';
+        }
+      }
+
+      if (subDeptSelect.value !== '' && subDeptSelect.value !== 'NEW_SERVICE') {
         detailsContainer.style.display = 'block';
       } else {
         detailsContainer.style.display = 'none';
@@ -793,6 +900,7 @@
       }
 
       if (car.dept) {
+        renderDeptOptions();
         document.getElementById('carDept').value = car.dept;
         handleDeptChange();
         if (car.subDept) {
@@ -908,6 +1016,7 @@
       document.getElementById('alertNotice').style.display = 'none';
       document.getElementById('alertDangerNotice').style.display = 'none';
       document.getElementById('customColorInput').style.display = 'none';
+      renderDeptOptions();
       document.getElementById('carSubDeptSelect').disabled = true;
       document.getElementById('carSubDeptSelect').innerHTML = '<option value="">اختر القسم أولاً لربط الخدمات</option>';
       document.getElementById('serviceDetailsContainer').style.display = 'none';
@@ -925,7 +1034,7 @@
       const phone = document.getElementById('clientPhone').value.trim();
       const dept = document.getElementById('carDept').value;
 
-      if (!name || !phone || !dept) {
+      if (!name || !phone || !dept || dept === 'NEW_DEPT') {
         alert("يرجى إدخال البيانات الأساسية (الاسم، الهاتف، والقسم)!");
         return;
       }
