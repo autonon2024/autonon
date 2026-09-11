@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>صانع الباركود وطباعة الملصقات - أوتو نون (NON)</title>
+
+  <!-- JsBarcode Library لتوليد الباركود تلقائياً -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <!-- FontAwesome & Firebase -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --border-color: #cbd5e1;
+      --primary-orange: #ea580c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; font-size: 0.88rem; direction: rtl; text-align: right; }
+
+    /* الهيدر العلوي */
+    .top-controls {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 10px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+    }
+
+    .form-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex: 1; }
+    .input-box { display: flex; flex-direction: column; gap: 2px; }
+    .input-box label { font-size: 0.75rem; font-weight: bold; color: #475569; }
+    .input-box input { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem; background: #fff; }
+
+    .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn {
+      padding: 6px 12px; border: 1px solid var(--border-color); background: #e2e8f0; color: #0f172a;
+      border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;
+    }
+    .btn:hover { background: #cbd5e1; }
+    .btn-primary { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+    .btn-primary:hover { background: #c2410c; }
+    .btn-info { background: #0284c7; color: white; border-color: #0284c7; }
+    .btn-info:hover { background: #0369a1; }
+    .btn-warning { background: #d97706; color: white; border-color: #b45309; }
+    .btn-warning:hover { background: #b45309; }
+    .btn-success { background: #10b981; color: white; border-color: #10b981; }
+
+    /* التقسيم الرئيسي */
+    .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 12px; height: calc(100vh - 130px); }
+
+    /* القائمة اليسرى (بحث واختيار أصناف) */
+    .items-sidebar {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .items-list-container { flex: 1; overflow-y: auto; padding: 4px; }
+    .item-row {
+      padding: 8px 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex;
+      justify-content: space-between; align-items: center; font-weight: bold;
+    }
+    .item-row:hover, .item-row.selected { background: #ffedd5; color: var(--primary-orange); }
+    .item-info-sub { font-size: 0.72rem; color: #64748b; font-weight: normal; margin-top: 2px; }
+    .stock-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; }
+    .stock-badge.low-stock { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+    .sidebar-search { padding: 8px; border-top: 1px solid var(--border-color); background: #f8fafc; }
+    .sidebar-search input { width: 100%; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 4px; }
+
+    /* منطقة معاينة الباركود والتصميم */
+    .preview-workspace {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 350px; overflow-y: auto;
+    }
+
+    .barcode-card-preview {
+      border: 1px dashed var(--primary-orange); padding: 15px; border-radius: 8px; background: #fff;
+      text-align: center; max-width: 320px; width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .barcode-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; word-break: break-word; }
+    .barcode-price { font-size: 1.1rem; font-weight: bold; color: var(--primary-orange); margin-top: 4px; }
+
+    /* ======================================================= */
+    /* 🖨️ تنسيق الطباعة في ورقة واحدة A4 فقط                  */
+    /* ======================================================= */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 4mm;
+      }
+      html, body {
+        height: 100%;
+        overflow: hidden !important;
+      }
+      body * { visibility: hidden; }
+      #printableBarcodeArea, #printableBarcodeArea * { visibility: visible; }
+      
+      #printableBarcodeArea.a4-grid-mode {
+        position: absolute; left: 0; top: 0; width: 100%;
+        max-height: 285mm;
+        overflow: hidden !important;
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 2mm !important;
+        padding: 0; margin: 0;
+        box-sizing: border-box;
+      }
+
+      .a4-sticker-card {
+        border: 1px dashed #000 !important;
+        padding: 2px 4px !important;
+        border-radius: 4px !important;
+        text-align: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        background: #fff !important;
+        color: #000 !important;
+        height: 26mm !important;
+        box-sizing: border-box !important;
+      }
+
+      .a4-sticker-card svg {
+        max-width: 95% !important;
+        height: 24px !important;
+      }
+
+      .a4-sticker-card .sticker-store { font-size: 6.5pt; font-weight: bold; color: #ea580c; line-height: 1; }
+      .a4-sticker-card .sticker-title { font-size: 7.5pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; line-height: 1.1; margin: 1px 0; }
+      .a4-sticker-card .sticker-price { font-size: 7.5pt; font-weight: bold; line-height: 1; }
+
+      #printableBarcodeArea.thermal-mode-container {
+        position: absolute; left: 0; top: 0; width: 100%;
+        display: block !important;
+      }
+      .thermal-mode {
+        width: 50mm; height: 25mm; padding: 2mm; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; page-break-after: always; text-align: center;
+      }
+      .thermal-mode svg { max-width: 100%; height: auto; }
+      .thermal-mode .barcode-title { font-size: 8pt; margin: 0; }
+      .thermal-mode .barcode-price { font-size: 9pt; margin: 0; font-weight: bold; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شريط التحكم العلوي -->
+  <div class="top-controls">
+    <div class="form-row">
+      <div class="input-box" style="flex: 2;">
+        <label>اسم الصنف:</label>
+        <input type="text" id="itemName" placeholder="حدد صنفاً من القائمة أو ادخل اسماً" oninput="updatePreviewFromInputs()">
+      </div>
+      <div class="input-box" style="width: 130px;">
+        <label>السيريال (أرقام):</label>
+        <input type="number" id="itemSerial" placeholder="مثال: 100" oninput="onSerialInput(this)">
+      </div>
+      <div class="input-box" style="width: 85px;">
+        <label>السعر (ج.م):</label>
+        <input type="number" id="itemPrice" value="0" oninput="updatePreviewFromInputs()">
+      </div>
+      <div class="input-box" style="width: 75px;">
+        <label>المخزن:</label>
+        <input type="number" id="itemStock" value="0" readonly style="background:#f1f5f9;">
+      </div>
+      <div class="input-box" style="width: 75px;">
+        <label>حد التنبيه:</label>
+        <input type="number" id="itemMinStock" value="2" title="عدد الرصيد الذي سيظهر عنده تنبيه النفاذ">
+      </div>
+      <div class="input-box" style="width: 75px;">
+        <label>الكمية:</label>
+        <input type="number" id="printQty" value="24" min="1" max="100">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <!-- زر تعديل وحفظ السيريال الجديد -->
+      <button class="btn btn-warning" onclick="editSerialInFirebase()" title="تعديل وحفظ السيريال للصنف المSelected">
+        <i class="fa-solid fa-pen-to-square"></i> تعديل السيريال
+      </button>
+      <button class="btn btn-info" onclick="printA4()"><i class="fa-solid fa-file-invoice"></i> طباعة ورقة واحدة A4</button>
+      <button class="btn btn-primary" onclick="printThermal()"><i class="fa-solid fa-print"></i> طباعة حرارية</button>
+      <button class="btn" onclick="copyBarcodeToClipboard()"><i class="fa-solid fa-copy"></i> نسخ</button>
+      <button class="btn btn-success" onclick="downloadBarcodeImage()"><i class="fa-solid fa-download"></i> صورة PNG</button>
+    </div>
+  </div>
+
+  <!-- الجسم الرئيسي -->
+  <div class="main-grid">
+    
+    <!-- معاينة الباركود -->
+    <div class="preview-workspace">
+      <div class="barcode-card-preview" id="barcodePreviewCard">
+        <div style="font-size: 0.75rem; color: #ea580c; font-weight: bold; margin-bottom: 2px;">AUTO NON CENTER</div>
+        <div class="barcode-title" id="lblItemName">اختر صنفاً أو اكتب بياناته</div>
+        <svg id="barcodeSVG"></svg>
+        <div class="barcode-price" id="lblItemPrice">0 ج.م</div>
+        <div id="lowStockAlertText" style="display:none; color:#dc2626; font-weight:bold; font-size:0.75rem; margin-top:5px;">
+          ⚠️ تحذير: هذا الصنف قارب على النفاذ!
+        </div>
+      </div>
+    </div>
+
+    <!-- قائمة الأصناف الجانبية -->
+    <div class="items-sidebar">
+      <div class="items-list-container" id="itemsListContainer">
+        <!-- يتم ملء الأصناف هنا تلقائياً من Firestore -->
+      </div>
+      <div class="sidebar-search">
+        <input type="text" id="searchInput" placeholder="بحث بالاسم أو مسح الباركود بالسكنر..." oninput="onSearchInput(this)">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- المنطقة المخصصة للطباعة الفعلية -->
+  <div id="printableBarcodeArea"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allItems = [];
+    let selectedItem = null;
+
+    // دالة تصحيح الإدخال من القارئ الضوئي (تعديل لغة الكيبورد تلقائياً)
+    function fixBarcodeScannerInput(text) {
+      if (!text) return '';
+      const arToEnMap = {
+        'آ': 'N', '×': 'O', 'ى': 'n', 'خ': 'o',
+        'ف': 'f', 'ق': 'r', 'ث': 'e', 'ص': 'w', 'ض': 'q',
+        'ك': 'g', 'م': 'l', 'ن': 'k', 'ت': 'j', 'ا': 'h',
+        'ل': 'g', 'ب': 'f', 'ي': 'd', 'س': 's', 'ش': 'a'
+      };
+      return text.split('').map(char => arToEnMap[char] || char).join('');
+    }
+
+    function onSearchInput(inputElem) {
+      inputElem.value = fixBarcodeScannerInput(inputElem.value);
+      filterItems();
+    }
+
+    function onSerialInput(inputElem) {
+      inputElem.value = fixBarcodeScannerInput(inputElem.value);
+      updatePreviewFromInputs();
+    }
+
+    // استدعاء الأصناف تلقائياً من Firestore
+    db.collection('inventory').onSnapshot(snap => {
+      allItems = [];
+      snap.forEach(doc => {
+        const data = doc.data();
+        allItems.push({ id: doc.id, ...data });
+      });
+      renderItemsList(allItems);
+    });
+
+    function renderItemsList(items) {
+      const container = document.getElementById('itemsListContainer');
+      container.innerHTML = '';
+
+      items.forEach(item => {
+        const minQty = item.minQty !== undefined ? item.minQty : 2;
+        const isLow = item.qty <= minQty;
+        const serialText = item.partSerial ? `سريال: ${item.partSerial}` : 'بدون سريال';
+
+        const row = document.createElement('div');
+        row.className = `item-row ${selectedItem && selectedItem.id === item.id ? 'selected' : ''}`;
+        row.onclick = () => selectItem(item);
+
+        row.innerHTML = `
+          <div>
+            <div>${item.partName}</div>
+            <div class="item-info-sub">${serialText}</div>
+          </div>
+          <span class="stock-badge ${isLow ? 'low-stock' : ''}">
+            ${isLow ? '⚠️ ' : ''}رصيد: ${item.qty}
+          </span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function selectItem(item) {
+      selectedItem = item;
+      document.getElementById('itemName').value = item.partName || '';
+      document.getElementById('itemPrice').value = item.price || 0;
+      document.getElementById('itemStock').value = item.qty || 0;
+      
+      const minQty = item.minQty !== undefined ? item.minQty : 2;
+      document.getElementById('itemMinStock').value = minQty;
+
+      // ضبط السيريال ليكون رقماً يبدأ من 100 فما فوق
+      let baseSerial = item.partSerial && String(item.partSerial).trim() !== '' ? item.partSerial : generateAutoCode(item.id);
+      document.getElementById('itemSerial').value = baseSerial;
+
+      updatePreviewCard(item.partName, baseSerial, item.price || 0, item.qty, minQty);
+      renderItemsList(allItems);
+    }
+
+    // ✏️ دالة تعديل وحفظ السيريال الجديد في قاعدة البيانات Firestore
+    async function editSerialInFirebase() {
+      if (!selectedItem) {
+        alert("⚠️ يرجى اختيار صنف من القائمة اليسرى أولاً لتعديل السيريال له!");
+        return;
+      }
+
+      const newSerial = document.getElementById('itemSerial').value.trim();
+      if (!newSerial) {
+        alert("⚠️ يرجى أدخال السيريال الجديد أولاً!");
+        return;
+      }
+
+      try {
+        await db.collection('inventory').doc(selectedItem.id).update({
+          partSerial: newSerial
+        });
+        
+        // تحديث البيانات المحلية
+        selectedItem.partSerial = newSerial;
+        alert(`✅ تم تعديل السيريال بنجاح إلى (${newSerial}) للصنف: ${selectedItem.partName}`);
+        updatePreviewFromInputs();
+      } catch (error) {
+        console.error("خطأ أثناء تعديل السيريال:", error);
+        alert("❌ حدث خطأ أثناء التعديل في قاعدة البيانات: " + error.message);
+      }
+    }
+
+    // التحديث المباشر للمعاينة
+    function updatePreviewFromInputs() {
+      const name = document.getElementById('itemName').value || 'صنف عام';
+      const serial = document.getElementById('itemSerial').value || '100';
+      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+      const stock = parseInt(document.getElementById('itemStock').value) || 0;
+      const minQty = parseInt(document.getElementById('itemMinStock').value) || 2;
+
+      updatePreviewCard(name, serial, price, stock, minQty);
+    }
+
+    function updatePreviewCard(name, serial, price, stock, minQty) {
+      document.getElementById('lblItemName').textContent = name;
+      document.getElementById('lblItemPrice').textContent = `${price} ج.م`;
+
+      try {
+        JsBarcode("#barcodeSVG", String(serial), {
+          format: "CODE128",
+          lineColor: "#000",
+          width: 2,
+          height: 48,
+          displayValue: true,
+          fontSize: 12
+        });
+      } catch (e) {
+        console.error("خطأ توليد الباركود:", e);
+      }
+
+      const alertBox = document.getElementById('lowStockAlertText');
+      if (stock <= minQty) {
+        alertBox.style.display = 'block';
+      } else {
+        alertBox.style.display = 'none';
+      }
+    }
+
+    // توليد سريالات رقمية متسلسلة تبدأ زيادة أرقامها من القيمة المدخلة
+    function generateSequentialSerial(baseSerial, index) {
+      let startNum = parseInt(baseSerial, 10);
+      if (isNaN(startNum)) {
+        const match = String(baseSerial).match(/\d+/);
+        startNum = match ? parseInt(match[0], 10) : 100;
+      }
+      return String(startNum + index);
+    }
+
+    // توليد سيريال رقمي يبدأ من 100 تلقائياً
+    function generateAutoCode(docId) {
+      const digits = docId.replace(/\D/g, '').substring(0, 3);
+      if (digits) {
+        return String(parseInt(digits, 10) + 100);
+      }
+      return "100";
+    }
+
+    function filterItems() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = allItems.filter(i => 
+        (i.partName && i.partName.toLowerCase().includes(q)) || 
+        (i.partSerial && String(i.partSerial).toLowerCase().includes(q))
+      );
+      renderItemsList(filtered);
+    }
+
+    // 🖨️ طباعة الورقة الواحدة A4
+    function printA4() {
+      const name = document.getElementById('itemName').value.trim() || 'صنف عام';
+      const baseSerial = document.getElementById('itemSerial').value.trim() || '100';
+      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+      const count = parseInt(document.getElementById('printQty').value) || 24;
+
+      const printArea = document.getElementById('printableBarcodeArea');
+      printArea.className = 'a4-grid-mode';
+      printArea.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        const serialCode = generateSequentialSerial(baseSerial, i);
+
+        const card = document.createElement('div');
+        card.className = 'a4-sticker-card';
+        card.innerHTML = `
+          <div class="sticker-store">AUTO NON CENTER</div>
+          <div class="sticker-title">${name}</div>
+          <svg id="a4-svg-${i}"></svg>
+          <div class="sticker-price">السعر: ${price} ج.م</div>
+        `;
+        printArea.appendChild(card);
+
+        JsBarcode(`#a4-svg-${i}`, serialCode, {
+          format: "CODE128",
+          width: 1.2,
+          height: 24,
+          displayValue: true,
+          fontSize: 9,
+          margin: 1
+        });
+      }
+
+      window.print();
+    }
+
+    // 🖨️ طباعة ملصق حراري
+    function printThermal() {
+      const name = document.getElementById('itemName').value.trim() || 'صنف عام';
+      const baseSerial = document.getElementById('itemSerial').value.trim() || '100';
+      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+      const count = parseInt(document.getElementById('printQty').value) || 1;
+
+      const printArea = document.getElementById('printableBarcodeArea');
+      printArea.className = 'thermal-mode-container';
+      printArea.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        const serialCode = generateSequentialSerial(baseSerial, i);
+
+        const div = document.createElement('div');
+        div.className = 'thermal-mode';
+        div.innerHTML = `
+          <div class="barcode-title">${name}</div>
+          <svg id="thermal-svg-${i}"></svg>
+          <div class="barcode-price">${price} ج.م</div>
+        `;
+        printArea.appendChild(div);
+
+        JsBarcode(`#thermal-svg-${i}`, serialCode, {
+          format: "CODE128", width: 1.5, height: 35, displayValue: true, fontSize: 10
+        });
+      }
+
+      window.print();
+    }
+
+    // نسخ الباركود كصورة للحافظة
+    async function copyBarcodeToClipboard() {
+      const svg = document.getElementById('barcodeSVG');
+      if (!svg) return;
+
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        canvas.width = img.width + 20;
+        canvas.height = img.height + 20;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 10, 10);
+        
+        canvas.toBlob(blob => {
+          try {
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            alert("✅ تم نسخ صورة الباركود للحافظة بنجاح!");
+          } catch(err) {
+            alert("تعذر النسخ المباشر للحافظة، يمكنك استخدام زر التحميل.");
+          }
+        });
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
+
+    // تحميل الباركود كملف صورة PNG
+    function downloadBarcodeImage() {
+      const svg = document.getElementById('barcodeSVG');
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        canvas.width = img.width + 20;
+        canvas.height = img.height + 20;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 10, 10);
+        
+        const a = document.createElement('a');
+        a.download = `Barcode-${document.getElementById('itemName').value || 'item'}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
+  </script>
+</body>
+</html>
