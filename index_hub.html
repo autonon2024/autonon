@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم والاختصارات الشاملة - مركز أوتو نون (NON)</title>
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --primary-orange: #ea580c;
+      --accent-blue: #0284c7;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.2s ease; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; direction: rtl; text-align: right; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+
+    /* الهيدر العلوي */
+    .hub-header {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px;
+      padding: 20px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .hub-title { display: flex; align-items: center; gap: 12px; }
+    .hub-title i { font-size: 2rem; color: var(--primary-orange); }
+    .hub-title h1 { font-size: 1.4rem; font-weight: bold; color: var(--text-main); }
+    .hub-title p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+    .search-box { position: relative; flex: 1; max-width: 350px; min-width: 220px; }
+    .search-box input {
+      width: 100%; padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 10px;
+      font-size: 0.9rem; background: #f8fafc; outline: none; color: var(--text-main);
+    }
+    .search-box input:focus { border-color: var(--primary-orange); background: #fff; }
+    .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    /* شبكة الكروت (الرئيسية) */
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .hub-card {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 20px; text-decoration: none; color: var(--text-main);
+      display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      position: relative; overflow: hidden;
+    }
+    .hub-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary-orange);
+      box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.1);
+    }
+    .hub-card::before {
+      content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: var(--primary-orange);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .hub-card:hover::before { opacity: 1; }
+
+    .card-icon-title { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; color: white; flex-shrink: 0;
+    }
+    .card-title-text h3 { font-size: 1.05rem; font-weight: bold; margin-bottom: 2px; }
+    .card-title-text span { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+    .card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid #f1f5f9; padding-top: 12px; font-size: 0.8rem; font-weight: bold; color: var(--primary-orange);
+    }
+    .card-footer i { transition: transform 0.2s; }
+    .hub-card:hover .card-footer i { transform: translateX(-4px); }
+
+    /* ألوان الأيقونات المتنوعة */
+    .bg-orange { background: var(--primary-orange); }
+    .bg-blue { background: var(--accent-blue); }
+    .bg-green { background: var(--accent-green); }
+    .bg-purple { background: var(--accent-purple); }
+    .bg-indigo { background: #6366f1; }
+    .bg-teal { background: #0d9488; }
+    .bg-rose { background: #e11d48; }
+    .bg-amber { background: #d97706; }
+
+    /* الفوتر */
+    .hub-footer { text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 10px; border-top: 1px solid var(--border-color); }
+
+    /* استجابة الشاشات الصغيرة */
+    @media (max-width: 640px) {
+      body { padding: 10px; }
+      .hub-header { flex-direction: column; align-items: stretch; }
+      .search-box { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div>
+    <!-- الهيدر -->
+    <header class="hub-header">
+      <div class="hub-title">
+        <i class="fa-solid fa-gauge-high"></i>
+        <div>
+          <h1>مركز أوتو نون (NON) - لوحة الاختصارات</h1>
+          <p>إدارة وتشغيل كافة أنظمة الورشة من شاشة مركزية واحدة</p>
+        </div>
+      </div>
+      <div class="search-box">
+        <input type="text5" id="searchInput" placeholder="بحث سريع عن صفحة أو نظام..." onkeyup="filterCards()">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+    </header>
+
+    <!-- شبكة الاختصارات (9 ملفات) -->
+    <main class="hub-grid" id="cardsGrid">
+
+<!-- 7. لوحة تحكم الاستقبال (افتراضي index.html) -->
+      <a href="index.html" class="hub-card" data-keywords="استقبال استقبالات حجز موعد">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-rose"><i class="fa-solid fa-house-laptop"></i></div>
+            <div class="card-title-text">
+              <h3>لوحة الاستقبال الرئيسية</h3>
+              <span>index.html</span>
+            </div>
+          </div>
+          <p class="card-desc">نظام تسجيل العملاء الجدد، حجز الأدوار، وتوجيه السيارات للأقسام الأولى.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      <!-- 2. الفحص والتشخيص الشامل -->
+      <a href="diagnosis_6.html" class="hub-card" data-keywords="فحص تشخيص عطل ورشة سيارة">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-blue"><i class="fa-solid fa-stethoscope"></i></div>
+            <div class="card-title-text">
+              <h3>الفحص والتشخيص</h3>
+              <span>diagnosis_6.html</span>
+            </div>
+          </div>
+          <p class="card-desc">شاشة فحص السيارات، تقارير OBD2، إرفاق الصور، وربط قطع الغيار والكوريك.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+
+      <!-- 1. صانع الباركود -->
+      <a href="barcode_maker_2.html" class="hub-card" data-keywords="باركود طباعة ملصق مخزن">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-orange"><i class="fa-solid fa-barcode"></i></div>
+            <div class="card-title-text">
+              <h3>صانع الباركود</h3>
+              <span>barcode_maker_2.html</span>
+            </div>
+          </div>
+          <p class="card-desc">توليد وطباعة باركود الأصناف وربط السيريلات بـ Firestore وطباعة حرارية وA4.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      <!-- 3. شاشة متابعة السيارات -->
+      <a href="display_2.html" class="hub-card" data-keywords="شاشة متابعة عرض حالة الصيانة">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-green"><i class="fa-solid fa-display"></i></div>
+            <div class="card-title-text">
+              <h3>شاشة المتابعة والعرض</h3>
+              <span>display_2.html</span>
+            </div>
+          </div>
+          <p class="card-desc">شاشة عرض مركزية لمتابعة حالات السيارات الحالية في الورشة وحالة الأقسام.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      <!-- 4. سجل تاريخ السيارات -->
+      <a href="car_history.html" class="hub-card" data-keywords="تاريخ سيارة سجل صيانة عميل">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-purple"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="card-title-text">
+              <h3>سجل تاريخ السيارات</h3>
+              <span>car_history.html</span>
+            </div>
+          </div>
+          <p class="card-desc">استعراض أرشيف صيانة السيارات السابقة، الفواتير، والأعطال السابقة لكل عميل.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      <!-- 5. التقارير المالية والإدارية -->
+      <a href="report.html" class="hub-card" data-keywords="تقارير مالية أرباح إحصائيات">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-indigo"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="card-title-text">
+              <h3>التقارير والإحصائيات</h3>
+              <span>report.html</span>
+            </div>
+          </div>
+          <p class="card-desc">استخراج التقارير المالية، إجمالي الإيرادات، مصروفات الورشة، وأداء الفنيين.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      <!-- 6. بوابة الورشة والفنيين -->
+      <a href="tech_portal.html" class="hub-card" data-keywords="بوابة ورشة فني مهندس إصلاح">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-teal"><i class="fa-solid fa-wrench"></i></div>
+            <div class="card-title-text">
+              <h3>بوابة الفنيين والورشة</h3>
+              <span>tech_portal.html</span>
+            </div>
+          </div>
+          <p class="card-desc">إدارة الكواريك، متابعة الفنيين، وتحديث حالة العمل داخل الأقسام المختلفة.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      
+
+      <!-- 8. إدارة المخزون (Inventory) -->
+      <a href="inventory.html" class="hub-card" data-keywords="مخزن قطع غيار نواقص أصناف">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-amber"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div class="card-title-text">
+              <h3>إدارة المخزن وقطع الغيار</h3>
+              <span>inventory.html</span>
+            </div>
+          </div>
+          <p class="card-desc">متابعة أرصدة الأصناف، تنبيهات النفاذ، وإدارة النواقص المطلوبة من التجار.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+      <!-- 9. لوحة الفنيين المتقدمة (Dashboard) -->
+      <a href="tech_dashboard.html" class="hub-card" data-keywords="لوحة فنيين داشبورد مهام">
+        <div>
+          <div class="card-icon-title">
+            <div class="card-icon bg-blue"><i class="fa-solid fa-user-gear"></i></div>
+            <div class="card-title-text">
+              <h3>لوحة مهام الفنيين</h3>
+              <span>tech_dashboard.html</span>
+            </div>
+          </div>
+          <p class="card-desc">متابعة المهام الخاصة بكل فني على حدة وتحديث نسب إنجاز أعمال الصيانة.</p>
+        </div>
+        <div class="card-footer"><span>فتح النظام</span><i class="fa-solid fa-arrow-left"></i></div>
+      </a>
+
+    </main>
+  </div>
+
+  <!-- الفوتر -->
+  <footer class="hub-footer">
+    <p>جميع الحقوق محفوظة © مركز أوتو نون (NON) لصيانة السيارات 2026</p>
+  </footer>
+
+  <script>
+    // دالة البحث السريع الفوري بين البطاقات والاختصارات
+    function filterCards() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.hub-card');
+
+      cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        const desc = card.querySelector('.card-desc').textContent.toLowerCase();
+        const filename = card.querySelector('span').textContent.toLowerCase();
+        const keywords = card.getAttribute('data-keywords') || '';
+
+        if (title.includes(query) || desc.includes(query) || filename.includes(query) || keywords.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
