@@ -17,7 +17,6 @@
       --status-bg: #0f172a;
     }
 
-    /* الوضع المضيء (النهاري) */
     body.light-theme {
       --primary: #0ba5d4;
       --card-bg: #ffffff;
@@ -70,7 +69,6 @@
       gap: 20px;
     }
 
-    /* زر الإضاءة (الوضع الليلي والنهاري) */
     .theme-toggle-btn {
       background: var(--primary);
       color: var(--text);
@@ -186,11 +184,10 @@
       border-radius: 8px;
     }
 
-    /* ألوان حالات الصيانة */
-    .st-WAITING { background: #78350f; color: #fef3c7; }
-    .st-DIAGNOSIS { background: #075985; color: #e0f2fe; }
+    .st-RECEPTION { background: #1e3a8a; color: #dbeafe; }
+    .st-ENGINEER { background: #78350f; color: #fef3c7; }
+    .st-TECHNICIAN { background: #075985; color: #e0f2fe; }
     .st-PARTS_WAIT { background: #831843; color: #fce7f3; }
-    .st-FIXING { background: #1e3a8a; color: #dbeafe; }
     .st-TESTING { background: #701a75; color: #fae8ff; }
     .st-HOLD { background: #7f1d1d; color: #fecaca; }
 
@@ -220,7 +217,6 @@
     </div>
     
     <div class="header-actions">
-      <!-- زر الإضاءة -->
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
         <i class="fa-solid fa-sun" id="themeIcon"></i>
         <span id="themeText">الوضع المضيء</span>
@@ -238,7 +234,6 @@
   </div>
 
   <script>
-    // 1. إعدادات Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
       authDomain: "auto-non.firebaseapp.com",
@@ -253,15 +248,14 @@
     const db = firebase.firestore();
 
     const STATUSES = {
-      WAITING: { label: "قائمة الانتظار", class: "st-WAITING" },
-      DIAGNOSIS: { label: "مع فني التشخيص", class: "st-DIAGNOSIS" },
+      RECEPTION: { label: "قائمة الاستقبال", class: "st-RECEPTION" },
+      ENGINEER: { label: "مع المهندس", class: "st-ENGINEER" },
+      TECHNICIAN: { label: "مع الفني", class: "st-TECHNICIAN" },
       PARTS_WAIT: { label: "بانتظار قطع الغيار", class: "st-PARTS_WAIT" },
-      FIXING: { label: "جاري إصلاح الأعطال", class: "st-FIXING" },
       TESTING: { label: "جاري اختبار السيارة", class: "st-TESTING" },
       HOLD: { label: "السيارة معلقة", class: "st-HOLD" }
     };
 
-    // 2. إدارة الثيمات وزر الإضاءة
     function toggleTheme() {
       const isLight = document.body.classList.toggle('light-theme');
       localStorage.setItem('display_theme', isLight ? 'light' : 'dark');
@@ -280,14 +274,12 @@
       }
     }
 
-    // استعادة الثيم المحفوظ
     const savedTheme = localStorage.getItem('display_theme');
     if (savedTheme === 'light') {
       document.body.classList.add('light-theme');
       updateThemeUI(true);
     }
 
-    // 3. تحديث الساعة الحية
     function updateClock() {
       const now = new Date();
       document.getElementById('liveClock').textContent = now.toLocaleTimeString('ar-EG');
@@ -295,13 +287,11 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // تحميل اللوجو المخصص إن وجد
     const savedLogo = localStorage.getItem('autonon_custom_logo');
     if (savedLogo) {
       document.getElementById('displayLogo').src = savedLogo;
     }
 
-    // 4. التحديث التلقائي اللحظي من قاعدة البيانات (onSnapshot)
     db.collection('cars').orderBy('createdAt', 'asc').onSnapshot((snapshot) => {
       const grid = document.getElementById('displayGrid');
       grid.innerHTML = '';
@@ -312,13 +302,11 @@
       snapshot.forEach((doc) => {
         const car = doc.data();
 
-        // استبعاد السيارات التي أكتملت (DONE)
         if (car.status === 'DONE') return;
 
         hasActiveCars = true;
-        const stObj = STATUSES[car.status || 'WAITING'] || STATUSES.WAITING;
+        const stObj = STATUSES[car.status || 'RECEPTION'] || STATUSES.RECEPTION;
 
-        // تنسيق التاريخ والوقت
         let visitTimeFormatted = 'غير محدد';
         if (car.createdAt) {
           const dt = car.createdAt.toDate ? car.createdAt.toDate() : new Date(car.createdAt);
@@ -352,7 +340,7 @@
       if (!hasActiveCars) {
         grid.innerHTML = `
           <div class="no-cars">
-            <i class="fa-solid fa-circle-check fa-3x" style="color:#059669; margin-bottom:12px;"></i>
+            <i class="fa-solid fa-circle-check fa-3x" style="color:#059669; margin-bottom:12px;">‌</i>
             <h3>لا توجد سيارات قيد الانتظار أو الصيانة حالياً</h3>
             <p style="margin-top:6px;">جميع السيارات جاري تسليمها أو تم إنهاء إصلاحها بالكامل.</p>
           </div>
