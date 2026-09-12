@@ -184,7 +184,7 @@
   <div id="scannerModal" class="modal" style="display:none;">
     <div class="modal-content">
       <h3><i class="fa-solid fa-camera"></i> مسح السيريال بالكاميرا</h3>
-      <p style="font-size:0.8rem; color:#64748b; margin:6px 0;">وجه الكاميرا نحو باركود السيريال مباشرة</p>
+      <p style="font-size:0.8rem; color:#64748b; margin:6px 0;">وجه الكاميرا نحو باركود أو QR السيريال مباشرة</p>
       <div id="scannerRegion"></div>
       <button onclick="stopCameraScanner()" class="btn btn-danger btn-block" style="margin-top:12px;"><i class="fa-solid fa-xmark"></i> إغلاق الكاميرا</button>
     </div>
@@ -216,9 +216,9 @@
       <div class="dropdown">
         <button class="dropdown-btn"><i class="fa-solid fa-file-arrow-up"></i> استيراد وتصدير البيانات <i class="fa-solid fa-chevron-down"></i></button>
         <div class="dropdown-content">
-          <div class="dropdown-title">🚗 & ⚙️ البيانات (السيارات، الأقسام، الخدمات، الشاسيه)</div>
-          <label><i class="fa-solid fa-file-excel" style="color:#059669;"></i> استيراد الماركات والأقسام والخدمات من Excel <input type="file" id="excelCarFile" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importCarDatabase(event)"></label>
-          <a onclick="exportCarDatabase()"><i class="fa-solid fa-file-export" style="color:#2563eb;"></i> تصدير البيانات (سيارات، أقسام، خدمات، شاسيه) إلى Excel</a>
+          <div class="dropdown-title">🚗 & ⚙️ البيانات (السيارات، الشاسيه)</div>
+          <label><i class="fa-solid fa-file-excel" style="color:#059669;"></i> استيراد الماركات من Excel <input type="file" id="excelCarFile" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importCarDatabase(event)"></label>
+          <a onclick="exportCarDatabase()"><i class="fa-solid fa-file-export" style="color:#2563eb;"></i> تصدير البيانات (سيارات، شاسيه) إلى Excel</a>
           
           <div class="dropdown-title">👤 سجل العملاء والصيانة</div>
           <a onclick="exportAllClientsTXT()"><i class="fa-solid fa-file-lines" style="color:#d97706;"></i> تصدير سجل اليومية (TXT)</a>
@@ -351,17 +351,18 @@
             <input type="text" id="chassisNo" placeholder="رقم شاسيه السيارة (اختياري)">
           </div>
           <div class="form-group">
-            <label><i class="fa-solid fa-barcode"></i> السيريال نمبر (تلقائي لمتابعة الفحص):</label>
+            <label><i class="fa-solid fa-barcode"></i> السيريال نمبر:</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="serialNo" readonly style="background-color: var(--table-header); font-weight:bold; color:var(--accent);" placeholder="مولد تلقائياً...">
-              <button type="button" onclick="startCameraScanner()" class="btn btn-warning" title="فتح الكاميرا لمسح باركود سيريال" style="padding: 0 12px; white-space:nowrap;">
+              <input type="text" id="serialNo" placeholder="اكتب أو ولد تلقائياً..." style="font-weight:bold; color:var(--accent);">
+              <button type="button" onclick="generateDefaultSerialNumber()" class="btn btn-outline" title="توليد سيريال تلقائي" style="padding: 0 10px; white-space:nowrap; font-size:0.75rem;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> تلييد
+              </button>
+              <button type="button" onclick="startCameraScanner()" class="btn btn-warning" title="فتح الكاميرا لمسح باركود سيريال" style="padding: 0 10px; white-space:nowrap;">
                 <i class="fa-solid fa-camera"></i>
               </button>
             </div>
           </div>
         </div>
-
-       
 
         <div class="form-group">
           <label>شكوى العميل / العطل المطلوب إصلاحه:</label>
@@ -407,7 +408,6 @@
               <th>اسم العميل</th>
               <th>السيارة واللوحة</th>
               <th>السيريال نمبر</th>
-              <th>القسم والخدمة</th>
               <th>حالة السيارة بالورشة</th>
               <th>الإجراءات</th>
             </tr>
@@ -439,12 +439,11 @@
     <table>
       <thead>
         <tr>
-          <th style="width: 6%;">الدور</th>
-          <th style="width: 20%;">اسم العميل والموبايل</th>
-          <th style="width: 18%;">السيارة واللوحة</th>
-          <th style="width: 16%;">السيريال والشاسيه</th>
-          <th style="width: 20%;">القسم والخدمة</th>
-          <th style="width: 20%;">حالة التشخيص والصيانة</th>
+          <th style="width: 8%;">الدور</th>
+          <th style="width: 25%;">اسم العميل والموبايل</th>
+          <th style="width: 22%;">السيارة واللوحة</th>
+          <th style="width: 20%;">السيريال والشاسيه</th>
+          <th style="width: 25%;">حالة التشخيص والصيانة</th>
         </tr>
       </thead>
       <tbody id="pdfPrintTbody"></tbody>
@@ -528,17 +527,6 @@
       setTimeout(() => { document.getElementById('themeIcon').className = 'fa-solid fa-sun'; }, 100);
     }
 
-    const defaultSubDeptData = {
-      "ميكانيكا": ["عمرة موتور", "تغيير سير سيرفيس/كاتينة", "صيانة فتيس", "تغيير طلمبة مياه", "تغيير ردياتير", "فحص وتسريب زيت", "فحص رشاشات "],
-      "كهرباء": ["فحص كمبيوتر واكواد", "تغيير بطارية", "صيانة دينامو / مارش", "إصلاح تكييف وشحن فريون", "إصلاح ضفيرة وتمديدات"],
-      "عفشة وتعليق": ["تغيير مساعدين", "تغيير مقصات/بيض", "ضبط زوايا واتزان", "تغيير تيل وطنابير", "تربيط عفشة كاملة"],
-      "سمكرة ودهان": ["اصلاح صدمات", "رش جزئي/كامل", "تلميع وبولش", "تغيير اكصدام/رفرف"],
-      "سروجي وتنجيد": ["تنجيد كراسي", "إصلاح سقف", "تجديد أرضية وفرش", "إصلاح أحزمة أمان"],
-      "صيانة دورية وزيوت": ["تغيير زيت موتور وفلتر", "تغيير زيت فتيس", "تغيير فلاتر هواء وتكييف", "صيانة 10,000 كم"]
-    };
-
-    let subDeptData = JSON.parse(localStorage.getItem('autonon_sub_dept_db')) || defaultSubDeptData;
-
     const defaultCarData = {
       "اليابان": { "تويوتا": ["كورولا", "كامري", "ياريس"], "نيسان": ["صني", "سنترا", "قشقاي"] },
       "كوريا": { "هيونداي": ["أكسنت", "إلنترا", "توسان"], "كيا": ["سيراتو", "سبورتاج", "ريو"] },
@@ -555,24 +543,7 @@
         originSelect.innerHTML += `<option value="${origin}">${origin}</option>`;
       });
       filterBrands();
-      renderDeptOptions();
       generateDefaultSerialNumber();
-    }
-
-    function renderDeptOptions() {
-      const deptSelect = document.getElementById('carDept');
-      const selectedVal = deptSelect.value;
-      deptSelect.innerHTML = '<option value="">اختر القسم أولاً</option>';
-      
-      Object.keys(subDeptData).forEach(dept => {
-        deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`;
-      });
-      
-      deptSelect.innerHTML += `<option value="NEW_DEPT">➕ إضافة قسم جديد...</option>`;
-      
-      if (selectedVal && subDeptData[selectedVal]) {
-        deptSelect.value = selectedVal;
-      }
     }
 
     function generateDefaultSerialNumber() {
@@ -625,15 +596,12 @@
           }
 
           let updatedCarDb = JSON.parse(JSON.stringify(carDatabase));
-          let updatedSubDeptDb = JSON.parse(JSON.stringify(subDeptData));
           let countImported = 0;
 
           jsonSheet.forEach(row => {
             const origin = (row['المنشأ'] || row['Origin'] || '').toString().trim();
             const brand = (row['الماركة'] || row['Brand'] || '').toString().trim();
             const model = (row['الموديل'] || row['Model'] || '').toString().trim();
-            const dept = (row['القسم المحول إليه'] || row['القسم'] || row['Department'] || row['Dept'] || '').toString().trim();
-            const service = (row['نوع الخدمة الأساسية'] || row['نوع الخدمة'] || row['الخدمة'] || row['Service'] || '').toString().trim();
 
             if (origin && brand) {
               if (!updatedCarDb[origin]) updatedCarDb[origin] = {};
@@ -643,27 +611,12 @@
               }
               countImported++;
             }
-
-            if (dept) {
-              if (!updatedSubDeptDb[dept]) {
-                updatedSubDeptDb[dept] = [];
-              }
-              if (service && !updatedSubDeptDb[dept].includes(service)) {
-                updatedSubDeptDb[dept].push(service);
-              }
-              countImported++;
-            }
           });
 
           if (countImported > 0) {
             carDatabase = updatedCarDb;
-            subDeptData = updatedSubDeptDb;
             localStorage.setItem('autonon_car_db', JSON.stringify(carDatabase));
-            localStorage.setItem('autonon_sub_dept_db', JSON.stringify(subDeptData));
-
             initOrigins();
-            renderDeptOptions();
-
             alert('تم استيراد وتحديث قاعدة البيانات بنجاح!');
           } else {
             alert('لم يتم العثور على أعمدة مطابقة في ملف الـ Excel.');
@@ -678,38 +631,17 @@
 
     function exportCarDatabase() {
       let flatData = [];
-      let carRows = [];
       for (let origin in carDatabase) {
         for (let brand in carDatabase[origin]) {
           carDatabase[origin][brand].forEach(model => {
-            carRows.push({ origin, brand, model });
+            flatData.push({
+              'المنشأ': origin,
+              'الماركة': brand,
+              'الموديل': model,
+              'رقم الشاسيه': ''
+            });
           });
         }
-      }
-
-      let deptRows = [];
-      for (let dept in subDeptData) {
-        if (subDeptData[dept].length > 0) {
-          subDeptData[dept].forEach(service => {
-            deptRows.push({ dept, service });
-          });
-        } else {
-          deptRows.push({ dept, service: '' });
-        }
-      }
-
-      const maxRows = Math.max(carRows.length, deptRows.length);
-      for (let i = 0; i < maxRows; i++) {
-        const c = carRows[i] || {};
-        const d = deptRows[i] || {};
-        flatData.push({
-          'المنشأ': c.origin || '',
-          'الماركة': c.brand || '',
-          'الموديل': c.model || '',
-          'رقم الشاسيه': '',
-          'القسم المحول إليه': d.dept || '',
-          'نوع الخدمة الأساسية': d.service || ''
-        });
       }
 
       if (flatData.length === 0) {
@@ -719,8 +651,8 @@
 
       const worksheet = XLSX.utils.json_to_sheet(flatData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Import_Export");
-      XLSX.writeFile(workbook, "AutoNon_Cars_and_Services.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Cars_Data");
+      XLSX.writeFile(workbook, "AutoNon_Cars_Database.xlsx");
     }
 
     function handleColorChange() {
@@ -741,77 +673,6 @@
         return document.getElementById('customColorInput').value.trim() || 'لون مخصص';
       }
       return colorSelect.value;
-    }
-
-    function handleDeptChange() {
-      const deptSelect = document.getElementById('carDept');
-      let dept = deptSelect.value;
-
-      if (dept === 'NEW_DEPT') {
-        const newDeptName = prompt('أدخل اسم القسم الجديد:');
-        if (newDeptName && newDeptName.trim()) {
-          const cleanDept = newDeptName.trim();
-          if (!subDeptData[cleanDept]) {
-            subDeptData[cleanDept] = [];
-            localStorage.setItem('autonon_sub_dept_db', JSON.stringify(subDeptData));
-          }
-          renderDeptOptions();
-          deptSelect.value = cleanDept;
-          dept = cleanDept;
-        } else {
-          deptSelect.value = '';
-          return;
-        }
-      }
-
-      const subDeptSelect = document.getElementById('carSubDeptSelect');
-      subDeptSelect.innerHTML = '';
-
-      if (dept && subDeptData[dept]) {
-        subDeptSelect.disabled = false;
-        subDeptSelect.innerHTML = '<option value="">اختر نوع الخدمة المطلوب تنفيذها</option>';
-        subDeptData[dept].forEach(sub => {
-          subDeptSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
-        });
-        subDeptSelect.innerHTML += `<option value="NEW_SERVICE">➕ إضافة خدمة جديدة...</option>`;
-      } else {
-        subDeptSelect.disabled = true;
-        subDeptSelect.innerHTML = '<option value="">اختر القسم أولاً لربط الخدمات</option>';
-      }
-
-      handleServiceChange();
-    }
-
-    function handleServiceChange() {
-      const dept = document.getElementById('carDept').value;
-      const subDeptSelect = document.getElementById('carSubDeptSelect');
-      const detailsContainer = document.getElementById('serviceDetailsContainer');
-
-      if (subDeptSelect.value === 'NEW_SERVICE') {
-        const newServiceName = prompt('أدخل اسم الخدمة الأساسية الجديدة:');
-        if (newServiceName && newServiceName.trim() && dept && subDeptData[dept]) {
-          const cleanService = newServiceName.trim();
-          if (!subDeptData[dept].includes(cleanService)) {
-            subDeptData[dept].push(cleanService);
-            localStorage.setItem('autonon_sub_dept_db', JSON.stringify(subDeptData));
-          }
-          subDeptSelect.innerHTML = '<option value="">اختر نوع الخدمة المطلوب تنفيذها</option>';
-          subDeptData[dept].forEach(sub => {
-            subDeptSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
-          });
-          subDeptSelect.innerHTML += `<option value="NEW_SERVICE">➕ إضافة خدمة جديدة...</option>`;
-          subDeptSelect.value = cleanService;
-        } else {
-          subDeptSelect.value = '';
-        }
-      }
-
-      if (subDeptSelect.value !== '' && subDeptSelect.value !== 'NEW_SERVICE') {
-        detailsContainer.style.display = 'block';
-      } else {
-        detailsContainer.style.display = 'none';
-        document.getElementById('serviceDetails').value = '';
-      }
     }
 
     function moveNext(current, nextId) {
@@ -870,18 +731,6 @@
           }
         }
       }
-
-      if (car.dept) {
-        renderDeptOptions();
-        document.getElementById('carDept').value = car.dept;
-        handleDeptChange();
-        if (car.subDept) {
-          document.getElementById('carSubDeptSelect').value = car.subDept;
-          handleServiceChange();
-        }
-      }
-
-      document.getElementById('serviceDetails').value = car.serviceDetails || '';
 
       const badge = document.getElementById('govBadge');
       badge.textContent = `المحافظة التابعة: ${car.gov || 'عام'}`;
@@ -988,10 +837,6 @@
       document.getElementById('alertNotice').style.display = 'none';
       document.getElementById('alertDangerNotice').style.display = 'none';
       document.getElementById('customColorInput').style.display = 'none';
-      renderDeptOptions();
-      document.getElementById('carSubDeptSelect').disabled = true;
-      document.getElementById('carSubDeptSelect').innerHTML = '<option value="">اختر القسم أولاً لربط الخدمات</option>';
-      document.getElementById('serviceDetailsContainer').style.display = 'none';
       isCurrentPlateDuplicate = false;
       generateDefaultSerialNumber();
     }
@@ -1004,10 +849,9 @@
 
       const name = document.getElementById('clientName').value.trim();
       const phone = document.getElementById('clientPhone').value.trim();
-      const dept = document.getElementById('carDept').value;
 
-      if (!name || !phone || !dept || dept === 'NEW_DEPT') {
-        alert("يرجى إدخال البيانات الأساسية (الاسم، الهاتف، والقسم)!");
+      if (!name || !phone) {
+        alert("يرجى إدخال البيانات الأساسية (الاسم ورقم الهاتف)!");
         return;
       }
 
@@ -1016,7 +860,7 @@
       const plateFull = `${pChars} - ${pNums}`;
       const govName = document.getElementById('govBadge').dataset.gov || 'عام';
 
-      const serialNoVal = document.getElementById('serialNo').value.trim();
+      const serialNoVal = document.getElementById('serialNo').value.trim() || ('NON-' + Math.floor(100000 + Math.random() * 900000));
       const idDoc = 'CAR-' + Date.now();
 
       const activeCarsToday = allCarsCache.filter(c => c.status !== 'DONE' && c.date === new Date().toLocaleDateString('ar-EG'));
@@ -1036,9 +880,6 @@
         gov: govName,
         chassis: document.getElementById('chassisNo').value.trim() || 'غير مدخل',
         serialNo: serialNoVal,
-        dept: dept,
-        subDept: document.getElementById('carSubDeptSelect').value,
-        serviceDetails: document.getElementById('serviceDetails').value.trim(),
         issue: document.getElementById('carIssue').value.trim(),
         status: "WAITING",
         date: new Date().toLocaleDateString('ar-EG'),
@@ -1050,7 +891,7 @@
         await db.collection('cars').doc(newCar.docId).set(newCar);
         sendWhatsAppMsg(newCar);
         clearForm();
-        alert(`تم تسجيل السيارة بنجاح ودخولها قائمة الانتظار (#${newCar.queueNo})!\nسيريال المتابعة للعميل: ${newCar.serialNo}`);
+        alert(`تم تسجيل السيارة بنجاح ودخولها قائمة الانتظار (#${newCar.queueNo})!\nسيريال المتابعة: ${newCar.serialNo}`);
       } catch (err) { alert('خطأ في الحفظ: ' + err.message); }
     }
 
@@ -1119,11 +960,6 @@
             <td><strong>${car.brand || ''} ${car.model || ''}</strong><br><small style="color:#2563eb">اللوحة: ${car.plate}</small></td>
             <td><strong style="color:#d97706; font-size:0.9rem;">${car.serialNo || 'بدون'}</strong><br><small style="color:#64748b">شاسيه: ${car.chassis}</small></td>
             <td>
-              <strong>${car.dept}</strong>
-              ${car.subDept ? `<br><small style="color:#059669">${car.subDept}</small>` : ''}
-              ${car.serviceDetails ? `<br><small style="color:#2563eb">${car.serviceDetails}</small>` : ''}
-            </td>
-            <td>
               <span class="status-badge ${statusObj.class}">${statusObj.label}</span>
               <br>
               <select class="status-select" onchange="updateCarStatus('${car.docId}', this.value)">
@@ -1173,12 +1009,12 @@
         try {
           await db.collection('cars').doc(docId).delete();
           alert('تم الحذف بنجاح!');
-        } catch (err) { alert('حدث خطأ: ' + err.message); }
+        } catch (err) { alert('خطأ: ' + err.message); }
       }
     }
 
     function sendWhatsAppMsg(car) {
-      const textMessage = `مرحباً أ/ ${car.name}\nتم تسجيل سيارتكم (${car.brand} ${car.model}) بمركز أوتو نون (NON) بنجاح.\n\n🔑 السيريال نمبر المخصص لمتابعة حالة الفحص والصيانة: *${car.serialNo}*\n📌 رقم الدور الحالي: (#${car.queueNo})\n🚗 القسم المحول إليه: ${car.dept}\n🛠️ الخدمة المطلوبة: ${car.subDept || 'فحص وصيانة'}\n\nيمكنكم الاستعلام ومتابعة حالة الفحص والإصلاح بالمركز في أي وقت بواسطة السيريال نمبر الخاص بكم.\n\nشكراً لزيارتكم مركز أوتو نون!`;
+      const textMessage = `مرحباً أ/ ${car.name}\nتم تسجيل سيارتكم (${car.brand} ${car.model}) بمركز أوتو نون (NON) بنجاح.\n\n🔑 السيريال نمبر المخصص لمتابعة حالة الفحص والصيانة: *${car.serialNo}*\n📌 رقم الدور الحالي: (#${car.queueNo})\n🛠️ العطل المسجل: ${car.issue || 'فحص وصيانة'}\n\nيمكنكم الاستعلام ومتابعة حالة الفحص والإصلاح بالمركز في أي وقت بواسطة السيريال نمبر الخاص بكم.\n\nشكراً لزيارتكم مركز أوتو نون!`;
       const encodedMessage = encodeURIComponent(textMessage);
       window.open(`https://wa.me/2${car.phone}?text=${encodedMessage}`, '_blank');
     }
@@ -1200,7 +1036,6 @@
             <td><strong>${car.name}</strong><br>${car.phone}</td>
             <td><strong>${car.brand || ''} ${car.model || ''}</strong><br>اللوحة: ${car.plate}</td>
             <td>سيريال: ${car.serialNo}<br>شاسيه: ${car.chassis}</td>
-            <td><strong>${car.dept}</strong> (${car.subDept || 'عام'})</td>
             <td><strong>${st}</strong><br><span style="color:#b91c1c;">العطل: ${car.issue || 'صيانة'}</span></td>
           </tr>
         `;
@@ -1227,7 +1062,7 @@
       let fullContent = "=== سجل سيارات وصيانة مركز أوتو نون NON ===\n\n";
       allCarsCache.forEach(car => {
         const st = (STATUSES[car.status || 'WAITING'] || STATUSES['WAITING']).label;
-        fullContent += `الدور: #${car.queueNo}\nالتاريخ: ${car.date} - ${car.time}\nالاسم: ${car.name}\nالموبايل: ${car.phone}\nالسيارة: ${car.brand} ${car.model} - اللوحة: ${car.plate}\nالسيريال: ${car.serialNo}\nالقسم: ${car.dept} (${car.subDept})\nالحالة الحالية: ${st}\nالعطل: ${car.issue || 'لا يوجد'}\n\n------------------------------------------------\n\n`;
+        fullContent += `الدور: #${car.queueNo}\nالتاريخ: ${car.date} - ${car.time}\nالاسم: ${car.name}\nالموبايل: ${car.phone}\nالسيارة: ${car.brand} ${car.model} - اللوحة: ${car.plate}\nالسيريال: ${car.serialNo}\nالحالة الحالية: ${st}\nالعطل: ${car.issue || 'لا يوجد'}\n\n------------------------------------------------\n\n`;
       });
       const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
