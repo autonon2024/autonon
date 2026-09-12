@@ -171,6 +171,34 @@
     .btn-resume { background: #10b981; color: white; }
     .btn-disabled { opacity: 0.5; cursor: not-allowed; }
 
+    .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid var(--btn-dz);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .3s; border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background-color: white; transition: .3s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--btn-dz); }
+    input:checked + .slider:before { transform: translateX(26px); }
+
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
       display: none; justify-content: center; align-items: center; z-index: 9999; padding: 10px;
@@ -192,7 +220,6 @@
 </head>
 <body>
 
-  <!-- الشريط العلوي -->
   <div class="header-top-bar">
     <div class="brand-logo">
       <i class="fa-solid fa-car-tunnel"></i>
@@ -212,7 +239,6 @@
     </div>
   </div>
 
-  <!-- كارت البحث الشامل والبحث السريع -->
   <div class="top-search-card">
     <i class="fa-solid fa-magnifying-glass" style="color:var(--primary-orange); font-size:1.1rem;"></i>
     <input type="text" id="topSearchInput" placeholder="ابحث بالاسم، الهاتف، السيريال، أو رقم اللوحة..." onkeyup="if(event.key==='Enter') executeSearch()" style="flex:1; min-width:180px;">
@@ -229,22 +255,33 @@
     <button class="btn-action-sm btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة</button>
   </div>
 
-  <!-- أشرطة تبويب السيارات المفتوحة للتشخيص -->
   <div style="margin-bottom: 6px; font-weight: bold; font-size: 0.8rem; color: var(--primary-orange);">
-    <i class="fa-solid fa-folder-tree"></i> السيارات المفتوحة للتشخيص حالياً (التشخيص المتعدد):[cite: 16]
+    <i class="fa-solid fa-folder-tree"></i> السيارات المفتوحة للتشخيص حالياً (التشخيص المتعدد):
   </div>
   <div class="diag-tabs-container" id="diagTabsContainer">
-    <div class="diag-tab active">لا توجد سيارة مفتوحة حالياً[cite: 16]</div>
+    <div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>
   </div>
 
   <div class="main-layout">
     
-    <!-- عمود نموذج الفحص والتشخيص -->
     <div>
       <div class="card-box">
         <div class="card-title">
           <span><i class="fa-solid fa-stethoscope"></i> فحص وتشخيص السيارة الحالية</span>
           <span id="serialStatusBadge" class="badge-status" style="background:#64748b; color:white;">السيريال غير مفعل</span>
+        </div>
+
+        <div class="switch-container">
+          <div>
+            <div style="font-weight: bold; color: var(--btn-dz); font-size: 0.85rem;">
+              <i class="fa-solid fa-toggle-on"></i> حالة التحويل للتشخيص التلقائي
+            </div>
+            <small style="color: var(--text-main); opacity: 0.75;">عند التفعيل (ON): يتقفل العميل بالاستقبال وتتحول حالته للشاشة إلى قسم التشخيص</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="clientDiagnosisToggle" onchange="handleClientDiagnosisToggle(this)">
+            <span class="slider"></span>
+          </label>
         </div>
 
         <div style="background:rgba(234, 88, 12, 0.05); border:1px dashed var(--primary-orange); border-radius:8px; padding:8px; margin-bottom:10px;">
@@ -255,7 +292,6 @@
           </div>
         </div>
 
-        <!-- بيانات العميل والسيارة -->
         <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
           <div class="form-grid">
             <div class="form-field">
@@ -290,10 +326,9 @@
             <div class="form-field"><label>اللوحة:</label><input type="text" id="diagPlate"></div>
           </div>
 
-          <!-- عرض شكوى العميل الواردة من الاستقبال -->
           <div class="form-field" style="margin-top: 8px; background: rgba(234, 88, 12, 0.04); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <label style="color: var(--primary-orange);"><i class="fa-solid fa-comment-dots"></i> شكوى العميل (من الاستقبال):</label>
-            <textarea id="receptionComplaintText" rows="2" readonly placeholder="شكوى العميل المسجلة في الاستقبال..." style="background: var(--input-bg); font-weight: bold;"></textarea>
+            <label style="color: var(--primary-orange);"><i class="fa-solid fa-comment-dots"></i> شكوى العميل (كما وصفها عند الاستقبال):</label>
+            <textarea id="receptionComplaintText" rows="2" placeholder="اكتب النص الذي ذكره العميل حرفياً عند قدومه..." oninput="triggerDynamicStatusUpdate()" style="background: var(--input-bg); font-weight: bold;"></textarea>
           </div>
 
           <div style="display:flex; gap:6px; margin-top:8px;">
@@ -302,7 +337,6 @@
           </div>
         </div>
 
-        <!-- قسم سجلات الصيانة والأعمار -->
         <div style="border:1px solid var(--primary-orange); background:rgba(234, 88, 12, 0.02); border-radius:8px; padding:10px; margin-bottom:10px;">
           <div style="font-weight:bold; color:var(--primary-orange); font-size:0.85rem; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fa-solid fa-sliders"></i> جدول الصيانة والأعمار الافتراضية:</span>
@@ -326,7 +360,6 @@
           <div id="maintenanceItemsContainer"></div>
         </div>
 
-        <!-- قسم ربط البلوتوث وتطبيقات الفحص -->
         <div style="border:2px solid #0284c7; background:rgba(2, 132, 199, 0.05); border-radius:12px; padding:12px; margin-bottom:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
             <span style="font-weight:bold; color:#0284c7; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
@@ -339,7 +372,6 @@
           <textarea id="obdCodesInput" rows="2" placeholder="أكواد الأعطال المسجلة (مثال: P0300, P0171)..." oninput="triggerDynamicStatusUpdate()" style="width:100%; font-size:0.85rem; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-main); font-weight:bold; outline:none; font-family:monospace;"></textarea>
         </div>
 
-        <!-- حقول القسم المحول إليه ونوع الخدمة (مترابطة وصلاحية لإضافة بنود وقسم جديد) -->
         <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px; background:rgba(234,88,12,0.01);">
           <div class="form-grid" style="margin-bottom:8px;">
             <div class="form-field">
@@ -373,10 +405,9 @@
 
         <div class="form-field" style="margin-bottom:8px;">
           <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-user-gear"></i> تقرير التشخيص والفحص الفني:</label>
-          <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني والنتائج..." oninput="triggerDynamicStatusUpdate()"></textarea>
+          <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني والنتائج وحل شكوى العميل..." oninput="triggerDynamicStatusUpdate()"></textarea>
         </div>
 
-        <!-- المرفقات والصور -->
         <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
             <label style="font-size:0.78rem; font-weight:bold;"><i class="fa-solid fa-camera"></i> صور الفحص الفني والعيوب:</label>
@@ -399,7 +430,6 @@
           </div>
         </div>
 
-        <!-- قسم اختيار قطعة غيار وإدارة الإكسل Excel -->
         <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
           <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
             <button type="button" class="btn-action-sm btn-primary" style="flex:1;" onclick="openStorePartsModal()"><i class="fa-solid fa-boxes-stacked"></i> فتح قائمة المخزن واختيار الأصناف</button>
@@ -433,7 +463,6 @@
           </div>
         </div>
 
-        <!-- الرافعة / الكوريك المحول إليه والفني المسؤول -->
         <div style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
           <label style="font-size: 0.85rem; font-weight: bold; color: #10b981; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
             <i class="fa-solid fa-car-tunnel"></i> الرافعة / الكوريك والفني المسؤول:
@@ -452,7 +481,6 @@
           </div>
         </div>
 
-        <!-- أزرار الإجراءات والتحويل -->
         <div style="display:flex; flex-direction:column; gap:8px;">
           <button type="button" class="btn-action-sm" style="background:#16a34a; color:white; padding:11px; font-size:0.95rem;" onclick="finishDiagnosisAndTransferToDepartment()">
             <i class="fa-solid fa-paper-plane"></i> إرسال للفني وتخصيص الكوريك
@@ -474,10 +502,8 @@
       </div>
     </div>
 
-    <!-- العمود الأيسر: الجداول والسيارات المعلقة والمنتظرة والسجلات -->
     <div>
 
-      <!-- السيارات المعلقة -->
       <div class="card-box suspended-alert">
         <div class="card-title" style="color:#ef4444;">
           <span><i class="fa-solid fa-triangle-exclamation"></i> السيارات المعلقة (في انتظار قطع الغيار/الموافقة)</span>
@@ -501,7 +527,6 @@
         </div>
       </div>
 
-      <!-- السيارات المنتظرة للتشخيص -->
       <div class="card-box">
         <div class="card-title">
           <span><i class="fa-solid fa-car-side"></i> السيارات المنتظرة للتشخيص</span>
@@ -525,7 +550,6 @@
         </div>
       </div>
 
-      <!-- سجلات التشخيص والتقارير المكتملة -->
       <div class="card-box">
         <div class="card-title">
           <span><i class="fa-solid fa-file-invoice"></i> سجلات التشخيص والتقارير المكتملة</span>
@@ -553,7 +577,6 @@
 
   </div>
 
-  <!-- مودال المعاينة والـ PDF -->
   <div class="modal-overlay" id="previewModal">
     <div class="modal-content">
       <div id="pdfExportContainer">
@@ -573,7 +596,6 @@
     </div>
   </div>
 
-  <!-- مودال "فتح باستخدام" تطبيقات الأندرويد -->
   <div class="modal-overlay" id="openWithAppsModal">
     <div class="modal-content" style="max-width:450px;">
       <h3 style="color:var(--primary-orange); margin-bottom:12px; font-size:1rem;"><i class="fa-solid fa-up-right-from-square"></i> اختر برنامج الفحص للفتح:</h3>
@@ -606,7 +628,7 @@
         <i class="fa-solid fa-laptop-code" style="font-size:1.5rem; color:#10b981;"></i>
         <div>
           <div>X-Diag Pro3</div>
-          <small style="color:#64748b;">نظام البرمجة والتشخيص الذكي</small>
+          <small style="color:#10b981;">نظام البرمجة والتشخيص الذكي</small>
         </div>
       </div>
 
@@ -617,7 +639,6 @@
   </div>
 
   <script>
-    // 1. تهيئة Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
       authDomain: "auto-non.firebaseapp.com",
@@ -630,7 +651,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // خريطة خدمات الأقسام الافتراضية وقابلة للتعديل والتخزين المحلي
     let departmentServicesMap = JSON.parse(localStorage.getItem('departmentServicesMap')) || {
       "ميكانيكا": ["عمرة موتور كاملة", "تغيير جوان وش سلندر", "صيانة دورية وسيور", "فحص صوت بالمحرك"],
       "عفشة وسمكرة": ["تغيير مساعدين وفبر", "صيانة كبالن وبارات", "ضبط أقصي زوايا", "سمكرة ودكو البوداس"],
@@ -639,7 +659,6 @@
       "فرامل وتكييف": ["تغيير تيل فرامل أمامي/خلفي", "خرط طانبير فرامل", "شحن وتكييف صيانة كمبروسر", "تغيير زيت فرامل ونزيف دائرة"]
     };
 
-    // المتغيرات العامة للسيارات والتشخيص
     let activeDiagnosisCarsMap = {}; 
     let currentSelectedCarDocId = null;
     let currentCarStatus = null;
@@ -655,7 +674,6 @@
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 
-    // تحديث قائمة الأقسام في الـ Select بناءً على الخريطة المتاحة
     function populateDepartmentsDropdown(selectedDept = "") {
       const deptSelect = document.getElementById('diagTargetDepartment');
       if (!deptSelect) return;
@@ -674,7 +692,6 @@
       });
     }
 
-    // تعبئة أنواع الخدمات بناءً على القسم المختار
     function onDepartmentChange(preselectService = "") {
       const deptSelect = document.getElementById('diagTargetDepartment');
       const serviceSelect = document.getElementById('diagServiceTypeSelect');
@@ -694,7 +711,6 @@
       });
     }
 
-    // صلاحية إضافة قسم جديد بالسيستم
     function openAddDepartmentModal() {
       const newDept = prompt("أدخل اسم القسم الجديد (مثال: قسم العادم والتلوث):");
       if (!newDept || !newDept.trim()) return;
@@ -714,7 +730,6 @@
       alert(`✅ تمت إضافة القسم (${trimmedDept}) بنجاح!`);
     }
 
-    // صلاحية إضافة بند جديد لقائمة نوع الخدمة للقسم الحالي
     function openAddServiceModal() {
       const deptSelect = document.getElementById('diagTargetDepartment');
       const currentDept = deptSelect.value;
@@ -740,7 +755,6 @@
       alert(`✅ تمت إضافة البند (${trimmedService}) بنجاح إلى قسم (${currentDept})!`);
     }
 
-    // 2. الاستماع اللحظي للكواريك والفنيين
     db.collection('lifts').onSnapshot(snap => {
       globalLifts = [];
       snap.forEach(doc => globalLifts.push({ id: doc.id, ...doc.data() }));
@@ -786,7 +800,38 @@
       triggerDynamicStatusUpdate();
     }
 
-    // دالة التحديث الديناميكي لحالة التشخيص وتغيير الشاشة فورياً
+    async function handleClientDiagnosisToggle(checkbox) {
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة أولاً!");
+        checkbox.checked = false;
+        return;
+      }
+
+      const isChecked = checkbox.checked;
+      const statusValue = isChecked ? 'IN_DIAGNOSIS' : 'QUEUED';
+      const statusLabelText = isChecked ? 'تحت التشخيص' : 'قيد الانتظار';
+
+      try {
+        await db.collection('cars').doc(currentSelectedCarDocId).set({
+          status: statusValue,
+          statusLabel: statusLabelText,
+          receptionLocked: isChecked,
+          currentScreenStatus: isChecked ? 'تشخيص' : 'انتظار'
+        }, { merge: true });
+
+        currentCarStatus = statusValue;
+        
+        if (isChecked) {
+          alert("✅ تم تفعيل العميل على الشاشة وتغيير حالته إلى (تحت التشخيص)، وتم قفله من الاستقبال.");
+        } else {
+          alert("ℹ️ تم إلغاء التفعيل وإعادة حالة العميل.");
+        }
+      } catch (e) {
+        alert("خطأ أثناء تحديث الحالة: " + e.message);
+        checkbox.checked = !isChecked;
+      }
+    }
+
     async function triggerDynamicStatusUpdate() {
       if (!currentSelectedCarDocId) return;
 
@@ -794,6 +839,7 @@
       const serviceType = document.getElementById('diagServiceTypeSelect').value;
       const targetDept = document.getElementById('diagTargetDepartment').value;
       const obdCodes = document.getElementById('obdCodesInput').value.trim();
+      const complaintSolution = document.getElementById('receptionComplaintText').value.trim();
 
       let dynamicStatus = currentCarStatus;
       if (diagText.length > 3 || obdCodes.length > 0 || serviceType.length > 0) {
@@ -806,6 +852,7 @@
           serviceType: serviceType,
           targetDepartment: targetDept,
           obdCodes: obdCodes,
+          receptionComplaint: complaintSolution,
           fuelType: document.getElementById('diagFuelType').value,
           status: dynamicStatus,
           statusLabel: dynamicStatus === 'IN_DIAGNOSIS' ? 'تحت التشخيص الفعال' : 'قيد الانتظار'
@@ -843,6 +890,7 @@
       const updatedModel = document.getElementById('diagModel').value;
       const updatedPlate = document.getElementById('diagPlate').value;
       const updatedFuel = document.getElementById('diagFuelType').value;
+      const updatedComplaint = document.getElementById('receptionComplaintText').value;
 
       try {
         await db.collection('cars').doc(currentSelectedCarDocId).update({
@@ -851,9 +899,10 @@
           brand: updatedBrand,
           model: updatedModel,
           plate: updatedPlate,
-          fuelType: updatedFuel
+          fuelType: updatedFuel,
+          receptionComplaint: updatedComplaint
         });
-        alert("✅ تم تحديث بيانات العميل بنجاح على السيستم بالكامل!");
+        alert("✅ تم تحديث بيانات العميل وشكوى الاستقبال بنجاح على السيستم بالكامل!");
       } catch (err) {
         alert("خطأ أثناء تحديث بيانات العميل: " + err.message);
       }
@@ -893,6 +942,7 @@
       document.getElementById('cloudAttachmentLink').value = '';
       document.getElementById('assignedLiftSelect').value = '';
       document.getElementById('assignedTechNameInput').value = '';
+      document.getElementById('clientDiagnosisToggle').checked = false;
       maintenanceCategoriesArr = [];
       renderMaintenanceCategoriesUI();
       selectedPartsArr = [];
@@ -1183,7 +1233,6 @@
       }
     }
 
-    // الاستماع للفايربيز
     db.collection('cars').orderBy('createdAt', 'asc').onSnapshot(snapshot => {
       allCarsLocalData = [];
       const waitingTbody = document.getElementById('waitingCarsTbody');
@@ -1297,26 +1346,30 @@
 
     function selectCarForDiag(car) {
       currentSelectedCarDocId = car.docId;
-      currentCarStatus = car.status || 'IN_DIAGNOSIS';
-      
-      const realSerial = (car.serialNo && car.serialNo !== 'DEFAULT_RECEPTION') ? car.serialNo : '';
-      document.getElementById('diagSerialInput').value = realSerial;
+      currentCarStatus = car.status;
 
-      const serialBadge = document.getElementById('serialStatusBadge');
-      serialBadge.textContent = realSerial ? "السيريال مسجل ومفعل" : "السيريال غير مفعل";
-      serialBadge.style.background = realSerial ? "#10b981" : "#ef4444";
-
-      document.getElementById('diagQueueNo').value = car.queueNo || '-';
+      document.getElementById('diagQueueNo').value = car.queueNo || '';
       document.getElementById('diagClientName').value = car.name || '';
       document.getElementById('diagPhone').value = car.phone || '';
-      document.getElementById('diagFuelType').value = car.fuelType || 'بنزين';
       document.getElementById('diagBrand').value = car.brand || '';
       document.getElementById('diagModel').value = car.model || '';
       document.getElementById('diagPlate').value = car.plate || '';
+      document.getElementById('diagFuelType').value = car.fuelType || 'بنزين';
+      document.getElementById('diagSerialInput').value = car.serialNo || '';
       
-      // جلب وإظهار شكوى العميل الواردة من الاستقبال
-      document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.complaint || car.diagnosisDetails || 'لا توجد شكوى مسجلة بالاستقبال.';
+      if (car.serialNo && car.serialActive) {
+        document.getElementById('serialStatusBadge').textContent = `السيريال مفعل: ${car.serialNo}`;
+        document.getElementById('serialStatusBadge').style.background = '#10b981';
+      } else {
+        document.getElementById('serialStatusBadge').textContent = 'السيريال غير مفعل';
+        document.getElementById('serialStatusBadge').style.background = '#64748b';
+      }
+
+      // ربط شكوى الاستقبال بشكل صحيح لتظهر كما كتبها العميل
+      document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.clientSaid || car.complaint || '';
       
+      document.getElementById('clientDiagnosisToggle').checked = (car.status === 'IN_DIAGNOSIS' && car.receptionLocked === true);
+
       if (car.assignedLiftId) {
         document.getElementById('assignedLiftSelect').value = car.assignedLiftId;
       }
@@ -1492,7 +1545,8 @@
           targetDepartment: targetDept,
           assignedLiftId: assignedLiftObj ? assignedLiftObj.id : '',
           assignedLiftName: assignedLiftObj ? assignedLiftObj.name : 'عام',
-          assignedTechName: techName
+          assignedTechName: techName,
+          receptionLocked: true
         });
 
         if (assignedLiftObj) {
@@ -1515,7 +1569,7 @@
           }
         }
 
-        alert(`✅ تم تحويل السيارة بنجاح إلى قسم (${targetDept})!\n⚙️ الكوريك: ${assignedLiftObj ? assignedLiftObj.name : 'عام'}\n👷‍♂️ الفني المسؤول: ${techName}`);
+        alert(`✅ تم تحويل السيارة بنجاح إلى قسم (${targetDept})!\n⚙️ الكوريك: ${assignedLiftObj ? assignedLiftObj.name : 'عام'}\n👷‍♂️ والفني المسؤول: ${techName}`);
       } catch (err) {
         alert("خطأ أثناء الإرسال: " + err.message);
       }
@@ -1638,6 +1692,7 @@
         brand: document.getElementById('diagBrand').value,
         model: document.getElementById('diagModel').value,
         plate: document.getElementById('diagPlate').value,
+        receptionComplaint: document.getElementById('receptionComplaintText').value,
         maintenanceCategories: maintenanceCategoriesArr,
         obdCodes: document.getElementById('obdCodesInput').value,
         serviceType: document.getElementById('diagServiceTypeSelect').value,
@@ -1700,10 +1755,28 @@
       renderMonthlyRemindersAndSearch();
     }
 
-    // تهيئة أولية لخيارات الأقسام والخدمات عند التحميل
+    function linkWithIndexPage() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const carIdFromIndex = urlParams.get('carId') || urlParams.get('id') || localStorage.getItem('selectedCarForDiagnosis');
+      
+      if (carIdFromIndex) {
+        db.collection('cars').doc(carIdFromIndex).get().then(doc => {
+          if (doc.exists) {
+            const carData = doc.data();
+            carData.docId = doc.id;
+            startDiagnosisForCar(doc.id);
+            localStorage.removeItem('selectedCarForDiagnosis');
+          }
+        }).catch(err => {
+          console.error("خطأ في جلب بيانات السيارة من الاستقبال: ", err);
+        });
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       populateDepartmentsDropdown();
       onDepartmentChange();
+      linkWithIndexPage();
     });
   </script>
 </body>
