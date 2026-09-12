@@ -6,7 +6,6 @@
   <title>مركز أوتو نون (NON) - الفحص والتشخيص الشامل</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- مكتبة التعامل مع ملفات الإكسل Excel SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
@@ -130,11 +129,6 @@
       border-radius: 6px; font-size: 0.83rem; color: var(--text-main); outline: none; text-align: right;
     }
 
-    .section-checkbox {
-      background: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 10px;
-      border-radius: 6px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; font-weight: bold;
-    }
-
     .maint-item-card {
       background: rgba(234, 88, 12, 0.04); border: 1px solid var(--border-color); border-radius: 8px;
       padding: 8px; margin-top: 6px; position: relative;
@@ -237,10 +231,10 @@
 
   <!-- أشرطة تبويب السيارات المفتوحة للتشخيص -->
   <div style="margin-bottom: 6px; font-weight: bold; font-size: 0.8rem; color: var(--primary-orange);">
-    <i class="fa-solid fa-folder-tree"></i> السيارات المفتوحة للتشخيص حالياً (التشخيص المتعدد):
+    <i class="fa-solid fa-folder-tree"></i> السيارات المفتوحة للتشخيص حالياً (التشخيص المتعدد):[cite: 16]
   </div>
   <div class="diag-tabs-container" id="diagTabsContainer">
-    <div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>
+    <div class="diag-tab active">لا توجد سيارة مفتوحة حالياً[cite: 16]</div>
   </div>
 
   <div class="main-layout">
@@ -296,6 +290,12 @@
             <div class="form-field"><label>اللوحة:</label><input type="text" id="diagPlate"></div>
           </div>
 
+          <!-- عرض شكوى العميل الواردة من الاستقبال -->
+          <div class="form-field" style="margin-top: 8px; background: rgba(234, 88, 12, 0.04); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <label style="color: var(--primary-orange);"><i class="fa-solid fa-comment-dots"></i> شكوى العميل (من الاستقبال):</label>
+            <textarea id="receptionComplaintText" rows="2" readonly placeholder="شكوى العميل المسجلة في الاستقبال..." style="background: var(--input-bg); font-weight: bold;"></textarea>
+          </div>
+
           <div style="display:flex; gap:6px; margin-top:8px;">
             <button type="button" class="btn-action-sm btn-primary" style="flex:1;" onclick="updateClientDataInSystem()"><i class="fa-solid fa-floppy-disk"></i> تحديث بيانات العميل بالسيستم</button>
             <button type="button" class="btn-action-sm btn-danger" onclick="deleteCurrentClient()"><i class="fa-solid fa-trash"></i> حذف العميل من السيستم</button>
@@ -337,6 +337,38 @@
             </button>
           </div>
           <textarea id="obdCodesInput" rows="2" placeholder="أكواد الأعطال المسجلة (مثال: P0300, P0171)..." oninput="triggerDynamicStatusUpdate()" style="width:100%; font-size:0.85rem; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-main); font-weight:bold; outline:none; font-family:monospace;"></textarea>
+        </div>
+
+        <!-- حقول القسم المحول إليه ونوع الخدمة (مترابطة وصلاحية لإضافة بنود وقسم جديد) -->
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px; background:rgba(234,88,12,0.01);">
+          <div class="form-grid" style="margin-bottom:8px;">
+            <div class="form-field">
+              <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-code-branch"></i> القسم المحول إليه:</label>
+              <select id="diagTargetDepartment" onchange="onDepartmentChange(); triggerDynamicStatusUpdate();">
+                <option value="ميكانيكا">⚙️ ميكانيكا المحركات</option>
+                <option value="عفشة وسمكرة">🚗 عفشة وسمكرة</option>
+                <option value="كهرباء وبرمجة">⚡ كهرباء وبرمجة</option>
+                <option value="صيانة دورية وتغيير زيوت">🛢️ صيانة دورية وتغيير زيوت</option>
+                <option value="فرامل وتكييف">❄️ فرامل وتكييف</option>
+              </select>
+            </div>
+            
+            <div class="form-field">
+              <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-list-check"></i> نوع الخدمة:</label>
+              <select id="diagServiceTypeSelect" onchange="triggerDynamicStatusUpdate()">
+                <option value="">-- اختر القسم أولاً --</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; gap:6px; flex-wrap:wrap; margin-top:6px;">
+            <button type="button" class="btn-action-sm btn-primary" style="font-size:0.75rem; padding:4px 10px; flex:1;" onclick="openAddServiceModal()">
+              <i class="fa-solid fa-plus"></i> إضافة بند خدمة جديد للقسم الحالي
+            </button>
+            <button type="button" class="btn-action-sm" style="background:#0284c7; color:white; font-size:0.75rem; padding:4px 10px; flex:1;" onclick="openAddDepartmentModal()">
+              <i class="fa-solid fa-folder-plus"></i> إضافة قسم جديد
+            </button>
+          </div>
         </div>
 
         <div class="form-field" style="margin-bottom:8px;">
@@ -404,7 +436,7 @@
         <!-- الرافعة / الكوريك المحول إليه والفني المسؤول -->
         <div style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
           <label style="font-size: 0.85rem; font-weight: bold; color: #10b981; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-            <i class="fa-solid fa-car-tunnel"></i> الرافعة / الكوريك المحول إليه والفني المسؤول:
+            <i class="fa-solid fa-car-tunnel"></i> الرافعة / الكوريك والفني المسؤول:
           </label>
           <div class="form-grid">
             <div class="form-field">
@@ -417,21 +449,6 @@
               <label>اسم الفني المسؤول على الكوريك:</label>
               <input type="text" id="assignedTechNameInput" readonly placeholder="سيظهر اسم الفني هنا تلقائياً..." style="font-weight: bold; color: var(--primary-orange); background: rgba(234, 88, 12, 0.08);">
             </div>
-          </div>
-        </div>
-
-        <!-- الأقسام المحول إليها -->
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px;">
-          <label style="font-size:0.8rem; font-weight:bold; color:var(--primary-orange); display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-            <i class="fa-solid fa-sitemap"></i> الأقسام المحول إليها السيارة:
-          </label>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
-            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="ميكانيكا" onchange="triggerDynamicStatusUpdate()"> 🛠️ ميكانيكا</label>
-            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="كهرباء" onchange="triggerDynamicStatusUpdate()"> ⚡ كهرباء</label>
-            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="عفشة وفرامل" onchange="triggerDynamicStatusUpdate()"> 🔩 عفشة وفرامل</label>
-            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="تكييف" onchange="triggerDynamicStatusUpdate()"> ❄️ تكييف</label>
-            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="فحص وبرمجة" onchange="triggerDynamicStatusUpdate()"> 💻 فحص وبرمجة</label>
-            <label class="section-checkbox"><input type="checkbox" name="targetSection" value="صيانة سريعة" onchange="triggerDynamicStatusUpdate()"> 🛢️ صيانة سريعة</label>
           </div>
         </div>
 
@@ -613,6 +630,15 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // خريطة خدمات الأقسام الافتراضية وقابلة للتعديل والتخزين المحلي
+    let departmentServicesMap = JSON.parse(localStorage.getItem('departmentServicesMap')) || {
+      "ميكانيكا": ["عمرة موتور كاملة", "تغيير جوان وش سلندر", "صيانة دورية وسيور", "فحص صوت بالمحرك"],
+      "عفشة وسمكرة": ["تغيير مساعدين وفبر", "صيانة كبالن وبارات", "ضبط أقصي زوايا", "سمكرة ودكو البوداس"],
+      "كهرباء وبرمجة": ["فحص كويلات وبوجيهات", "برمجة كنترول وبوابات", "صيانة ضفيرة وكهرباء", "فحص حساسات"],
+      "صيانة دورية وتغيير زيوت": ["تغيير زيت موتور وفلتر", "تغيير زيت فتيس وفلتر", "تغيير فلتر هوا وتكييف", "تغيير فلتر بنزين"],
+      "فرامل وتكييف": ["تغيير تيل فرامل أمامي/خلفي", "خرط طانبير فرامل", "شحن وتكييف صيانة كمبروسر", "تغيير زيت فرامل ونزيف دائرة"]
+    };
+
     // المتغيرات العامة للسيارات والتشخيص
     let activeDiagnosisCarsMap = {}; 
     let currentSelectedCarDocId = null;
@@ -628,6 +654,91 @@
     let globalTechs = [];
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+    // تحديث قائمة الأقسام في الـ Select بناءً على الخريطة المتاحة
+    function populateDepartmentsDropdown(selectedDept = "") {
+      const deptSelect = document.getElementById('diagTargetDepartment');
+      if (!deptSelect) return;
+
+      const currentVal = selectedDept || deptSelect.value;
+      deptSelect.innerHTML = '';
+
+      Object.keys(departmentServicesMap).forEach(dept => {
+        const opt = document.createElement('option');
+        opt.value = dept;
+        opt.textContent = dept;
+        if (dept === currentVal) {
+          opt.selected = true;
+        }
+        deptSelect.appendChild(opt);
+      });
+    }
+
+    // تعبئة أنواع الخدمات بناءً على القسم المختار
+    function onDepartmentChange(preselectService = "") {
+      const deptSelect = document.getElementById('diagTargetDepartment');
+      const serviceSelect = document.getElementById('diagServiceTypeSelect');
+      const selectedDept = deptSelect.value;
+
+      serviceSelect.innerHTML = '<option value="">-- اختر نوع الخدمة --</option>';
+      
+      const services = departmentServicesMap[selectedDept] || [];
+      services.forEach(serv => {
+        const opt = document.createElement('option');
+        opt.value = serv;
+        opt.textContent = serv;
+        if (serv === preselectService) {
+          opt.selected = true;
+        }
+        serviceSelect.appendChild(opt);
+      });
+    }
+
+    // صلاحية إضافة قسم جديد بالسيستم
+    function openAddDepartmentModal() {
+      const newDept = prompt("أدخل اسم القسم الجديد (مثال: قسم العادم والتلوث):");
+      if (!newDept || !newDept.trim()) return;
+
+      const trimmedDept = newDept.trim();
+      if (departmentServicesMap[trimmedDept]) {
+        alert("هذا القسم موجود مسبقاً!");
+        return;
+      }
+
+      departmentServicesMap[trimmedDept] = ["خدمة عامة للقسم"];
+      localStorage.setItem('departmentServicesMap', JSON.stringify(departmentServicesMap));
+
+      populateDepartmentsDropdown(trimmedDept);
+      onDepartmentChange("خدمة عامة للقسم");
+      triggerDynamicStatusUpdate();
+      alert(`✅ تمت إضافة القسم (${trimmedDept}) بنجاح!`);
+    }
+
+    // صلاحية إضافة بند جديد لقائمة نوع الخدمة للقسم الحالي
+    function openAddServiceModal() {
+      const deptSelect = document.getElementById('diagTargetDepartment');
+      const currentDept = deptSelect.value;
+      
+      const newService = prompt(`أدخل اسم بند خدمة جديد يضاف إلى قسم (${currentDept}):`);
+      if (!newService || !newService.trim()) return;
+
+      const trimmedService = newService.trim();
+      if (!departmentServicesMap[currentDept]) {
+        departmentServicesMap[currentDept] = [];
+      }
+
+      if (departmentServicesMap[currentDept].includes(trimmedService)) {
+        alert("هذا البند موجود مسبقاً في القائمة!");
+        return;
+      }
+
+      departmentServicesMap[currentDept].push(trimmedService);
+      localStorage.setItem('departmentServicesMap', JSON.stringify(departmentServicesMap));
+
+      onDepartmentChange(trimmedService);
+      triggerDynamicStatusUpdate();
+      alert(`✅ تمت إضافة البند (${trimmedService}) بنجاح إلى قسم (${currentDept})!`);
+    }
 
     // 2. الاستماع اللحظي للكواريك والفنيين
     db.collection('lifts').onSnapshot(snap => {
@@ -680,23 +791,21 @@
       if (!currentSelectedCarDocId) return;
 
       const diagText = document.getElementById('diagIssueText').value.trim();
+      const serviceType = document.getElementById('diagServiceTypeSelect').value;
+      const targetDept = document.getElementById('diagTargetDepartment').value;
       const obdCodes = document.getElementById('obdCodesInput').value.trim();
-      
-      let selectedSections = [];
-      document.querySelectorAll('input[name="targetSection"]:checked').forEach(cb => selectedSections.push(cb.value));
 
-      // التحقق وتغيير الحالة بصرياً وتلقائياً إذا تم إدخال نتائج فحص
       let dynamicStatus = currentCarStatus;
-      if (diagText.length > 3 || obdCodes.length > 0 || selectedSections.length > 0) {
+      if (diagText.length > 3 || obdCodes.length > 0 || serviceType.length > 0) {
         dynamicStatus = 'IN_DIAGNOSIS';
       }
 
-      // حفظ التغييرات الحية في قاعدة البيانات وتحديث الواجهة
       try {
         await db.collection('cars').doc(currentSelectedCarDocId).set({
           diagnosisDetails: diagText,
+          serviceType: serviceType,
+          targetDepartment: targetDept,
           obdCodes: obdCodes,
-          targetSections: selectedSections,
           fuelType: document.getElementById('diagFuelType').value,
           status: dynamicStatus,
           statusLabel: dynamicStatus === 'IN_DIAGNOSIS' ? 'تحت التشخيص الفعال' : 'قيد الانتظار'
@@ -776,7 +885,10 @@
       document.getElementById('diagBrand').value = '';
       document.getElementById('diagModel').value = '';
       document.getElementById('diagPlate').value = '';
+      document.getElementById('receptionComplaintText').value = '';
       document.getElementById('obdCodesInput').value = '';
+      populateDepartmentsDropdown('ميكانيكا');
+      onDepartmentChange();
       document.getElementById('diagIssueText').value = '';
       document.getElementById('cloudAttachmentLink').value = '';
       document.getElementById('assignedLiftSelect').value = '';
@@ -967,10 +1079,6 @@
       }, 1000);
     }
 
-    // ========================================================
-    // 🛠️ اختيار قطع الغيار مع إمكانية تحديد العدد/الكمية المطلوبة
-    // ========================================================
-
     async function openStorePartsModal() {
       if (!currentSelectedCarDocId) {
         alert("يرجى اختيار سيارة من القائمة أولاً!");
@@ -1016,7 +1124,6 @@
 
         const selectedItem = matchingItems[selectedIdx];
 
-        // 📌 إدخال العدد/الكمية المطلوبة
         const qtyInput = prompt(`أدخل العدد المطلوب من (${selectedItem.partName}) - المتاح بالمخزن (${selectedItem.qty}):`, "1");
         if (!qtyInput) return;
 
@@ -1031,7 +1138,6 @@
           return;
         }
 
-        // إدراج الصنف ومعه العدد والسعر
         selectedPartsArr.push({
           id: selectedItem.id,
           name: selectedItem.partName,
@@ -1039,7 +1145,6 @@
           qty: requestedQty
         });
 
-        // خصم الكمية المحددة من المخزون وزيادة عداد الأكثر مبيعاً
         await db.collection('inventory').doc(selectedItem.id).update({
           qty: Math.max(0, selectedItem.qty - requestedQty),
           salesCount: (selectedItem.salesCount || 0) + requestedQty
@@ -1209,6 +1314,9 @@
       document.getElementById('diagModel').value = car.model || '';
       document.getElementById('diagPlate').value = car.plate || '';
       
+      // جلب وإظهار شكوى العميل الواردة من الاستقبال
+      document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.complaint || car.diagnosisDetails || 'لا توجد شكوى مسجلة بالاستقبال.';
+      
       if (car.assignedLiftId) {
         document.getElementById('assignedLiftSelect').value = car.assignedLiftId;
       }
@@ -1218,16 +1326,13 @@
       renderMaintenanceCategoriesUI();
 
       document.getElementById('obdCodesInput').value = car.obdCodes || '';
+      
+      const targetDept = car.targetDepartment || 'ميكانيكا';
+      populateDepartmentsDropdown(targetDept);
+      onDepartmentChange(car.serviceType || '');
+
       document.getElementById('diagIssueText').value = car.diagnosisDetails || '';
       document.getElementById('cloudAttachmentLink').value = car.cloudAttachmentLink || '';
-
-      document.querySelectorAll('input[name="targetSection"]').forEach(cb => cb.checked = false);
-      if (car.targetSections && Array.isArray(car.targetSections)) {
-        car.targetSections.forEach(sec => {
-          const cb = document.querySelector(`input[name="targetSection"][value="${sec}"]`);
-          if (cb) cb.checked = true;
-        });
-      }
 
       capturedImagesArr = car.images || [];
       renderCapturedImages();
@@ -1362,36 +1467,29 @@
     async function finishDiagnosisAndTransferToDepartment() {
       if (!currentSelectedCarDocId) { alert("يرجى اختيار سيارة أولاً!"); return; }
 
-      const selectedSections = [];
-      document.querySelectorAll('input[name="targetSection"]:checked').forEach(cb => selectedSections.push(cb.value));
-
-      if (selectedSections.length === 0) {
-        alert("⚠️ يرجى اختيار قسم واحد على الأقل محول إليه السيارة!");
-        return;
-      }
-
       let selectedLiftId = document.getElementById('assignedLiftSelect').value;
       let assignedLiftObj = globalLifts.find(l => l.id === selectedLiftId);
 
-      if (!assignedLiftObj) {
-        assignedLiftObj = globalLifts.find(l => selectedSections.includes(l.department) && l.status === 'WORKING');
+      if (!assignedLiftObj && globalLifts.length > 0) {
+        assignedLiftObj = globalLifts.find(l => l.status === 'WORKING') || globalLifts[0];
       }
 
       let techName = document.getElementById('assignedTechNameInput').value;
       if (!techName && assignedLiftObj) {
         const matchedTech = globalTechs.find(t => t.department === assignedLiftObj.department && t.status === 'AVAILABLE') ||
-                            globalTechs.find(t => t.department === assignedLiftObj.department);
+                            globalTechs.find(t => t.department === assignedLiftObj.department) || globalTechs[0];
         techName = matchedTech ? matchedTech.name : 'غير مخصص';
       }
 
       const clientName = document.getElementById('diagClientName').value || 'عميل';
       const carInfo = `${document.getElementById('diagBrand').value} ${document.getElementById('diagModel').value} (${document.getElementById('diagPlate').value})`;
+      const targetDept = document.getElementById('diagTargetDepartment').value;
 
       try {
         await saveDiagnosisToDatabase({
-          targetSections: selectedSections,
           status: 'sent_to_tech',
           sentToTechAt: new Date().toISOString(),
+          targetDepartment: targetDept,
           assignedLiftId: assignedLiftObj ? assignedLiftObj.id : '',
           assignedLiftName: assignedLiftObj ? assignedLiftObj.name : 'عام',
           assignedTechName: techName
@@ -1417,7 +1515,7 @@
           }
         }
 
-        alert(`✅ تم تحويل السيارة بنجاح!\n⚙️ الكوريك: ${assignedLiftObj ? assignedLiftObj.name : 'عام'}\n👷‍♂️ الفني المسؤول: ${techName}`);
+        alert(`✅ تم تحويل السيارة بنجاح إلى قسم (${targetDept})!\n⚙️ الكوريك: ${assignedLiftObj ? assignedLiftObj.name : 'عام'}\n👷‍♂️ الفني المسؤول: ${techName}`);
       } catch (err) {
         alert("خطأ أثناء الإرسال: " + err.message);
       }
@@ -1434,6 +1532,8 @@
       const model = document.getElementById('diagModel').value || '';
       const plate = document.getElementById('diagPlate').value || '';
       const obd = document.getElementById('obdCodesInput').value || 'لا يوجد';
+      const serviceType = document.getElementById('diagServiceTypeSelect').value || 'غير محدد';
+      const targetDept = document.getElementById('diagTargetDepartment').value || 'عام';
       const diagText = document.getElementById('diagIssueText').value || 'تم الفحص المبدئي.';
       const cloudLink = document.getElementById('cloudAttachmentLink').value || '';
       const totalCost = calculateTotalCost();
@@ -1454,6 +1554,8 @@
       message += `مرحباً أ/ *${clientName}*\n\n`;
       message += `📋 *تقرير الفحص والتشخيص الفني الشامل:*\n`;
       message += `• *السيارة:* ${brand} ${model} (لوحة: ${plate})\n`;
+      message += `• *نوع الخدمة:* ${serviceType}\n`;
+      message += `• *القسم المحول إليه:* ${targetDept}\n`;
       message += `• *أكواد الأعطال:* ${obd}\n`;
       message += `• *ملاحظات الفحص:* ${diagText}\n\n`;
 
@@ -1476,6 +1578,8 @@
       const phone = document.getElementById('diagPhone').value;
       const brand = document.getElementById('diagBrand').value;
       const model = document.getElementById('diagModel').value;
+      const serviceType = document.getElementById('diagServiceTypeSelect').value;
+      const targetDept = document.getElementById('diagTargetDepartment').value;
       const obd = document.getElementById('obdCodesInput').value;
       const diagText = document.getElementById('diagIssueText').value;
       const cloudLink = document.getElementById('cloudAttachmentLink').value;
@@ -1488,6 +1592,8 @@
         <div style="font-size:0.85rem; line-height:1.6;">
           <p><b>اسم العميل:</b> ${clientName} (${phone})</p>
           <p><b>السيارة:</b> ${brand} ${model}</p>
+          <p><b>نوع الخدمة:</b> ${serviceType || 'غير محدد'}</p>
+          <p><b>القسم المحول إليه:</b> ${targetDept}</p>
           <hr style="margin:8px 0; border:0.5px solid var(--border-color);">
           <p><b>أكواد الأعطال (OBD):</b> ${obd || 'لا يوجد'}</p>
           <p><b>تقرير التشخيص:</b> ${diagText || 'بدون ملاحظات'}</p>
@@ -1534,6 +1640,8 @@
         plate: document.getElementById('diagPlate').value,
         maintenanceCategories: maintenanceCategoriesArr,
         obdCodes: document.getElementById('obdCodesInput').value,
+        serviceType: document.getElementById('diagServiceTypeSelect').value,
+        targetDepartment: document.getElementById('diagTargetDepartment').value,
         diagnosisDetails: document.getElementById('diagIssueText').value,
         cloudAttachmentLink: document.getElementById('cloudAttachmentLink').value,
         images: capturedImagesArr,
@@ -1591,6 +1699,12 @@
       document.getElementById('toggleHistoryBtnText').textContent = isHistoryVisible ? "إخفاء" : "إظهار الكل";
       renderMonthlyRemindersAndSearch();
     }
+
+    // تهيئة أولية لخيارات الأقسام والخدمات عند التحميل
+    window.addEventListener('DOMContentLoaded', () => {
+      populateDepartmentsDropdown();
+      onDepartmentChange();
+    });
   </script>
 </body>
 </html>
