@@ -31,6 +31,18 @@
       --input-bg: #334155;
     }
 
+    .client-info-box {
+      background: rgba(2, 132, 199, 0.08);
+      border: 2px solid var(--btn-blue);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    body.dark-mode .client-info-box {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: #38bdf8;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.2s ease; }
     
     html, body {
@@ -40,6 +52,41 @@
       color: var(--text-main);
       padding: 10px;
       font-size: 0.9rem;
+    }
+
+    #floatingPartsAlert {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      background: linear-gradient(135deg, #ea580c, #9a3412);
+      color: white;
+      padding: 16px 22px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(234, 88, 12, 0.7);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      animation: bounce 0.8s infinite alternate;
+      border: 3px solid #ffedd5;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-6px); }
+    }
+
+    .urgency-banner {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+      animation: pulse-red 1.5s infinite;
+      display: none;
     }
 
     .header-top-bar {
@@ -220,6 +267,69 @@
 </head>
 <body>
 
+  <!-- رسالة التنبيه العائمة البارزة لطلبات قطع الغيار -->
+  <div id="floatingNotification" style="position: fixed; bottom: 25px; right: 25px; z-index: 1050; display: none; max-width: 420px; filter: drop-shadow(0 10px 25px rgba(234, 88, 12, 0.5));">
+      <div class="toast show shadow-lg" role="alert" style="width: 100%; border: 3px solid #ea580c; border-radius: 14px; overflow: hidden;">
+          <div class="toast-header" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #ea580c, #c2410c); color: white; font-size: 1rem;">
+              <strong class="me-auto" style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-bell fa-shake" style="font-size: 1.2rem;"></i> 🚨 طلبات قطع غيار جديدة (<span id="activeRequestsCount" style="background: #fff; color: #ea580c; padding: 2px 8px; border-radius: 10px; font-weight: bold;">0</span>)</strong>
+              <button type="button" class="btn-close btn-close-white" onclick="closeNotification()" style="background:none; border:none; color:#fff; cursor:pointer; font-size: 1.2rem; font-weight: bold;">✕</button>
+          </div>
+          <div class="toast-body p-3" id="notificationBody" style="max-height: 240px; overflow-y: auto; background: #fffbeb; cursor: pointer; font-weight: bold; color: #1e293b;" onclick="openRequestDetails()">
+          </div>
+      </div>
+  </div>
+
+  <div class="modal fade" id="requestModal" tabindex="-1" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1060; align-items:center; justify-content:center;">
+    <div class="modal-dialog" style="background:var(--card-bg); padding:20px; border-radius:12px; width:90%; max-width:560px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 2px solid var(--primary-orange);">
+        <div class="modal-content" style="background: transparent; border: none; box-shadow: none; padding: 0;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">
+                <h5 class="modal-title" style="color:var(--primary-orange); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-boxes-stacked"></i> طلبات قطع الغيار
+                </h5>
+                <button type="button" class="btn-close" onclick="closeRequestModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color: var(--text-main);">✕</button>
+            </div>
+            <div class="modal-body" style="font-size: 0.9rem; line-height: 1.6;">
+                
+                <div class="form-field" style="margin-bottom: 12px;">
+                    <label style="font-weight: bold; color: var(--primary-orange);"><i class="fa-solid fa-car"></i> اختر السيارة المطلوبة:</label>
+                    <div style="display: flex; gap: 6px;">
+                        <select id="modalCarSelect" onchange="onModalCarSelectionChange()" style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: bold;"></select>
+                        <button type="button" class="btn-action-sm btn-danger" onclick="deleteCurrentRequest()" title="حذف/مسح هذا الطلب" style="padding: 6px 12px;"><i class="fa-solid fa-xmark"></i> مسح الطلب</button>
+                    </div>
+                </div>
+
+                <div style="background: rgba(234, 88, 12, 0.05); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
+                    <p style="margin-bottom: 6px;"><strong><i class="fa-solid fa-car-side"></i> تفاصيل السيارة واللوحة:</strong> <span id="modalCarDetails" style="color: var(--primary-orange); font-weight: bold;">--</span></p>
+                    <p style="margin-bottom: 6px;"><strong><i class="fa-solid fa-toolbox"></i> القطع المطلوبة (أسعار المخزن):</strong></p>
+                    <div id="modalParts" style="background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; margin-top: 4px; font-weight: bold;">--</div>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap; gap: 8px;">
+                <button type="button" class="btn btn-secondary btn-action-sm" onclick="closeRequestModal()" style="background:#64748b; color:white; padding:8px 16px; border-radius:8px;">إغلاق</button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-success btn-action-sm" id="confirmAndSendBtn" onclick="confirmAndSendToStore()" style="background:var(--btn-green); color:white; padding:10px 16px; font-size: 0.9rem; border-radius: 8px; border:none; cursor:pointer;">
+                        <i class="fa-solid fa-check-circle"></i> موافقة وإرسال للمخزن
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentModalPartsTotal = 0;
+let currentClientPhone = "";
+</script>
+
+  <div id="floatingPartsAlert" onclick="openCarFromFloatingAlert()">
+    <i class="fa-solid fa-boxes-stacked fa-bounce" style="font-size: 1.8rem; color: #fff;"></i>
+    <div>
+      <div id="floatingAlertTitle" style="font-weight: bold; font-size: 1rem; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">⚠️ طلب قطع غيار جديد!</div>
+      <div id="floatingAlertSubtitle" style="font-size: 0.85rem; color: #ffedd5; font-weight: 600;">انقر هنا فوراً لعرض بيانات السيارة والأسعار</div>
+    </div>
+  </div>
+
   <div class="header-top-bar">
     <div class="brand-logo">
       <i class="fa-solid fa-car-tunnel"></i>
@@ -247,9 +357,9 @@
 
     <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
       <label style="font-size:0.75rem; font-weight:bold;">من:</label>
-      <input type="date" id="filterFromDate" onchange="handleInstantSearch()">
+      <input type="date" id="filterFromDate">
       <label style="font-size:0.75rem; font-weight:bold;">إلى:</label>
-      <input type="date" id="filterToDate" onchange="handleInstantSearch()">
+      <input type="date" id="filterToDate">
     </div>
 
     <button class="btn-action-sm btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -266,6 +376,10 @@
     
     <div>
       <div class="card-box">
+        <div id="urgencyBanner" class="urgency-banner">
+          <i class="fa-solid fa-triangle-exclamation"></i> تنبيه: هذه السيارة مسجلة كـ "سرعة استعجال / مستعجلة للغاية"!
+        </div>
+
         <div class="card-title">
           <span><i class="fa-solid fa-stethoscope"></i> فحص وتشخيص السيارة الحالية</span>
           <span id="serialStatusBadge" class="badge-status" style="background:#64748b; color:white;">السيريال غير مفعل</span>
@@ -292,7 +406,11 @@
           </div>
         </div>
 
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
+        <div class="client-info-box">
+          <div style="font-weight: bold; color: var(--btn-blue); font-size: 0.85rem; margin-bottom: 8px;">
+            <i class="fa-solid fa-user-circle"></i> بيانات العميل والسيارة الأساسية:
+          </div>
+
           <div class="form-grid">
             <div class="form-field">
               <label>رقم الدور:</label>
@@ -326,9 +444,42 @@
             <div class="form-field"><label>اللوحة:</label><input type="text" id="diagPlate"></div>
           </div>
 
-          <div class="form-field" style="margin-top: 8px; background: rgba(234, 88, 12, 0.04); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+          <div class="form-grid" style="margin-top: 6px;">
+            <div class="form-field">
+              <label><i class="fa-solid fa-gauge"></i> قراءة العداد الحالية (كم):</label>
+              <input type="number" id="diagCurrentOdoInput" placeholder="مثال: 120000" oninput="updateAllMaintenanceOdometer(); triggerDynamicStatusUpdate();">
+            </div>
+            <div class="form-field">
+              <label><i class="fa-solid fa-note-sticky"></i> ملاحظات العداد:</label>
+              <input type="text" id="diagOdoNotesInput" placeholder="حالة العداد أو ملاحظات التابلوه..." oninput="triggerDynamicStatusUpdate()">
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top: 8px; background: var(--input-bg); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
             <label style="color: var(--primary-orange);"><i class="fa-solid fa-comment-dots"></i> شكوى العميل (كما وصفها عند الاستقبال):</label>
             <textarea id="receptionComplaintText" rows="2" placeholder="اكتب النص الذي ذكره العميل حرفياً عند قدومه..." oninput="triggerDynamicStatusUpdate()" style="background: var(--input-bg); font-weight: bold;"></textarea>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
+          <div class="form-field" style="margin-top: 4px;">
+            <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-user-gear"></i> تقرير التشخيص والفحص الفني:</label>
+            <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني والنتائج وحل شكوى العميل..." oninput="triggerDynamicStatusUpdate()"></textarea>
+          </div>
+
+          <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-top: 8px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+              <label style="font-size:0.78rem; font-weight:bold;"><i class="fa-solid fa-camera"></i> صور الفحص الفني والعيوب:</label>
+              
+              <div style="display:flex; gap:6px;">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImageSelected(event)">
+                <button type="button" class="btn-action-sm btn-primary" onclick="document.getElementById('cameraInput').click()"><i class="fa-solid fa-camera"></i> التقاط</button>
+
+                <input type="file" id="galleryInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelected(event)">
+                <button type="button" class="btn-action-sm" style="background:#6366f1; color:white;" onclick="document.getElementById('galleryInput').click()"><i class="fa-solid fa-paperclip"></i> إرفاق</button>
+              </div>
+            </div>
+            <div class="image-upload-container" id="uploadedImagesContainer"></div>
           </div>
 
           <div style="display:flex; gap:6px; margin-top:8px;">
@@ -360,19 +511,7 @@
           <div id="maintenanceItemsContainer"></div>
         </div>
 
-        <div style="border:2px solid #0284c7; background:rgba(2, 132, 199, 0.05); border-radius:12px; padding:12px; margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-            <span style="font-weight:bold; color:#0284c7; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-              <i class="fa-brands fa-bluetooth-b" style="font-size:1.1rem;"></i> ربط برامج الفحص والأعطال
-            </span>
-            <button type="button" class="btn-action-sm btn-obd" onclick="openOpenWithAppsModal()">
-              <i class="fa-solid fa-up-right-from-square"></i> فتح باستخدام (برامج الفحص)
-            </button>
-          </div>
-          <textarea id="obdCodesInput" rows="2" placeholder="أكواد الأعطال المسجلة (مثال: P0300, P0171)..." oninput="triggerDynamicStatusUpdate()" style="width:100%; font-size:0.85rem; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-main); font-weight:bold; outline:none; font-family:monospace;"></textarea>
-        </div>
-
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px; background:rgba(234,88,12,0.01);">
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px; background:rgba(234,88,12,0.01);">
           <div class="form-grid" style="margin-bottom:8px;">
             <div class="form-field">
               <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-code-branch"></i> القسم المحول إليه:</label>
@@ -403,53 +542,22 @@
           </div>
         </div>
 
-        <div class="form-field" style="margin-bottom:8px;">
-          <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-user-gear"></i> تقرير التشخيص والفحص الفني:</label>
-          <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني والنتائج وحل شكوى العميل..." oninput="triggerDynamicStatusUpdate()"></textarea>
-        </div>
-
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-            <label style="font-size:0.78rem; font-weight:bold;"><i class="fa-solid fa-camera"></i> صور الفحص الفني والعيوب:</label>
-            
-            <div style="display:flex; gap:6px;">
-              <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImageSelected(event)">
-              <button type="button" class="btn-action-sm btn-primary" onclick="document.getElementById('cameraInput').click()"><i class="fa-solid fa-camera"></i> التقاط</button>
-
-              <input type="file" id="galleryInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelected(event)">
-              <button type="button" class="btn-action-sm" style="background:#6366f1; color:white;" onclick="document.getElementById('galleryInput').click()"><i class="fa-solid fa-paperclip"></i> إرفاق</button>
-            </div>
+        <div style="border:2px solid #0284c7; background:rgba(2, 132, 199, 0.05); border-radius:12px; padding:12px; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <span style="font-weight:bold; color:#0284c7; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+              <i class="fa-brands fa-bluetooth-b" style="font-size:1.1rem;"></i> ربط برامج الفحص والأعطال
+            </span>
+            <button type="button" class="btn-action-sm btn-obd" onclick="openOpenWithAppsModal()">
+              <i class="fa-solid fa-up-right-from-square"></i> فتح باستخدام (برامج الفحص)
+            </button>
           </div>
-          <div class="image-upload-container" id="uploadedImagesContainer"></div>
+          <textarea id="obdCodesInput" rows="2" placeholder="أكواد الأعطال المسجلة (مثال: P0300, P0171)..." oninput="triggerDynamicStatusUpdate()" style="width:100%; font-size:0.85rem; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-main); font-weight:bold; outline:none; font-family:monospace;"></textarea>
         </div>
 
         <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px; background:rgba(16, 185, 129, 0.03);">
           <div class="form-field">
             <label style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-cloud-arrow-up"></i> رابط مرفقات الفحص والصور الخارجية (Google Drive / Cloud):</label>
             <input type="url" id="cloudAttachmentLink" placeholder="https://drive.google.com/..." style="direction:ltr; text-align:left;">
-          </div>
-        </div>
-
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
-          <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
-            <button type="button" class="btn-action-sm btn-primary" style="flex:1;" onclick="openStorePartsModal()"><i class="fa-solid fa-boxes-stacked"></i> فتح قائمة المخزن واختيار الأصناف</button>
-            
-            <button type="button" class="btn-action-sm btn-excel" onclick="exportPartsToExcel()"><i class="fa-solid fa-file-excel"></i> تصدير إكسل</button>
-            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importPartsFromExcel(event)">
-            <button type="button" class="btn-action-sm btn-excel" onclick="document.getElementById('excelFileInput').click()"><i class="fa-solid fa-file-import"></i> استرداد إكسل</button>
-          </div>
-
-          <div id="selectedPartsList" style="font-size:0.8rem; margin-bottom:6px; min-height:30px;">لم يتم اختيار صنف بعد.</div>
-
-          <div class="form-grid" style="align-items:center;">
-            <div class="form-field">
-              <label>مصنعية التركيب:</label>
-              <input type="number" id="laborFee" value="0" oninput="calculateTotalCost()">
-            </div>
-            <div>
-              <div style="font-size:0.75rem; color:var(--primary-orange); font-weight:bold;">التكلفة الإجمالية:</div>
-              <div id="totalPriceDisplay" style="font-size:1.1rem; font-weight:bold; color:var(--primary-orange);">0 ج.م</div>
-            </div>
           </div>
         </div>
 
@@ -469,13 +577,13 @@
           </label>
           <div class="form-grid">
             <div class="form-field">
-              <label>اختر الكوريك (أو سيتم التخصيص تلقائياً):</label>
+              <label>اختر الكوريك:</label>
               <select id="assignedLiftSelect" onchange="onLiftSelectionChange()">
                 <option value="">-- تخصيص تلقائي للكوريك --</option>
               </select>
             </div>
             <div class="form-field">
-              <label>اسم الفني المسؤول على الكوريك:</label>
+              <label>اسم الفني المسؤول:</label>
               <input type="text" id="assignedTechNameInput" readonly placeholder="سيظهر اسم الفني هنا تلقائياً..." style="font-weight: bold; color: var(--primary-orange); background: rgba(234, 88, 12, 0.08);">
             </div>
           </div>
@@ -487,15 +595,27 @@
           </button>
 
           <button type="button" id="btnToggleHold" class="btn-action-sm btn-hold" style="padding:10px; font-size:0.9rem;" onclick="toggleCarHoldStatus()">
-            <i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السيارة (بانتظار موافقة / قطع غيار)
+            <i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السياره لحين رد العميل
+          </button>
+
+          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:10px; font-size:0.9rem;" onclick="sendWhatsAppDetailedCostToClient()">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.1rem;"></i> 📱 إرسال تفاصيل التكلفة وقطع الغيار للعميل واتساب
           </button>
 
           <button type="button" class="btn-action-sm btn-whatsapp" style="padding:10px; font-size:0.9rem;" onclick="sendDetailedWhatsAppReport()">
             <i class="fa-brands fa-whatsapp" style="font-size:1.1rem;"></i> 📱 إرسال التقرير الشامل والمرفقات بالواتساب للعميل
           </button>
 
-          <button type="button" id="btnPreviewBeforeSend" class="btn-action-sm btn-print btn-disabled" disabled style="padding:10px; font-size:0.9rem;" onclick="openPreviewModal()">
+          <button type="button" id="btnPreviewBeforeSend" class="btn-action-sm btn-print" style="padding:10px; font-size:0.9rem;" onclick="openPreviewModal()">
             <i class="fa-solid fa-eye"></i> معاينة التقرير والرسومات
+          </button>
+
+          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:10px; font-size:0.9rem; background: #0284c7;" onclick="openReportPageAndSendWhatsApp()">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 🌐 فتح صفحة التقرير وإرسال الرابط واتساب للعميل
+          </button>
+
+          <button type="button" class="btn-action-sm btn-dz" style="padding:10px; font-size:0.9rem;" onclick="openClientReportModal()">
+            <i class="fa-solid fa-id-card-clip"></i> 🧾 تقرير العميل (عرض بيانات العميل وتقرير السيارة)
           </button>
         </div>
 
@@ -596,6 +716,23 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="clientReportModal">
+    <div class="modal-content" style="max-width: 750px;">
+      <div id="clientReportPrintContainer">
+        <div style="text-align:center; border-bottom:2px solid var(--primary-orange); padding-bottom:8px; margin-bottom:12px;">
+          <h3 style="color:var(--primary-orange); font-size:1.2rem;"><i class="fa-solid fa-id-card-clip"></i> تقرير بيانات العميل وسجل الإصلاحات الشامل</h3>
+          <p style="font-size:0.8rem; color:#64748b;">مركز أوتو نون (NON) لصيانة وفحص السيارات</p>
+        </div>
+        <div id="clientReportBodyContent"></div>
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+        <button class="btn-action-sm btn-primary" onclick="printClientReportModal()"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
+        <button class="btn-action-sm" style="background:#64748b; color:white;" onclick="closeClientReportModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="openWithAppsModal">
     <div class="modal-content" style="max-width:450px;">
       <h3 style="color:var(--primary-orange); margin-bottom:12px; font-size:1rem;"><i class="fa-solid fa-up-right-from-square"></i> اختر برنامج الفحص للفتح:</h3>
@@ -612,7 +749,7 @@
         <i class="fa-solid fa-gauge" style="font-size:1.5rem; color:#0284c7;"></i>
         <div>
           <div>Car Scanner ELM OBD2</div>
-          <small style="color:#64748b;">برنامج قراءة واستخراج أكواد OBD2</small>
+          <small style="color:#0284c7;">برنامج قراءة واستخراج أكواد OBD2</small>
         </div>
       </div>
 
@@ -620,7 +757,7 @@
         <i class="fa-solid fa-bolt" style="font-size:1.5rem; color:#eab308;"></i>
         <div>
           <div>Torque Pro</div>
-          <small style="color:#64748b;">تطبيق فحص محرك السيارة بالبلوتوث</small>
+          <small style="color:#eab308;">تطبيق فحص محرك السيارة بالبلوتوث</small>
         </div>
       </div>
 
@@ -664,15 +801,216 @@
     let currentCarStatus = null;
     let selectedPartsArr = [];
     let maintenanceCategoriesArr = [];
-    let isHistoryVisible = false;
     let allCarsLocalData = [];
     let capturedImagesArr = [];
     let attachedDzPdfFile = null;
 
     let globalLifts = [];
     let globalTechs = [];
+    let pendingRequestCarId = null; 
+    let pendingRequestsMap = {}; 
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const qPartsReq = db.collection("partsRequests").where("status", "==", "pending_diagnosis");
+        qPartsReq.onSnapshot((snapshot) => {
+          pendingRequestsMap = {};
+          snapshot.forEach((doc) => {
+            pendingRequestsMap[doc.id] = doc.data();
+          });
+
+          const reqIds = Object.keys(pendingRequestsMap);
+          const count = reqIds.length;
+          document.getElementById('activeRequestsCount').innerText = count;
+
+          if (count > 0) {
+            let htmlContent = "";
+            reqIds.forEach((id) => {
+              const reqData = pendingRequestsMap[id];
+              htmlContent += `
+                <div style="background: white; border: 1px solid #fde047; padding: 6px; border-radius: 6px; margin-bottom: 6px; font-size: 0.8rem; cursor: pointer;" onclick="openCarByRequest('${id}')">
+                  <div style="font-weight: bold; color: #ea580c; margin-bottom: 2px;">
+                    <i class="fa-solid fa-car-side"></i> السيارة: ${reqData.carPlate || 'بدون لوحة'} (${reqData.carDetails || ''})
+                  </div>
+                  <div style="color: #334155;"><strong>القطع والأسعار:</strong> ${reqData.requestedParts || 'لا توجد تفاصيل'}</div>
+                </div>
+              `;
+            });
+            document.getElementById('notificationBody').innerHTML = htmlContent;
+            document.getElementById('floatingNotification').style.display = 'block';
+            
+            if (count === 1) {
+              pendingRequestCarId = reqIds[0];
+              document.getElementById('floatingAlertTitle').textContent = `طلب قطع غيار: ${pendingRequestsMap[pendingRequestCarId].carPlate || ''}`;
+              document.getElementById('floatingAlertSubtitle').textContent = `انقر لعرض البيانات والأسعار`;
+            } else {
+              document.getElementById('floatingAlertTitle').textContent = `يوجد (${count}) طلبات قطع غيار نشطة!`;
+              document.getElementById('floatingAlertSubtitle').textContent = `انقر هنا لعرض كافة الطلبات معا`;
+            }
+          } else {
+            document.getElementById('floatingNotification').style.display = 'none';
+            pendingRequestCarId = null;
+          }
+        });
+      } catch(e) {
+        console.log("PartsRequest listener error:", e);
+      }
+    });
+
+    window.openRequestDetails = function() {
+      const reqIds = Object.keys(pendingRequestsMap);
+      if (reqIds.length === 0) return;
+
+      const selectEl = document.getElementById('modalCarSelect');
+      selectEl.innerHTML = '';
+
+      reqIds.forEach((id) => {
+        const req = pendingRequestsMap[id];
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = `${req.carPlate || 'بدون لوحة'} - ${req.carDetails || 'سيارة'}`;
+        selectEl.appendChild(opt);
+      });
+
+      if (reqIds.length > 0) {
+        selectEl.value = reqIds[0];
+        onModalCarSelectionChange();
+      }
+
+      let modalEl = document.getElementById('requestModal');
+      modalEl.style.display = 'flex';
+    }
+
+    window.openCarByRequest = function(reqId) {
+      if (!pendingRequestsMap[reqId]) return;
+      const reqData = pendingRequestsMap[reqId];
+      if (reqData.carDocId) {
+        startDiagnosisForCar(reqData.carDocId);
+      }
+      openRequestDetails();
+      const selectEl = document.getElementById('modalCarSelect');
+      if (selectEl) selectEl.value = reqId;
+      onModalCarSelectionChange();
+    }
+
+    window.selectRequestFromNotification = function(reqId) {
+      const selectEl = document.getElementById('modalCarSelect');
+      if (selectEl) selectEl.value = reqId;
+      onModalCarSelectionChange();
+    }
+
+    window.onModalCarSelectionChange = function() {
+      const selectEl = document.getElementById('modalCarSelect');
+      const reqId = selectEl.value;
+      if (!reqId || !pendingRequestsMap[reqId]) return;
+
+      const reqData = pendingRequestsMap[reqId];
+      currentClientPhone = reqData.phone || reqData.clientPhone || "";
+      
+      document.getElementById('modalCarDetails').innerText = `${reqData.carPlate || ''} - ${reqData.carDetails || ''}`;
+
+      let partsHtml = "";
+      currentModalPartsTotal = 0;
+
+      if (reqData.parts && Array.isArray(reqData.parts) && reqData.parts.length > 0) {
+        let ulHtml = '<ul style="padding-right: 18px; margin: 0; color: var(--text-main);">';
+        reqData.parts.forEach(p => {
+          let pQty = p.qty || 1;
+          let pTotal = (p.price || 0) * pQty;
+          currentModalPartsTotal += pTotal;
+          ulHtml += `<li>${p.name} (العدد: ${pQty}) - السعر: ${p.price || 0} ج.م (الإجمالي: ${pTotal} ج.م)</li>`;
+        });
+        ulHtml += '</ul>';
+        partsHtml = ulHtml;
+      } else {
+        partsHtml = reqData.requestedParts ? `<ul style="padding-right: 18px; margin: 0; color: var(--text-main);"><li>${reqData.requestedParts.replace(/\n/g, '</li><li>')}</li></ul>` : '--';
+      }
+
+      document.getElementById('modalParts').innerHTML = partsHtml;
+    }
+
+    window.closeNotification = function() {
+      document.getElementById('floatingNotification').style.display = 'none';
+    }
+
+    window.closeRequestModal = function() {
+      let modalEl = document.getElementById('requestModal');
+      modalEl.style.display = 'none';
+    }
+
+    async function deleteCurrentRequest() {
+      const reqId = document.getElementById('modalCarSelect').value;
+      if (!reqId || !pendingRequestsMap[reqId]) {
+        alert("يرجى اختيار الطلب المراد حذفه أولاً!");
+        return;
+      }
+
+      if (confirm("⚠️ هل أنت متأكد من مسح/حذف هذا الطلب نهائياً؟")) {
+        try {
+          await db.collection('partsRequests').doc(reqId).delete();
+          alert("🗑️ تم حذف الطلب بنجاح!");
+          closeRequestModal();
+        } catch (error) {
+          console.error("خطأ أثناء حذف الطلب: ", error);
+          alert("حدث خطأ أثناء محاولة حذف الطلب.");
+        }
+      }
+    }
+
+    async function confirmAndSendToStore() {
+      try {
+        const reqId = document.getElementById('modalCarSelect').value;
+        if (!reqId || !pendingRequestsMap[reqId]) {
+            alert("يرجى اختيار الطلب/السيارة بشكل صحيح أولاً!");
+            return;
+        }
+
+        const reqData = pendingRequestsMap[reqId];
+        const carId = reqData.carDocId || reqId;
+        const clientName = reqData.clientName || reqData.name || 'عميل';
+        const clientPhone = currentClientPhone;
+        const carDetails = document.getElementById('modalCarDetails').innerText;
+        const partsText = document.getElementById('modalParts').innerText;
+
+        await db.collection('inventory_shortages').add({
+            carId: carId,
+            clientName: clientName,
+            clientPhone: clientPhone,
+            carDetails: carDetails,
+            partNames: partsText,
+            partsTotal: currentModalPartsTotal,
+            totalCost: currentModalPartsTotal,
+            requestedBySection: 'قسم التشخيص',
+            status: 'قيد التحضير بالمخزن',
+            date: new Date().toLocaleDateString('ar-EG'),
+            createdAt: new Date().toISOString()
+        });
+
+        await db.collection('partsRequests').doc(reqId).update({
+            status: 'sent_to_inventory'
+        });
+
+        const carRef = db.collection('cars').doc(carId);
+        const carDocSnap = await carRef.get();
+        if (carDocSnap.exists) {
+            await carRef.update({
+                status: 'IN_PROGRESS',
+                statusLabel: 'جاري تحضير قطع الغيار بالمخزن',
+                partsRequested: true,
+                totalCost: currentModalPartsTotal
+            });
+        }
+
+        alert("✅ تم إرسال طلب قطع الغيار إلى المخزن بنجاح!");
+        closeRequestModal();
+        
+      } catch (error) {
+        console.error("خطأ أثناء إرسال الطلب للمخزن: ", error);
+        alert("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى.");
+      }
+    }
 
     function populateDepartmentsDropdown(selectedDept = "") {
       const deptSelect = document.getElementById('diagTargetDepartment');
@@ -820,12 +1158,6 @@
         }, { merge: true });
 
         currentCarStatus = statusValue;
-        
-        if (isChecked) {
-          alert("✅ تم تفعيل العميل على الشاشة وتغيير حالته إلى (تحت التشخيص)، وتم قفله من الاستقبال.");
-        } else {
-          alert("ℹ️ تم إلغاء التفعيل وإعادة حالة العميل.");
-        }
       } catch (e) {
         alert("خطأ أثناء تحديث الحالة: " + e.message);
         checkbox.checked = !isChecked;
@@ -854,6 +1186,8 @@
           obdCodes: obdCodes,
           receptionComplaint: complaintSolution,
           fuelType: document.getElementById('diagFuelType').value,
+          currentOdo: document.getElementById('diagCurrentOdoInput').value,
+          odoNotes: document.getElementById('diagOdoNotesInput').value,
           status: dynamicStatus,
           statusLabel: dynamicStatus === 'IN_DIAGNOSIS' ? 'تحت التشخيص الفعال' : 'قيد الانتظار'
         }, { merge: true });
@@ -874,7 +1208,7 @@
       );
 
       if (found) {
-        selectCarForDiag(found);
+        startDiagnosisForCar(found.docId);
         alert(`تم إيجاد العميل (${found.name}) وإظهار بياناته في النموذج!`);
       } else {
         alert("لم يتم العثور على عميل بهذة البيانات.");
@@ -891,6 +1225,8 @@
       const updatedPlate = document.getElementById('diagPlate').value;
       const updatedFuel = document.getElementById('diagFuelType').value;
       const updatedComplaint = document.getElementById('receptionComplaintText').value;
+      const updatedCurrentOdo = document.getElementById('diagCurrentOdoInput').value;
+      const updatedOdoNotes = document.getElementById('diagOdoNotesInput').value;
 
       try {
         await db.collection('cars').doc(currentSelectedCarDocId).update({
@@ -900,9 +1236,11 @@
           model: updatedModel,
           plate: updatedPlate,
           fuelType: updatedFuel,
-          receptionComplaint: updatedComplaint
+          receptionComplaint: updatedComplaint,
+          currentOdo: updatedCurrentOdo,
+          odoNotes: updatedOdoNotes
         });
-        alert("✅ تم تحديث بيانات العميل وشكوى الاستقبال بنجاح على السيستم بالكامل!");
+        alert("✅ تم تحديث بيانات العميل بنجاح!");
       } catch (err) {
         alert("خطأ أثناء تحديث بيانات العميل: " + err.message);
       }
@@ -912,11 +1250,10 @@
       if (!currentSelectedCarDocId) { alert("يرجى اختيار عميل أولاً لحذفه!"); return; }
 
       const clientName = document.getElementById('diagClientName').value;
-      if (confirm(`⚠️ هل أنت متأكد من حذف العميل (${clientName}) نهائياً من السيستم بالكامل؟ لا يمكن التراجع عن هذا الإجراء.`)) {
+      if (confirm(`⚠️ هل أنت متأكد من حذف العميل (${clientName}) نهائياً من السيستم؟`)) {
         try {
           await db.collection('cars').doc(currentSelectedCarDocId).delete();
-          alert("🗑️ تم حذف العميل وكافة بياناته بنجاح من السيستم!");
-          
+          alert("🗑️ تم حذف العميل وكافة بياناته بنجاح!");
           delete activeDiagnosisCarsMap[currentSelectedCarDocId];
           currentSelectedCarDocId = null;
           renderDiagTabs();
@@ -934,6 +1271,8 @@
       document.getElementById('diagBrand').value = '';
       document.getElementById('diagModel').value = '';
       document.getElementById('diagPlate').value = '';
+      document.getElementById('diagCurrentOdoInput').value = '';
+      document.getElementById('diagOdoNotesInput').value = '';
       document.getElementById('receptionComplaintText').value = '';
       document.getElementById('obdCodesInput').value = '';
       populateDepartmentsDropdown('ميكانيكا');
@@ -943,10 +1282,9 @@
       document.getElementById('assignedLiftSelect').value = '';
       document.getElementById('assignedTechNameInput').value = '';
       document.getElementById('clientDiagnosisToggle').checked = false;
+      document.getElementById('urgencyBanner').style.display = 'none';
       maintenanceCategoriesArr = [];
       renderMaintenanceCategoriesUI();
-      selectedPartsArr = [];
-      updatePartsUI();
       capturedImagesArr = [];
       renderCapturedImages();
     }
@@ -963,12 +1301,14 @@
         return;
       }
 
+      const mainOdo = parseFloat(document.getElementById('diagCurrentOdoInput').value) || 0;
+
       maintenanceCategoriesArr.push({
         name: categoryName,
-        currentOdo: 0,
+        currentOdo: mainOdo,
         itemType: '',
         lifeKm: 10000,
-        nextOdo: 0
+        nextOdo: mainOdo + 10000
       });
 
       select.value = '';
@@ -985,7 +1325,12 @@
         return;
       }
 
+      const mainOdo = parseFloat(document.getElementById('diagCurrentOdoInput').value) || 0;
+
       maintenanceCategoriesArr.forEach((item, idx) => {
+        item.currentOdo = mainOdo;
+        item.nextOdo = mainOdo + (item.lifeKm || 10000);
+
         container.innerHTML += `
           <div class="maint-item-card">
             <button style="position:absolute; top:4px; left:4px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;" onclick="removeMaintCategory(${idx})">×</button>
@@ -993,16 +1338,9 @@
             
             <div class="form-grid">
               <div class="form-field">
-                <label>العداد الحالي (كم):</label>
-                <input type="number" value="${item.currentOdo || ''}" placeholder="120000" oninput="updateMaintItemData(${idx}, 'currentOdo', this.value)">
-              </div>
-              <div class="form-field">
                 <label>النوع / الماركة:</label>
                 <input type="text" value="${item.itemType || ''}" placeholder="الماركة أو المواصفة" oninput="updateMaintItemData(${idx}, 'itemType', this.value)">
               </div>
-            </div>
-
-            <div class="form-grid">
               <div class="form-field">
                 <label>العمر الافتراضي (كم):</label>
                 <select onchange="updateMaintItemData(${idx}, 'lifeKm', this.value)">
@@ -1013,29 +1351,35 @@
                   <option value="80000" ${item.lifeKm == 80000 ? 'selected' : ''}>80,000 كم</option>
                 </select>
               </div>
-              <div class="form-field">
-                <label style="color:#22c55e;">التغيير القادم عند:</label>
-                <input type="number" id="nextOdo_${idx}" readonly value="${item.nextOdo || 0}" style="font-weight:bold; color:#22c55e;">
-              </div>
+            </div>
+
+            <div class="form-field" style="margin-top:4px;">
+              <label style="color:#22c55e;">قراءة العداد الحالية: <b>${mainOdo} كم</b> | التغيير القادم عند:</label>
+              <input type="number" id="nextOdo_${idx}" readonly value="${item.nextOdo}" style="font-weight:bold; color:#22c55e;">
             </div>
           </div>
         `;
       });
     }
 
+    function updateAllMaintenanceOdometer() {
+      renderMaintenanceCategoriesUI();
+      triggerDynamicStatusUpdate();
+    }
+
     function updateMaintItemData(idx, key, val) {
       if (!maintenanceCategoriesArr[idx]) return;
 
-      if (key === 'currentOdo' || key === 'lifeKm') {
+      if (key === 'lifeKm') {
         maintenanceCategoriesArr[idx][key] = parseFloat(val) || 0;
-        const cur = maintenanceCategoriesArr[idx].currentOdo || 0;
+        const mainOdo = parseFloat(document.getElementById('diagCurrentOdoInput').value) || 0;
         const life = maintenanceCategoriesArr[idx].lifeKm || 0;
-        const nextOdo = cur + life;
-        maintenanceCategoriesArr[idx].nextOdo = nextOdo;
+        maintenanceCategoriesArr[idx].currentOdo = mainOdo;
+        maintenanceCategoriesArr[idx].nextOdo = mainOdo + life;
 
         const nextOdoEl = document.getElementById(`nextOdo_${idx}`);
         if (nextOdoEl) {
-          nextOdoEl.value = nextOdo;
+          nextOdoEl.value = maintenanceCategoriesArr[idx].nextOdo;
         }
       } else {
         maintenanceCategoriesArr[idx][key] = val;
@@ -1047,52 +1391,6 @@
       maintenanceCategoriesArr.splice(idx, 1);
       renderMaintenanceCategoriesUI();
       triggerDynamicStatusUpdate();
-    }
-
-    function exportPartsToExcel() {
-      if (selectedPartsArr.length === 0 && maintenanceCategoriesArr.length === 0) {
-        alert("لا توجد بيانات قطع غيار أو صيانة للتصدير!");
-        return;
-      }
-
-      const dataToExport = selectedPartsArr.map(p => ({
-        "اسم قطعة الغيار": p.name,
-        "العدد": p.qty || 1,
-        "سعر القطعة (ج.م)": p.price,
-        "الإجمالي (ج.م)": (p.price * (p.qty || 1))
-      }));
-
-      const ws = XLSX.utils.json_to_sheet(dataToExport);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "قطع الغيار");
-      XLSX.writeFile(wb, `قطع_غيار_${document.getElementById('diagClientName').value || 'عميل'}.xlsx`);
-    }
-
-    function importPartsFromExcel(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-        jsonData.forEach(row => {
-          const name = row["اسم قطعة الغيار"] || row["Name"] || row["اسم الصنف"];
-          const price = parseFloat(row["سعر القطعة (ج.م)"] || row["السعر (ج.م)"] || row["Price"] || row["السعر"]) || 0;
-          const qty = parseInt(row["العدد"] || row["الكمية"] || row["Qty"]) || 1;
-          if (name) {
-            selectedPartsArr.push({ name, price, qty });
-          }
-        });
-
-        updatePartsUI();
-        alert(`تم استرداد (${jsonData.length}) صنف من ملف الإكسل بنجاح!`);
-      };
-      reader.readAsArrayBuffer(file);
-      event.target.value = '';
     }
 
     function openOpenWithAppsModal() {
@@ -1124,113 +1422,8 @@
         if (pasteCode) {
           document.getElementById('obdCodesInput').value = pasteCode;
           triggerDynamicStatusUpdate();
-          alert("تم جلب ورصد الأكواد في النظام بنجاح!");
         }
       }, 1000);
-    }
-
-    async function openStorePartsModal() {
-      if (!currentSelectedCarDocId) {
-        alert("يرجى اختيار سيارة من القائمة أولاً!");
-        return;
-      }
-
-      const queryPart = prompt("أدخل اسم القطعة أو السيريال للبحث عنها بالمخزن:");
-      if (!queryPart) return;
-
-      try {
-        const snap = await db.collection('inventory').get();
-        let matchingItems = [];
-
-        snap.forEach(doc => {
-          const item = { id: doc.id, ...doc.data() };
-          if ((item.partName && item.partName.toLowerCase().includes(queryPart.toLowerCase())) || 
-             (item.partSerial && item.partSerial.toLowerCase().includes(queryPart.toLowerCase()))) {
-            matchingItems.push(item);
-          }
-        });
-
-        if (matchingItems.length === 0) {
-          if (confirm(`⚠️ القطعة (${queryPart}) غير مدرجة بالقائمة ولا توجد بالمخازن.\n\nهل تريد إدراجها فوراً في "قائمة النواقص المطلوبة" وإرسال طلب للتاجر؟`)) {
-            await addUnlistedPartToShortages(queryPart);
-          }
-          return;
-        }
-
-        let menuText = `نتائج البحث عن (${queryPart}):\n`;
-        matchingItems.forEach((item, index) => {
-          menuText += `${index + 1}. ${item.partName} - [سيريال: ${item.partSerial || 'N/A'}] - المتاح: (${item.qty}) - السعر: ${item.price} ج.م\n`;
-        });
-        menuText += `\nأدخل رقم الصنف للاختيار أو اكتب (0) لإدراج صنف غير مدرج بالنواقص:`;
-
-        const choice = prompt(menuText);
-        if (choice === "0") {
-          await addUnlistedPartToShortages(queryPart);
-          return;
-        }
-
-        const selectedIdx = parseInt(choice) - 1;
-        if (isNaN(selectedIdx) || !matchingItems[selectedIdx]) return;
-
-        const selectedItem = matchingItems[selectedIdx];
-
-        const qtyInput = prompt(`أدخل العدد المطلوب من (${selectedItem.partName}) - المتاح بالمخزن (${selectedItem.qty}):`, "1");
-        if (!qtyInput) return;
-
-        const requestedQty = parseInt(qtyInput);
-        if (isNaN(requestedQty) || requestedQty <= 0) {
-          alert("⚠️ يرجى إدخال عدد صحيح!");
-          return;
-        }
-
-        if (requestedQty > selectedItem.qty) {
-          alert(`⚠️ الكمية المتاحة بالمخزن حالياً هى (${selectedItem.qty}) فقط!`);
-          return;
-        }
-
-        selectedPartsArr.push({
-          id: selectedItem.id,
-          name: selectedItem.partName,
-          price: selectedItem.price,
-          qty: requestedQty
-        });
-
-        await db.collection('inventory').doc(selectedItem.id).update({
-          qty: Math.max(0, selectedItem.qty - requestedQty),
-          salesCount: (selectedItem.salesCount || 0) + requestedQty
-        });
-
-        updatePartsUI();
-        alert(`✅ تم إدراج عدد (${requestedQty}) من (${selectedItem.partName}) وخصمهم من المخزن بنجاح!`);
-
-      } catch (err) {
-        alert("خطأ: " + err.message);
-      }
-    }
-
-    async function addUnlistedPartToShortages(partName) {
-      const clientName = document.getElementById('diagClientName')?.value || 'عميل عام';
-      const brand = document.getElementById('diagBrand')?.value || '';
-      const model = document.getElementById('diagModel')?.value || '';
-      const plate = document.getElementById('diagPlate')?.value || '';
-
-      const requiredQty = prompt(`أدخل العدد المطلوب توفيره من (${partName}):`, "1") || "1";
-
-      try {
-        await db.collection('missing_parts').add({
-          partName: partName,
-          qty: parseInt(requiredQty),
-          clientName: clientName,
-          carDetails: `${brand} ${model} (لوحة: ${plate})`,
-          carDocId: currentSelectedCarDocId,
-          createdAt: new Date().toISOString(),
-          status: 'PENDING'
-        });
-
-        alert(`✅ تم إدراج الصنف (${partName}) بالعدد (${requiredQty}) في قائمة النواقص المطلوبة بنجاح.`);
-      } catch (e) {
-        alert("خطأ أثناء الإضافة للنواقص: " + e.message);
-      }
     }
 
     db.collection('cars').orderBy('createdAt', 'asc').onSnapshot(snapshot => {
@@ -1281,9 +1474,18 @@
 
       if (waitingCount === 0) waitingTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات منتظرة حالياً</td></tr>`;
       if (suspendedCount === 0) suspendedTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات معلقة حالياً</td></tr>`;
-
-      renderMonthlyRemindersAndSearch();
     });
+
+    function openCarFromFloatingAlert() {
+      const reqIds = Object.keys(pendingRequestsMap);
+      if (reqIds.length === 1 && pendingRequestsMap[reqIds[0]]) {
+        const carDocId = pendingRequestsMap[reqIds[0]].carDocId;
+        if (carDocId) {
+          startDiagnosisForCar(carDocId);
+        }
+      }
+      openRequestDetails();
+    }
 
     async function startDiagnosisForCar(carDocId) {
       const car = allCarsLocalData.find(c => c.docId === carDocId);
@@ -1354,9 +1556,18 @@
       document.getElementById('diagBrand').value = car.brand || '';
       document.getElementById('diagModel').value = car.model || '';
       document.getElementById('diagPlate').value = car.plate || '';
+      document.getElementById('diagCurrentOdoInput').value = car.currentOdo || '';
+      document.getElementById('diagOdoNotesInput').value = car.odoNotes || '';
       document.getElementById('diagFuelType').value = car.fuelType || 'بنزين';
       document.getElementById('diagSerialInput').value = car.serialNo || '';
       
+      const urgencyBanner = document.getElementById('urgencyBanner');
+      if (car.urgency || car.isUrgent || car.speedUrgency) {
+        urgencyBanner.style.display = 'block';
+      } else {
+        urgencyBanner.style.display = 'none';
+      }
+
       if (car.serialNo && car.serialActive) {
         document.getElementById('serialStatusBadge').textContent = `السيريال مفعل: ${car.serialNo}`;
         document.getElementById('serialStatusBadge').style.background = '#10b981';
@@ -1365,9 +1576,7 @@
         document.getElementById('serialStatusBadge').style.background = '#64748b';
       }
 
-      // ربط شكوى الاستقبال بشكل صحيح لتظهر كما كتبها العميل
       document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.clientSaid || car.complaint || '';
-      
       document.getElementById('clientDiagnosisToggle').checked = (car.status === 'IN_DIAGNOSIS' && car.receptionLocked === true);
 
       if (car.assignedLiftId) {
@@ -1389,10 +1598,6 @@
 
       capturedImagesArr = car.images || [];
       renderCapturedImages();
-
-      selectedPartsArr = car.parts || [];
-      document.getElementById('laborFee').value = car.laborFee || 0;
-      updatePartsUI();
       updateHoldButtonUI();
     }
 
@@ -1400,11 +1605,39 @@
       const btn = document.getElementById('btnToggleHold');
       if (currentCarStatus === 'SUSPENDED') {
         btn.className = 'btn-action-sm btn-resume';
-        btn.innerHTML = `<i class="fa-solid fa-play-circle"></i> ▶️ استئناف العمل (تحويل لقيد التشخيص)`;
+        btn.innerHTML = `<i class="fa-solid fa-play-circle"></i> ▶️ استئناف العمل`;
       } else {
         btn.className = 'btn-action-sm btn-hold';
-        btn.innerHTML = `<i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السيارة (بانتظار موافقة / قطع غيار)`;
+        btn.innerHTML = `<i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السياره لحين رد العميل`;
       }
+    }
+
+    async function saveDiagnosisToDatabase(extraData = {}) {
+      if (!currentSelectedCarDocId) return;
+      const diagText = document.getElementById('diagIssueText').value.trim();
+      const serviceType = document.getElementById('diagServiceTypeSelect').value;
+      const targetDept = document.getElementById('diagTargetDepartment').value;
+      const obdCodes = document.getElementById('obdCodesInput').value.trim();
+      const complaintSolution = document.getElementById('receptionComplaintText').value.trim();
+
+      const payload = {
+        diagnosisDetails: diagText,
+        serviceType: serviceType,
+        targetDepartment: targetDept,
+        obdCodes: obdCodes,
+        receptionComplaint: complaintSolution,
+        fuelType: document.getElementById('diagFuelType').value,
+        currentOdo: document.getElementById('diagCurrentOdoInput').value,
+        odoNotes: document.getElementById('diagOdoNotesInput').value,
+        maintenanceCategories: maintenanceCategoriesArr,
+        images: capturedImagesArr,
+        cloudAttachmentLink: document.getElementById('cloudAttachmentLink').value,
+        assignedLiftId: document.getElementById('assignedLiftSelect').value,
+        assignedTechName: document.getElementById('assignedTechNameInput').value,
+        ...extraData
+      };
+
+      await db.collection('cars').doc(currentSelectedCarDocId).set(payload, { merge: true });
     }
 
     async function toggleCarHoldStatus() {
@@ -1415,61 +1648,62 @@
           await saveDiagnosisToDatabase({ status: 'IN_DIAGNOSIS', suspendedReason: null });
           currentCarStatus = 'IN_DIAGNOSIS';
           updateHoldButtonUI();
-          alert("▶️ تم استئناف العمل وتحديث الحالة في الفايربيز!");
+          alert("▶️ تم استئناف العمل بنجاح!");
         } catch (err) { alert("خطأ: " + err.message); }
       } else {
-        const reason = prompt("أدخل سبب تعليق السيارة:", "بانتظار موافقة العميل وقطع الغيار");
+        const reason = prompt("أدخل سبب تعليق السيارة:", "لحين رد العميل وموافقيته على التكلفة");
         if (!reason) return;
 
         try {
           await saveDiagnosisToDatabase({ status: 'SUSPENDED', suspendedReason: reason });
           currentCarStatus = 'SUSPENDED';
           updateHoldButtonUI();
-          alert("⏸️ تم تعليق السيارة بنجاح!");
+          alert("⏸️ تم تعليق السيارة لحين رد العميل بنجاح!");
         } catch (err) { alert("خطأ: " + err.message); }
       }
-    }
-
-    async function activateAndSaveSerial() {
-      const serial = document.getElementById('diagSerialInput').value.trim();
-      if (!serial) { alert("أدخل سيريال صحيح!"); return; }
-      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
-
-      try {
-        await db.collection('cars').doc(currentSelectedCarDocId).update({ serialNo: serial, serialActive: true });
-        alert("تم حفظ وتفعيل السيريال بنجاح!");
-      } catch (err) { alert("خطأ: " + err.message); }
     }
 
     function handleImageSelected(event) {
       const files = event.target.files;
       if (!files || files.length === 0) return;
 
-      Array.from(files).forEach(file => {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const reader = new FileReader();
         reader.onload = function(e) {
-          capturedImagesArr.push({ url: e.target.result, description: '' });
+          capturedImagesArr.push({
+            name: file.name,
+            dataUrl: e.target.result,
+            note: ''
+          });
           renderCapturedImages();
           triggerDynamicStatusUpdate();
         };
         reader.readAsDataURL(file);
-      });
+      }
       event.target.value = '';
     }
 
     function renderCapturedImages() {
       const container = document.getElementById('uploadedImagesContainer');
-      container.innerHTML = '';
+      if (!container) return;
 
-      capturedImagesArr.forEach((img, idx) => {
-        container.innerHTML += `
+      if (capturedImagesArr.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+      capturedImagesArr.forEach((imgObj, idx) => {
+        html += `
           <div class="image-preview-card">
-            <img src="${img.url}">
-            <input type="text" placeholder="وصف العيب..." value="${img.description}" oninput="capturedImagesArr[${idx}].description = this.value; triggerDynamicStatusUpdate();">
-            <button style="position:absolute; top:2px; right:2px; background:red; color:white; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer;" onclick="removeCapturedImage(${idx})">×</button>
+            <button style="position:absolute; top:2px; left:2px; background:red; color:white; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; font-size:10px;" onclick="removeCapturedImage(${idx})">×</button>
+            <img src="${imgObj.dataUrl}" alt="فحص">
+            <input type="text" value="${imgObj.note || ''}" placeholder="ملاحظة الصورة..." oninput="capturedImagesArr[${idx}].note = this.value; triggerDynamicStatusUpdate();">
           </div>
         `;
       });
+      container.innerHTML = html;
     }
 
     function removeCapturedImage(idx) {
@@ -1480,304 +1714,110 @@
 
     function handleDzPdfSelected(event) {
       const file = event.target.files[0];
-      if (file) {
-        attachedDzPdfFile = file;
-        document.getElementById('dzPdfFileName').textContent = `تم إرفاق: ${file.name}`;
-      }
-    }
-
-    function updatePartsUI() {
-      const container = document.getElementById('selectedPartsList');
-      const btnPreview = document.getElementById('btnPreviewBeforeSend');
-
-      if (selectedPartsArr.length === 0) {
-        container.innerHTML = 'لم يتم اختيار صنف بعد.';
-        btnPreview.disabled = true; btnPreview.classList.add('btn-disabled');
-      } else {
-        let html = '<ul style="padding-right: 16px;">';
-        selectedPartsArr.forEach((p, idx) => {
-          const qty = p.qty || 1;
-          const totalPartPrice = p.price * qty;
-          html += `<li>${p.name} - <b>[العدد: ${qty}]</b> - بسعر: ${p.price} ج.م (الإجمالي: <b>${totalPartPrice} ج.م</b>) <a style="color:red; cursor:pointer; font-weight:bold;" onclick="removePart(${idx})">[حذف]</a></li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-        btnPreview.disabled = false; btnPreview.classList.remove('btn-disabled');
-      }
-      calculateTotalCost();
-    }
-
-    function removePart(index) { selectedPartsArr.splice(index, 1); updatePartsUI(); }
-
-    function calculateTotalCost() {
-      const partsTotal = selectedPartsArr.reduce((sum, p) => sum + (p.price * (p.qty || 1)), 0);
-      const labor = parseFloat(document.getElementById('laborFee').value) || 0;
-      const total = partsTotal + labor;
-      document.getElementById('totalPriceDisplay').textContent = `${total} ج.م`;
-      return total;
+      if (!file) return;
+      attachedDzPdfFile = file;
+      document.getElementById('dzPdfFileName').textContent = file.name;
     }
 
     async function finishDiagnosisAndTransferToDepartment() {
-      if (!currentSelectedCarDocId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
-      let selectedLiftId = document.getElementById('assignedLiftSelect').value;
-      let assignedLiftObj = globalLifts.find(l => l.id === selectedLiftId);
-
-      if (!assignedLiftObj && globalLifts.length > 0) {
-        assignedLiftObj = globalLifts.find(l => l.status === 'WORKING') || globalLifts[0];
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة أولاً!");
+        return;
       }
 
-      let techName = document.getElementById('assignedTechNameInput').value;
-      if (!techName && assignedLiftObj) {
-        const matchedTech = globalTechs.find(t => t.department === assignedLiftObj.department && t.status === 'AVAILABLE') ||
-                            globalTechs.find(t => t.department === assignedLiftObj.department) || globalTechs[0];
-        techName = matchedTech ? matchedTech.name : 'غير مخصص';
-      }
-
-      const clientName = document.getElementById('diagClientName').value || 'عميل';
-      const carInfo = `${document.getElementById('diagBrand').value} ${document.getElementById('diagModel').value} (${document.getElementById('diagPlate').value})`;
       const targetDept = document.getElementById('diagTargetDepartment').value;
+      const serviceType = document.getElementById('diagServiceTypeSelect').value;
+      const liftId = document.getElementById('assignedLiftSelect').value;
+      const techName = document.getElementById('assignedTechNameInput').value;
+
+      if (!liftId) {
+        alert("يرجى تخصيص كوريك/رافعة للسيارة أولاً!");
+        return;
+      }
 
       try {
         await saveDiagnosisToDatabase({
           status: 'sent_to_tech',
-          sentToTechAt: new Date().toISOString(),
+          statusLabel: `محول إلى قسم ${targetDept}`,
           targetDepartment: targetDept,
-          assignedLiftId: assignedLiftObj ? assignedLiftObj.id : '',
-          assignedLiftName: assignedLiftObj ? assignedLiftObj.name : 'عام',
+          serviceType: serviceType,
+          assignedLiftId: liftId,
           assignedTechName: techName,
-          receptionLocked: true
+          diagnosisCompletedAt: new Date().toISOString()
         });
 
-        if (assignedLiftObj) {
-          await db.collection('lifts').doc(assignedLiftObj.id).update({
-            status: 'BUSY',
-            currentCar: `${clientName} - ${carInfo}`,
-            currentCarDocId: currentSelectedCarDocId,
-            assignedTechName: techName
-          });
-        }
+        await db.collection('lifts').doc(liftId).update({
+          status: 'BUSY',
+          assignedTechName: techName,
+          currentCarPlate: document.getElementById('diagPlate').value || '',
+          currentClientName: document.getElementById('diagClientName').value || ''
+        });
 
-        if (techName) {
-          const techObj = globalTechs.find(t => t.name === techName);
-          if (techObj && techObj.serialNum) {
-            await db.collection('technicians').doc(techObj.serialNum).update({
-              status: 'BUSY',
-              currentCar: carInfo,
-              assignedLift: assignedLiftObj ? assignedLiftObj.name : 'عام'
-            });
-          }
-        }
-
-        alert(`✅ تم تحويل السيارة بنجاح إلى قسم (${targetDept})!\n⚙️ الكوريك: ${assignedLiftObj ? assignedLiftObj.name : 'عام'}\n👷‍♂️ والفني المسؤول: ${techName}`);
+        alert(`✅ تمت إرسال السيارة بنجاح إلى قسم (${targetDept}) مع الفني (${techName || 'غير محدد'}) والكوريك المحدد!`);
+        delete activeDiagnosisCarsMap[currentSelectedCarDocId];
+        currentSelectedCarDocId = null;
+        renderDiagTabs();
+        resetDiagForm();
       } catch (err) {
-        alert("خطأ أثناء الإرسال: " + err.message);
+        alert("خطأ أثناء تحويل السيارة: " + err.message);
       }
     }
 
-    async function sendDetailedWhatsAppReport() {
-      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
-
-      await saveDiagnosisToDatabase();
-
-      const clientName = document.getElementById('diagClientName').value || 'العميل العزيز';
-      const phone = document.getElementById('diagPhone').value || '';
+    function sendDetailedWhatsAppReport() {
+      const phone = document.getElementById('diagPhone').value;
+      if (!phone) { alert("رقم هاتف العميل غير متوفر!"); return; }
+      
+      const clientName = document.getElementById('diagClientName').value || 'عميلنا العزيز';
       const brand = document.getElementById('diagBrand').value || '';
       const model = document.getElementById('diagModel').value || '';
       const plate = document.getElementById('diagPlate').value || '';
-      const obd = document.getElementById('obdCodesInput').value || 'لا يوجد';
-      const serviceType = document.getElementById('diagServiceTypeSelect').value || 'غير محدد';
-      const targetDept = document.getElementById('diagTargetDepartment').value || 'عام';
-      const diagText = document.getElementById('diagIssueText').value || 'تم الفحص المبدئي.';
-      const cloudLink = document.getElementById('cloudAttachmentLink').value || '';
-      const totalCost = calculateTotalCost();
-
-      if (!phone) { alert("يرجى إدخال رقم الواتساب للعميل!"); return; }
-
-      let maintText = "";
-      if (maintenanceCategoriesArr.length > 0) {
-        maintenanceCategoriesArr.forEach(m => {
-          maintText += `• *${m.name}:* العداد ${m.currentOdo} كم | التغيير القادم عند: *${m.nextOdo} كم*\n`;
-        });
-      }
-
-      let partsText = selectedPartsArr.map((p, i) => `  ${i+1}. ${p.name} (عدد: ${p.qty || 1}): ${p.price * (p.qty || 1)} ج.م`).join('\n');
-
-      let message = `*مركز أوتو نون (NON) لصيانة السيارات* 🚗🔧\n`;
-      message += `------------------------------------\n`;
-      message += `مرحباً أ/ *${clientName}*\n\n`;
-      message += `📋 *تقرير الفحص والتشخيص الفني الشامل:*\n`;
-      message += `• *السيارة:* ${brand} ${model} (لوحة: ${plate})\n`;
-      message += `• *نوع الخدمة:* ${serviceType}\n`;
-      message += `• *القسم المحول إليه:* ${targetDept}\n`;
-      message += `• *أكواد الأعطال:* ${obd}\n`;
-      message += `• *ملاحظات الفحص:* ${diagText}\n\n`;
-
-      if (maintText) message += `⚙️ *جدول الأعمار والصيانة الدورية:*\n${maintText}\n`;
-      if (partsText) message += `📦 *قطع الغيار المطلوبة:*\n${partsText}\n\n`;
-
-      message += `💰 *الإجمالي المستحق:* *${totalCost} ج.م*\n\n`;
-      if (cloudLink) message += `📷 *رابط صور الفحص والمرفقات (Drive):*\n${cloudLink}\n\n`;
-
-      message += `نشكر ثقتكم بـ *مركز أوتو نون (NON)* 🌹`;
-
-      const formattedPhone = phone.replace(/^0/, '20');
-      window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
+      let msg = `تقرير الفحص الشامل للعميل / ${clientName}\nسيارة: ${brand} ${model} (${plate})\nتم الفحص بنجاح في مركز أوتو نون (NON).`;
+      window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function openPreviewModal() {
-      if (!currentSelectedCarDocId) return;
-
-      const clientName = document.getElementById('diagClientName').value;
-      const phone = document.getElementById('diagPhone').value;
-      const brand = document.getElementById('diagBrand').value;
-      const model = document.getElementById('diagModel').value;
-      const serviceType = document.getElementById('diagServiceTypeSelect').value;
-      const targetDept = document.getElementById('diagTargetDepartment').value;
-      const obd = document.getElementById('obdCodesInput').value;
-      const diagText = document.getElementById('diagIssueText').value;
-      const cloudLink = document.getElementById('cloudAttachmentLink').value;
-      const totalCost = calculateTotalCost();
-
-      let maintHtml = maintenanceCategoriesArr.map(m => `<li><b>${m.name}:</b> الحالي ${m.currentOdo} كم - القادم: <span style="color:#22c55e; font-weight:bold;">${m.nextOdo} كم</span></li>`).join('');
-      let partsHtml = selectedPartsArr.map(p => `<li>${p.name} (عدد: ${p.qty || 1}): ${p.price * (p.qty || 1)} ج.م</li>`).join('');
-
-      document.getElementById('previewDetailsContent').innerHTML = `
-        <div style="font-size:0.85rem; line-height:1.6;">
-          <p><b>اسم العميل:</b> ${clientName} (${phone})</p>
-          <p><b>السيارة:</b> ${brand} ${model}</p>
-          <p><b>نوع الخدمة:</b> ${serviceType || 'غير محدد'}</p>
-          <p><b>القسم المحول إليه:</b> ${targetDept}</p>
-          <hr style="margin:8px 0; border:0.5px solid var(--border-color);">
-          <p><b>أكواد الأعطال (OBD):</b> ${obd || 'لا يوجد'}</p>
-          <p><b>تقرير التشخيص:</b> ${diagText || 'بدون ملاحظات'}</p>
-          
-          ${maintHtml ? `<p style="margin-top:8px; font-weight:bold; color:var(--primary-orange);">جدول أعمار الصيانة:</p><ul>${maintHtml}</ul>` : ''}
-          ${partsHtml ? `<p style="margin-top:8px; font-weight:bold; color:var(--primary-orange);">قطع الغيار:</p><ul>${partsHtml}</ul>` : ''}
-          
-          ${cloudLink ? `<p style="margin-top:6px; color:#10b981;"><b>مرفقات جوجل درايف:</b> <a href="${cloudLink}" target="_blank">فتح الرابط</a></p>` : ''}
-          <p style="font-size:1.1rem; font-weight:bold; color:var(--primary-orange); margin-top:8px;">التكلفة الإجمالية: ${totalCost} ج.م</p>
-        </div>
-      `;
-
       document.getElementById('previewModal').style.display = 'flex';
+      let html = `<p><b>العميل:</b> ${document.getElementById('diagClientName').value}</p>` +
+                 `<p><b>السيارة:</b> ${document.getElementById('diagBrand').value} ${document.getElementById('diagModel').value}</p>` +
+                 `<p><b>التشخيص الفني:</b> ${document.getElementById('diagIssueText').value}</p>`;
+      document.getElementById('previewDetailsContent').innerHTML = html;
     }
 
-    function closePreviewModal() { document.getElementById('previewModal').style.display = 'none'; }
+    function closePreviewModal() {
+      document.getElementById('previewModal').style.display = 'none';
+    }
 
-    async function downloadPDF() {
-      await saveDiagnosisToDatabase();
+    function downloadPDF() {
       const element = document.getElementById('pdfExportContainer');
-      const opt = {
-        margin: 10,
-        filename: `تقرير_فحص_${document.getElementById('diagClientName').value}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-      closePreviewModal();
+      html2pdf().from(element).save('diagnosis_report.pdf');
     }
 
-    async function saveDiagnosisToDatabase(overrideData = {}) {
-      if (!currentSelectedCarDocId) return;
-
-      const totalCost = calculateTotalCost();
-
-      const diagData = {
-        name: document.getElementById('diagClientName').value,
-        phone: document.getElementById('diagPhone').value,
-        fuelType: document.getElementById('diagFuelType').value,
-        brand: document.getElementById('diagBrand').value,
-        model: document.getElementById('diagModel').value,
-        plate: document.getElementById('diagPlate').value,
-        receptionComplaint: document.getElementById('receptionComplaintText').value,
-        maintenanceCategories: maintenanceCategoriesArr,
-        obdCodes: document.getElementById('obdCodesInput').value,
-        serviceType: document.getElementById('diagServiceTypeSelect').value,
-        targetDepartment: document.getElementById('diagTargetDepartment').value,
-        diagnosisDetails: document.getElementById('diagIssueText').value,
-        cloudAttachmentLink: document.getElementById('cloudAttachmentLink').value,
-        images: capturedImagesArr,
-        parts: selectedPartsArr,
-        laborFee: parseFloat(document.getElementById('laborFee').value) || 0,
-        totalCost: totalCost,
-        assignedLiftId: document.getElementById('assignedLiftSelect').value || '',
-        assignedTechName: document.getElementById('assignedTechNameInput').value || '',
-        diagDate: new Date().toISOString().split('T')[0],
-        ...overrideData
-      };
-
-      await db.collection('cars').doc(currentSelectedCarDocId).set(diagData, { merge: true });
+    function openReportPageAndSendWhatsApp() {
+      sendDetailedWhatsAppReport();
     }
 
-    function handleInstantSearch() { renderMonthlyRemindersAndSearch(); }
+    function openClientReportModal() {
+      document.getElementById('clientReportModal').style.display = 'flex';
+      let html = `<p><b>اسم العميل:</b> ${document.getElementById('diagClientName').value}</p>` +
+                 `<p><b>الهاتف:</b> ${document.getElementById('diagPhone').value}</p>` +
+                 `<p><b>السيارة:</b> ${document.getElementById('diagBrand').value} - ${document.getElementById('diagModel').value}</p>` +
+                 `<p><b>رقم اللوحة:</b> ${document.getElementById('diagPlate').value}</p>` +
+                 `<hr style="margin: 10px 0;">` +
+                 `<p><b>تقرير التشخيص والإصلاحات:</b> ${document.getElementById('diagIssueText').value || 'لا يوجد تقرير مفصل'}`;
+      document.getElementById('clientReportBodyContent').innerHTML = html;
+    }
 
-    function renderMonthlyRemindersAndSearch() {
-      const tbody = document.getElementById('reminderAndSearchTbody');
-      const query = document.getElementById('topSearchInput').value.trim().toLowerCase();
-      tbody.innerHTML = '';
+    function closeClientReportModal() {
+      document.getElementById('clientReportModal').style.display = 'none';
+    }
 
-      let filtered = allCarsLocalData.filter(car => {
-        const matchesSearch = !query || (
-          (car.name && car.name.toLowerCase().includes(query)) ||
-          (car.phone && car.phone.includes(query)) ||
-          (car.serialNo && car.serialNo.toLowerCase().includes(query)) ||
-          (car.plate && car.plate.toLowerCase().includes(query))
-        );
-        if (isHistoryVisible) return matchesSearch;
-        return matchesSearch && (car.status === 'DIAG_DONE' || car.status === 'sent_to_tech');
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">لا توجد نتائج مطابقة.</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(car => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${car.diagDate || '-'}</td>
-            <td><strong>${car.name}</strong><br><small>${car.brand || ''} (${car.plate || ''})</small></td>
-            <td><b>${car.fuelType || 'بنزين'}</b></td>
-            <td>
-              <button class="btn-action-sm btn-print" onclick='startDiagnosisForCar("${car.docId}"); openPreviewModal();'><i class="fa-solid fa-file-lines"></i> معاينة / PDF</button>
-            </td>
-          </tr>
-        `;
-      });
+    function printClientReportModal() {
+      window.print();
     }
 
     function toggleFullHistory() {
-      isHistoryVisible = !isHistoryVisible;
-      document.getElementById('toggleHistoryBtnText').textContent = isHistoryVisible ? "إخفاء" : "إظهار الكل";
-      renderMonthlyRemindersAndSearch();
+      alert("خاصية السجلات الكاملة نشطة.");
     }
-
-    function linkWithIndexPage() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const carIdFromIndex = urlParams.get('carId') || urlParams.get('id') || localStorage.getItem('selectedCarForDiagnosis');
-      
-      if (carIdFromIndex) {
-        db.collection('cars').doc(carIdFromIndex).get().then(doc => {
-          if (doc.exists) {
-            const carData = doc.data();
-            carData.docId = doc.id;
-            startDiagnosisForCar(doc.id);
-            localStorage.removeItem('selectedCarForDiagnosis');
-          }
-        }).catch(err => {
-          console.error("خطأ في جلب بيانات السيارة من الاستقبال: ", err);
-        });
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      populateDepartmentsDropdown();
-      onDepartmentChange();
-      linkWithIndexPage();
-    });
   </script>
 </body>
 </html>
