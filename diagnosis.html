@@ -300,6 +300,9 @@
 
                 <div style="background: rgba(234, 88, 12, 0.05); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
                     <p style="margin-bottom: 6px;"><strong><i class="fa-solid fa-car-side"></i> تفاصيل السيارة واللوحة:</strong> <span id="modalCarDetails" style="color: var(--primary-orange); font-weight: bold;">--</span></p>
+                    <p style="margin-bottom: 6px;"><strong><i class="fa-solid fa-stethoscope"></i> تقرير الفني:</strong> <span id="modalTechReport" style="color: var(--primary-orange); font-weight: bold;">--</span></p>
+                    <!-- تمت إضافة القسم المحول منه / إليه هنا -->
+                    <p style="margin-bottom: 6px;"><strong><i class="fa-solid fa-code-branch"></i> القسم المحول منه:</strong> <span id="modalTargetDept" style="color: var(--primary-orange); font-weight: bold;">--</span></p>
                     <p style="margin-bottom: 6px;"><strong><i class="fa-solid fa-toolbox"></i> القطع المطلوبة (أسعار المخزن):</strong></p>
                     <div id="modalParts" style="background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; margin-top: 4px; font-weight: bold;">--</div>
                 </div>
@@ -901,6 +904,9 @@ let currentClientPhone = "";
       onModalCarSelectionChange();
     }
 
+    // ==========================================
+    // التعديل هنا لجلب تفاصيل تقرير الفني والقسم المحول منه/إليه
+    // ==========================================
     window.onModalCarSelectionChange = function() {
       const selectEl = document.getElementById('modalCarSelect');
       const reqId = selectEl.value;
@@ -910,6 +916,14 @@ let currentClientPhone = "";
       currentClientPhone = reqData.phone || reqData.clientPhone || "";
       
       document.getElementById('modalCarDetails').innerText = `${reqData.carPlate || ''} - ${reqData.carDetails || ''}`;
+      
+      // جلب تقرير الفني من الحقول المختلفة المتاحة في قاعدة البيانات لمنع ظهور "لا يوجد تقرير"
+      const techReportText = reqData.diagnosisDetails || reqData.techReport || reqData.diagnosis || reqData.receptionComplaint || 'لا يوجد تقرير فني مسجل';
+      document.getElementById('modalTechReport').innerText = techReportText;
+
+      // جلب القسم المحول منه أو إليه وعرضه
+      const targetDeptText = reqData.targetDepartment || reqData.department || reqData.serviceType || 'غير محدد';
+      document.getElementById('modalTargetDept').innerText = targetDeptText;
 
       let partsHtml = "";
       currentModalPartsTotal = 0;
