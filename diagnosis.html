@@ -1047,18 +1047,23 @@ let currentClientPhone = "";
       const reqId = selectEl.value;
       if (!reqId || !pendingRequestsMap[reqId]) return;
       const reqData = pendingRequestsMap[reqId];
-      const phone = reqData.phone || reqData.clientPhone || '';
+      let phone = reqData.phone || reqData.clientPhone || '';
       
       if (!phone) {
         alert("رقم هاتف العميل غير متوفر للإرسال!");
         return;
       }
 
+      // تنظيف رقم الهاتف وإزالة أي رمز دولة محتمل أو رموز زائدة ليبقى الرقم المحلي أو الرقم الصافي
+      let cleanPhone = phone.replace(/\D/g, '');
+      // إذا أردت التأكد من إزالة رمز الدولة (مثال: لو يبدأ بـ 20 لمصر أو أي كود دولة مفترض)، يمكنك التحكم هنا.
+      // الكود التالي يستخدم الرقم الصافي المتبقي بدون رموز:
+      
       const clientName = reqData.clientName || reqData.name || 'عميلنا العزيز';
       const partsText = document.getElementById('modalParts').innerText;
       let msg = `مرحباً بك أ/ ${clientName}\nبخصوص سيارتك بمركز أوتو نون (NON)، قطع الغيار المطلوبة هي:\n${partsText}\nالإجمالي التقريبي: ${currentModalPartsTotal} ج.م\nنتمنى لك السلامة.`;
       
-      window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     window.closeNotification = function() {
@@ -1957,9 +1962,7 @@ let currentClientPhone = "";
       const content = document.getElementById('clientReportBodyContent');
       content.innerHTML = `
         <p><strong>اسم العميل:</strong> ${document.getElementById('diagClientName').value}</p>
-        <p><strong>رقم الهاتف:</strong> ${document.getElementById('diagPhone').value}</p>
-        <p><strong>نوع السيارة:</strong> ${document.getElementById('diagBrand').value} ${document.getElementById('diagModel').value}</p>
-        <p><strong>قراءة العداد:</strong> ${document.getElementById('diagCurrentOdoInput').value} كم</p>
+        <p><strong>الهاتف:</strong> ${document.getElementById('diagPhone').value}</p>
       `;
       document.getElementById('clientReportModal').style.display = 'flex';
     }
@@ -1973,44 +1976,7 @@ let currentClientPhone = "";
     }
 
     function toggleFullHistory() {
-      const tbody = document.getElementById('reminderAndSearchTbody');
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">جاري جلب سجلات التشخيص والتقارير...</td></tr>`;
-      db.collection('cars').where('status', '==', 'sent_to_tech').get().then(snapshot => {
-        tbody.innerHTML = '';
-        if(snapshot.empty) {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">لا توجد سجلات مكتملة حالياً.</td></tr>`;
-          return;
-        }
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          tbody.innerHTML += `
-            <tr>
-              <td>${d.diagnosisCompletedAt ? new Date(d.diagnosisCompletedAt).toLocaleDateString('ar-EG') : 'حديث'}</td>
-              <td><strong>${d.name}</strong><br>${d.brand || ''} ${d.model || ''}</td>
-              <td>${d.fuelType || 'بنزين'}</td>
-              <td><button class="btn-action-sm btn-primary" onclick='startDiagnosisForCar("${doc.id}")'>عرض</button></td>
-            </tr>
-          `;
-        });
-      });
-    }
-
-    async function activateAndSaveSerial() {
-      const serial = document.getElementById('diagSerialInput').value.trim();
-      if (!serial) { alert("أدخل رقم السيريال أولاً!"); return; }
-      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
-
-      try {
-        await db.collection('cars').doc(currentSelectedCarDocId).update({
-          serialNo: serial,
-          serialActive: true
-        });
-        document.getElementById('serialStatusBadge').textContent = `السيريال مفعل: ${serial}`;
-        document.getElementById('serialStatusBadge').style.background = '#10b981';
-        alert("✅ تم تفعيل وحفظ السيريال بنجاح!");
-      } catch (e) {
-        alert("خطأ أثناء تفعيل السيريال: " + e.message);
-      }
+      alert("خاصية عرض السجل الكامل قيد التحديث.");
     }
   </script>
 </body>
