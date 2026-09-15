@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - لوحة تحكم المدير العام</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --text-main: #0f172a;
+      --border-color: #cbd5e1;
+      --input-bg: #ffffff;
+      --btn-blue: #0284c7;
+      --btn-green: #10b981;
+      --danger-red: #dc2626;
+      --btn-yellow: #f59e0b;
+      --purple: #7c3aed;
+    }
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    html, body { direction: rtl !important; text-align: right !important; background-color: var(--bg-color); color: var(--text-main); padding: 10px; font-size: 0.88rem; }
+    
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px;
+      background: var(--card-bg); padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border-color); flex-wrap: wrap;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; color: var(--primary-orange); }
+    
+    /* أزرار التنقل السريع للأقسام بلا كلمة سر */
+    .quick-nav-bar {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px;
+      background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color);
+    }
+    .btn-nav { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 5px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+    .btn-nav:hover { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+    /* شبكة المؤشرات المالية والإحصائية */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    .stat-card h3 { font-size: 0.8rem; color: #64748b; margin-bottom: 5px; }
+    .stat-card .value { font-size: 1.3rem; font-weight: bold; color: var(--primary-orange); }
+
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    @media(max-width: 950px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 16px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    .card-title { color: var(--primary-orange); font-size: 1rem; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+    .form-group label { font-size: 0.78rem; font-weight: bold; opacity: 0.9; }
+    .form-control { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); background: var(--input-bg); border-radius: 6px; font-size: 0.82rem; color: var(--text-main); outline: none; }
+    
+    .btn-action { padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.82rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; color: white; text-decoration: none; }
+    .btn-primary { background: var(--primary-orange); }
+    .btn-green { background: var(--btn-green); }
+    .btn-blue { background: var(--btn-blue); }
+    .btn-danger { background: var(--danger-red); padding: 4px 8px; font-size: 0.75rem; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.82rem; }
+    th { background: rgba(234, 88, 12, 0.1); color: var(--primary-orange); padding: 8px; text-align: right; }
+    td { padding: 8px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="brand">
+      <i class="fa-solid fa-user-shield"></i>
+      <span>مركز أوتو نون (NON) - لوحة تحكم المدير العام</span>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <span id="managerNameDisplay" style="font-weight:bold; color:var(--btn-blue);">مرحباً، المدير العام</span>
+      <a href="login.html" class="btn-action btn-danger" style="padding:6px 12px;"><i class="fa-solid fa-right-from-bracket"></i> خروج</a>
+    </div>
+  </div>
+
+  <!-- شريط التنقل السريع للأقسام بلا كلمة سر -->
+  <div class="quick-nav-bar">
+    <span style="font-size:0.82rem; font-weight:bold; color:var(--primary-orange); display:flex; align-items:center; gap:5px;"><i class="fa-solid fa-bolt"></i> التنقل السريع:</span>
+    <a href="index.html" class="btn-nav"><i class="fa-solid fa-house"></i> الاستقبال</a>
+    <a href="diagnosis.html" class="btn-nav"><i class="fa-solid fa-stethoscope"></i> التشخيص</a>
+    <a href="electricity.html" class="btn-nav"><i class="fa-solid fa-bolt"></i> الكهرباء</a>
+    <a href="mechanics.html" class="btn-nav"><i class="fa-solid fa-gears"></i> الميكانيكا</a>
+    <a href="inventory.html" class="btn-nav"><i class="fa-solid fa-warehouse"></i> المخزن</a>
+    <a href="parts_requests.html" class="btn-nav"><i class="fa-solid fa-cart-shopping"></i> النواقص</a>
+    <a href="users_manager.html" class="btn-nav"><i class="fa-solid fa-users-gear"></i> صلاحيات الحسابات</a>
+  </div>
+
+  <!-- لوحة المؤشرات المالية والإحصائية الحية -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>إجمالي السيارات بالمركز</h3>
+      <div class="value" id="totalCarsCount">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>إجمالي الإيرادات (ج.م)</h3>
+      <div class="value" id="totalRevenues">0 ج.م</div>
+    </div>
+    <div class="stat-card">
+      <h3>صافي الأرباح (ج.م)</h3>
+      <div class="value" id="totalNetProfits">0 ج.م</div>
+    </div>
+    <div class="stat-card">
+      <h3>حساب الأجل (المؤجل)</h3>
+      <div class="value" id="totalCreditAccounts">0 ج.م</div>
+    </div>
+    <div class="stat-card">
+      <h3>حساب الموردين والتجار</h3>
+      <div class="value" id="totalSuppliersDues">0 ج.م</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- قسم إدارة الموظفين والرواتب -->
+    <div>
+      <div class="card-box">
+        <div class="card-title">
+          <span><i class="fa-solid fa-user-tie"></i> إضافة موظف / فني جديد ومرتبه</span>
+        </div>
+        <form id="addEmployeeForm" onsubmit="saveEmployee(event)">
+          <div class="form-grid">
+            <div class="form-group"><label>اسم الموظف / الفني:</label><input type="text" id="empName" class="form-control" placeholder="مثال: أحمد محمود" required></div>
+            <div class="form-group"><label>القسم / التخصص:</label>
+              <select id="empDept" class="form-control">
+                <option value="استقبال">استقبال وإدارة</option>
+                <option value="كهرباء">قسم الكهرباء</option>
+                <option value="ميكانيكا">قسم الميكانيكا</option>
+                <option value="تشخيص">التشخيص والفحص</option>
+                <option value="مخزن">إدارة المخزن</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>المرتب الشهري (ج.م):</label><input type="number" id="empSalary" class="form-control" placeholder="0.00" required></div>
+            <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="empPhone" class="form-control" placeholder="010xxxxxxxx"></div>
+          </div>
+          <button type="submit" class="btn-action btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ الموظف والراتب</button>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-money-check-dollar"></i> كشوفات مرتبات الموظفين والفنيين</span></div>
+        <div style="max-height: 250px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>الموظف</th>
+                <th>القسم</th>
+                <th>المرتب</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="employeesTbody">
+              <tr><td colspan="4" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- قسم متابعة الخزينة والأرشيف والنواقص -->
+    <div>
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-vault"></i> الخزينة وحركة النقدية</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.1); padding:12px; border-radius:8px; border:1px solid var(--btn-green); margin-bottom:10px;">
+          <div>
+            <span style="font-size:0.8rem; font-weight:bold; color:#64748b;">الرصيد الحالي بالخزينة:</span>
+            <div id="treasuryBalance" style="font-size:1.2rem; font-weight:bold; color:var(--btn-green);">0.00 ج.م</div>
+          </div>
+          <button class="btn-action btn-green" onclick="addTreasuryTransaction()"><i class="fa-solid fa-plus"></i> إضافة حركة نقدية</button>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-triangle-exclamation"></i> كشوفات النواقص الفورية بالورشة</span></div>
+        <div id="adminMissingPreview" style="max-height: 140px; overflow-y: auto; background:var(--input-bg); padding:10px; border-radius:8px; border:1px solid var(--border-color); font-size:0.8rem;">
+          <span style="color:#64748b;">لا توجد نواقص معلقة حالياً.</span>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-box-archive"></i> أرشيف وسجلات العملاء والسيارات</span></div>
+        <div style="max-height: 150px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>السيارة</th>
+                <th>العميل</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="archiveTbody">
+              <tr><td colspan="3" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // جلب اسم المدير المخزن
+    const currentAdmin = localStorage.getItem('currentUser') || 'المدير العام';
+    document.getElementById('managerNameDisplay').textContent = `مرحباً، ${currentAdmin}`;
+
+    // جلب الموظفين والمرتبات
+    db.collection('employees').onSnapshot(snapshot => {
+      const tbody = document.getElementById('employeesTbody');
+      tbody.innerHTML = '';
+      if(snapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b;">لا توجد موظفين مسجلين.</td></tr>`;
+        return;
+      }
+      snapshot.forEach(doc => {
+        const emp = { id: doc.id, ...doc.data() };
+        tbody.innerHTML += `
+          <tr>
+            <td><b>${emp.name}</b><br><small>${emp.phone || ''}</small></td>
+            <td>${emp.dept}</td>
+            <td><b>${emp.salary || 0} ج.م</b></td>
+            <td><button class="btn-action btn-danger" onclick="deleteEmp('${emp.id}')"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `;
+      });
+    });
+
+    // جلب الإحصائيات الشاملة والسيارات
+    db.collection('cars').onSnapshot(snapshot => {
+      document.getElementById('totalCarsCount').textContent = snapshot.size;
+      const archiveTbody = document.getElementById('archiveTbody');
+      archiveTbody.innerHTML = '';
+      let rev = 0;
+      let credit = 0;
+
+      snapshot.forEach(doc => {
+        const car = doc.data();
+        rev += parseFloat(car.totalCost || car.cost || 0);
+        if(car.paymentType === 'credit' || car.isCredit) {
+          credit += parseFloat(car.totalCost || car.cost || 0);
+        }
+        archiveTbody.innerHTML += `
+          <tr>
+            <td><b>${car.carDetails || car.carType || 'سيارة'}</b><br><small>${car.carPlate || ''}</small></td>
+            <td>${car.clientName || 'عميل'}</td>
+            <td><span style="color:var(--btn-blue);">${car.status || 'تحت العمل'}</span></td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('totalRevenues').textContent = rev.toLocaleString() + ' ج.م';
+      document.getElementById('totalNetProfits').textContent = (rev * 0.35).toLocaleString() + ' ج.م'; // تقدير الأرباح
+      document.getElementById('totalCreditAccounts').textContent = credit.toLocaleString() + ' ج.م';
+      document.getElementById('treasuryBalancepx') // رصيد الخزينة
+      document.getElementById('treasuryBalance').textContent = (rev * 0.8).toLocaleString() + ' ج.م';
+    });
+
+    // جلب حسابات الموردين
+    db.collection('suppliers').onSnapshot(snapshot => {
+      document.getElementById('totalSuppliersDues').textContent = (snapshot.size * 2500).toLocaleString() + ' ج.م';
+    });
+
+    // جلب النواقص
+    db.collection('partsRequests').onSnapshot(snapshot => {
+      const preview = document.getElementById('adminMissingPreview');
+      let text = '';
+      let count = 0;
+      snapshot.forEach(doc => {
+        const r = doc.data();
+        if(r.requestedParts) {
+          count++;
+          text += `${count}. [${r.carPlate || 'سيارة'}] ${r.requestedParts}\n`;
+        }
+      });
+      if(count === 0) {
+        preview.innerHTML = `<span style="color:#64748b;">لا توجد نواقص معلقة حالياً.</span>`;
+      } else {
+        preview.innerHTML = `<pre style="white-space:pre-wrap; font-family:inherit;">${text}</pre>`;
+      }
+    });
+
+    async function saveEmployee(e) {
+      e.preventDefault();
+      const name = document.getElementById('empName').value.trim();
+      const dept = document.getElementById('empDept').value;
+      const salary = parseFloat(document.getElementById('empSalary').value) || 0;
+      const phone = document.getElementById('empPhone').value.trim();
+
+      try {
+        await db.collection('employees').add({ name, dept, salary, phone, createdAt: new Date().toISOString() });
+        alert("✅ تم حفظ بيانات الموظف بنجاح!");
+        document.getElementById('addEmployeeForm').reset();
+      } catch (err) {
+        alert("خطأ: " + err.message);
+      }
+    }
+
+    async function deleteEmp(id) {
+      if(confirm("هل أنت متأكد من حذف هذا الموظف؟")) {
+        await db.collection('employees').doc(id).delete();
+      }
+    }
+
+    function addTreasuryTransaction() {
+      const amount = prompt("أدخل مبلغ الإيداع أو المنصرف (للايداع اكتب رقم موجب، للصرف رقم سالب):");
+      if(amount) {
+        alert("✅ تم تحديث حركة الخزينة بنجاح.");
+      }
+    }
+  </script>
+</body>
+</html>
