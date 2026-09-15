@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مركز أوتو نون (NON) - إدارة المخازن والأسعار والنواقص</title>
+  <title>مركز أوتو نون (NON) - النظام الشامل لإدارة المخازن والأسعار</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <style>
@@ -111,7 +111,7 @@
   <div class="header-bar no-print">
     <div class="brand">
       <i class="fa-solid fa-boxes-stacked"></i>
-      <span>إدارة المخازن والأسعار والتجار - أوتو نون (NON)</span>
+      <span>إدارة المخازن والأسعار والتجار وإذونات الصرف - أوتو نون (NON)</span>
     </div>
     <div class="nav-btns">
       <a href="barcode_maker.html" class="btn-nav" style="color: var(--primary-orange); border-color: var(--primary-orange);"><i class="fa-solid fa-barcode"></i> صانع الباركود</a>
@@ -124,41 +124,45 @@
   <!-- التبويبات -->
   <div class="tabs-header no-print">
     <button class="tab-btn active" onclick="switchTab('tabInventory')"><i class="fa-solid fa-boxes-packing"></i> جميع المخازن والأصناف</button>
-    <button class="tab-btn" onclick="switchTab('tabShortages')"><i class="fa-solid fa-clipboard-list"></i> قائمة النواقص المطلوبة</button>
+    <button class="tab-btn" onclick="switchTab('tabDiagnosisRequests')"><i class="fa-solid fa-stethoscope"></i> طلبات وبضائع التشخيص المستقلة</button>
+    <button class="tab-btn" onclick="switchTab('tabRequestedGoods')"><i class="fa-solid fa-cart-shopping"></i> قسم البضاعة المطلوبة</button>
+    <button class="tab-btn" onclick="switchTab('tabDisbursements')"><i class="fa-solid fa-file-invoice-dollar"></i> إذونات صرف قطع الغيار</button>
     <button class="tab-btn" onclick="switchTab('tabSuppliers')"><i class="fa-solid fa-users-gears"></i> قائمة التجار والموردين</button>
     <button class="tab-btn" onclick="switchTab('tabBestSellers')"><i class="fa-solid fa-fire"></i> الأصناف الأكثر مبيعاً</button>
   </div>
 
   <!-- ================= TAB 1: الأصناف والمخازن ================= -->
   <div id="tabInventory" class="tab-content active">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-warehouse"></i> قائمة المخازن</h3>
-      <button class="btn-action btn-orange" onclick="openAddStoreModal()"><i class="fa-solid fa-plus"></i> إضافة مخزن جديد</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+      <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-warehouse"></i> قائمة المخازن والخدمات</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-action btn-blue" onclick="openAddServiceModal()"><i class="fa-solid fa-truck-fast"></i> إضافة خدمة إرسال فني / كساحة</button>
+        <button class="btn-action btn-orange" onclick="openAddStoreModal()"><i class="fa-solid fa-plus"></i> إضافة مخزن جديد</button>
+      </div>
     </div>
     <div class="stores-grid" id="storesListGrid"></div>
 
     <div class="controls-bar">
-      <input type="text" class="search-input" id="itemSearchInput" placeholder="ابحث باسم/سيريال/نوع القطعة..." oninput="renderInventoryTable()">
+      <input type="text" class="search-input" id="itemSearchInput" placeholder="ابحث باسم/سيريال/نوع القطعة أو الخدمات..." oninput="renderInventoryTable()">
       
       <select class="search-input" id="storeFilterSelect" style="max-width: 170px;" onchange="renderInventoryTable()">
-        <option value="ALL">جميع المخازن</option>
+        <option value="ALL">جميع المخازن والخدمات</option>
       </select>
 
       <button class="btn-action btn-blue" onclick="openAddItemModal()"><i class="fa-solid fa-plus"></i> إضافة صنف جديد</button>
     </div>
 
-    <!-- جدول الأصناف بالتفاصيل وحد التنبيه بالنفاذ -->
     <div style="overflow-x: auto;">
       <table>
         <thead>
           <tr>
             <th>السيريال / الكود</th>
-            <th>اسم قطعة الغيار</th>
+            <th>اسم الصنف / الخدمة</th>
             <th>النوع / الفئة</th>
-            <th>المخزن</th>
-            <th>الرصيد / حالة النفاذ</th>
-            <th>سعر الجملة / الشراء</th>
-            <th>خصم التاجر %</th>
+            <th>المخزن / القسم</th>
+            <th>الرصيد / الحالة</th>
+            <th>تكلفة الشراء / التجهيز</th>
+            <th>خصم / نسبة</th>
             <th>سعر البيع للعميل</th>
             <th>الإجراءات</th>
           </tr>
@@ -168,40 +172,108 @@
     </div>
   </div>
 
-  <!-- ================= TAB 2: قائمة النواقص ================= -->
-  <div id="tabShortages" class="tab-content">
+  <!-- ================= TAB 2: طلبات وبضائع التشخيص المستقلة ================= -->
+  <div id="tabDiagnosisRequests" class="tab-content">
     <div class="controls-bar no-print">
-      <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-triangle-exclamation"></i> كشف النواقص والقطع المطلوبة</h3>
+      <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-stethoscope"></i> بضائع ونواقص طلبات قسم التشخيص</h3>
       <div style="display:flex; gap:8px;">
         <button class="btn-action btn-green" onclick="openWhatsAppOrderModal()"><i class="fa-brands fa-whatsapp"></i> طلب عبر الواتساب لتجار</button>
-        <button class="btn-action btn-purple" onclick="printShortagesList()"><i class="fa-solid fa-print"></i> طباعة كشف النواقص</button>
+        <button class="btn-action btn-purple" onclick="printShortagesList()"><i class="fa-solid fa-print"></i> طباعة كشف طلبات التشخيص</button>
       </div>
     </div>
 
     <div id="printableArea">
       <div style="text-align:center; margin-bottom:15px; border-bottom:2px solid #ea580c; padding-bottom:10px;">
         <h2 style="color:#ea580c;">مركز أوتو نون (NON) لصيانة السيارات</h2>
-        <h3>طلب توريد قطع غيار ونواقص</h3>
+        <h3>بضائع ونواقص مطلوبة من قسم التشخيص - حسب ميزانية العميل</h3>
         <p style="font-size:0.85rem; color:#64748b;">التاريخ: <span id="shortagePrintDate"></span></p>
       </div>
 
+      <!-- قسم طلبات المخزن -->
+      <h4 style="color: var(--btn-green); margin-bottom: 8px;"><i class="fa-solid fa-warehouse"></i> أولاً: طلبات التشخيص المتوفرة في المخزن</h4>
+      <table style="margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم القطعة / الخدمة المطلوبة</th>
+            <th>ميزانية العميل</th>
+            <th>بيانات العميل / السيارة</th>
+            <th>التاريخ</th>
+            <th>الحالة</th>
+            <th>إجراء التوفير / الحذف</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryShortagesTbody">
+          <tr><td colspan="7" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+        </tbody>
+      </table>
+
+      <!-- قسم طلبات النواقص -->
+      <h4 style="color: var(--danger-color); margin-bottom: 8px;"><i class="fa-solid fa-triangle-exclamation"></i> ثانياً: طلبات النواقص الخارجية</h4>
       <table>
         <thead>
           <tr>
             <th>#</th>
-            <th>اسم القطعة المطلوب توفيرها</th>
-            <th>النوع / الفئة</th>
-            <th>العدد المطلوب</th>
-            <th>بيانات السيارة / العميل</th>
+            <th>اسم القطعة / الخدمة المطلوبة</th>
+            <th>ميزانية العميل</th>
+            <th>بيانات العميل / السيارة</th>
+            <th>التاريخ</th>
             <th>الحالة</th>
+            <th>إجراء التوفير / الحذف</th>
           </tr>
         </thead>
-        <tbody id="shortagesTbody"></tbody>
+        <tbody id="externalShortagesTbody">
+          <tr><td colspan="7" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ================= TAB 3: التجار ================= -->
+  <!-- ================= TAB 3: قسم البضاعة المطلوبة ================= -->
+  <div id="tabRequestedGoods" class="tab-content">
+    <div class="controls-bar">
+      <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-cart-shopping"></i> قسم البضاعة المطلوبة للشراء</h3>
+      <button class="btn-action btn-orange" onclick="openAddRequestedGoodModal()"><i class="fa-solid fa-plus"></i> طلب بضاعة جديدة</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>اسم الصنف المطلوب</th>
+          <th>الكمية المراد توريدها</th>
+          <th>التاجر المرشح</th>
+          <th>ملاحظات</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="requestedGoodsTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- ================= TAB 4: إذونات صرف قطع الغيار ================= -->
+  <div id="tabDisbursements" class="tab-content">
+    <div class="controls-bar">
+      <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-file-invoice-dollar"></i> إذونات صرف قطع الغيار للسيارات</h3>
+      <button class="btn-action btn-green" onclick="openAddDisbursementModal()"><i class="fa-solid fa-file-circle-plus"></i> إنشـاء إذن صرف جديد</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>رقم الإذن</th>
+          <th>اسم العميل / السيارة</th>
+          <th>الصنف المنصرف</th>
+          <th>الكمية</th>
+          <th>رقم الفني المسؤول</th>
+          <th>التاريخ والوقت</th>
+          <th>الحالة</th>
+        </tr>
+      </thead>
+      <tbody id="disbursementsTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- ================= TAB 5: التجار ================= -->
   <div id="tabSuppliers" class="tab-content">
     <div class="controls-bar">
       <h3 style="color: var(--primary-orange);"><i class="fa-solid fa-address-book"></i> قائمة التجار والشركات الموردة</h3>
@@ -222,18 +294,18 @@
     </table>
   </div>
 
-  <!-- ================= TAB 4: الأكثر مبيعاً ================= -->
+  <!-- ================= TAB 6: الأكثر مبيعاً ================= -->
   <div id="tabBestSellers" class="tab-content">
-    <h3 style="color: var(--primary-orange); margin-bottom:10px;"><i class="fa-solid fa-fire"></i> قائمة الأصناف الأكثر طلباً واستخداماً</h3>
+    <h3 style="color: var(--primary-orange); margin-bottom:10px;"><i class="fa-solid fa-fire"></i> قائمة الأصناف والخدمات الأكثر طلباً واستخداماً</h3>
     <table>
       <thead>
         <tr>
           <th>الترتيب</th>
-          <th>اسم القطعة</th>
+          <th>اسم الصنف / الخدمة</th>
           <th>النوع / الفئة</th>
           <th>السيريال</th>
           <th>إجمالي المبيعات</th>
-          <th>سعر الشراء</th>
+          <th>التكلفة</th>
           <th>سعر البيع</th>
           <th>العدد المتاح</th>
         </tr>
@@ -281,12 +353,11 @@
         </div>
       </div>
 
-      <!-- تفاصيل الأسعار والخصومات -->
       <div style="background: rgba(234, 88, 12, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--primary-orange); margin-bottom: 10px;">
         <h4 style="font-size:0.85rem; color:var(--primary-orange); margin-bottom:8px;"><i class="fa-solid fa-coins"></i> تفاصيل الأسعار والخصومات</h4>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
           <div class="form-group">
-            <label>سعر الشراء / الجملة:</label>
+            <label>سعر الشراء / التكلفة:</label>
             <input type="number" id="itemBuyPriceInput" value="0" step="0.5" oninput="calculateNetCost()">
           </div>
           <div class="form-group">
@@ -304,6 +375,63 @@
       <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
         <button class="btn-action btn-green" onclick="saveItem()"><i class="fa-solid fa-floppy-disk"></i> حفظ الصنف</button>
         <button class="btn-action" style="background:#64748b;" onclick="closeModal('itemModal')">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: إضافة خدمة إرسال فني أو كساحة مخصص -->
+  <div class="modal-overlay" id="serviceModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:12px; color:var(--btn-blue);"><i class="fa-solid fa-truck-fast"></i> إضافة خدمة إرسال فني / كساحة للعميل</h3>
+      <input type="hidden" id="serviceEditId">
+
+      <div class="form-group">
+        <label>نوع الخدمة:</label>
+        <select id="serviceTypeOption" onchange="onServiceTypeChange()">
+          <option value="إرسال كساحة لنقل السيارة">إرسال كساحة لنقل السيارة</option>
+          <option value="إرسال فني للصيانة السريعة في الموقع">إرسال فني للصيانة السريعة في الموقع</option>
+          <option value="CUSTOM">خدمة مخصصة أخرى...</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="customServiceNameGroup" style="display:none;">
+        <label>اسم الخدمة المخصصة:</label>
+        <input type="text" id="customServiceNameInput" placeholder="مثال: ونش استدعاء طوارئ">
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div class="form-group">
+          <label>كود / سيريال الخدمة:</label>
+          <input type="text" id="serviceSerialInput" value="SRV-TOW">
+        </div>
+        <div class="form-group">
+          <label>المخزن / القسم التابع:</label>
+          <select id="serviceStoreSelect"></select>
+        </div>
+      </div>
+
+      <div style="background: rgba(2, 132, 199, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--btn-blue); margin-bottom: 10px;">
+        <h4 style="font-size:0.85rem; color:var(--btn-blue); margin-bottom:8px;"><i class="fa-solid fa-hand-holding-dollar"></i> تسعير الخدمة يدوياً</h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label>تكلفة تقديرية (اختياري):</label>
+            <input type="number" id="serviceBuyPriceInput" value="0" step="0.5">
+          </div>
+          <div class="form-group">
+            <label style="color:var(--btn-blue); font-weight:bold;">سعر البيع للعميل:</label>
+            <input type="number" id="servicePriceInput" value="150" step="0.5">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ملاحظات أو تفاصيل إضافية:</label>
+        <input type="text" id="serviceNotesInput" placeholder="مثال: السعر يشمل الانتقال لمسافة محددة...">
+      </div>
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+        <button class="btn-action btn-blue" onclick="saveServiceItem()"><i class="fa-solid fa-floppy-disk"></i> حفظ وإضافة الخدمة</button>
+        <button class="btn-action" style="background:#64748b;" onclick="closeModal('serviceModal')">إلغاء</button>
       </div>
     </div>
   </div>
@@ -333,6 +461,61 @@
       <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
         <button class="btn-action btn-purple" onclick="executeCopyItem()"><i class="fa-solid fa-paste"></i> تأكيد النسخ</button>
         <button class="btn-action" style="background:#64748b;" onclick="closeModal('copyItemModal')">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: إضافة بضاعة مطلوبة -->
+  <div class="modal-overlay" id="requestedGoodModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:12px; color:var(--primary-orange);"><i class="fa-solid fa-cart-plus"></i> إضافة بضاعة مطلوبة للشراء</h3>
+      <input type="hidden" id="reqGoodEditId">
+      <div class="form-group">
+        <label>اسم الصنف المطلوب:</label>
+        <input type="text" id="reqPartNameInput" placeholder="مثال: مساعدين أمامية">
+      </div>
+      <div class="form-group">
+        <label>الكمية المطلوبة:</label>
+        <input type="number" id="reqQtyInput" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>التاجر المرشح:</label>
+        <select id="reqSupplierSelect"></select>
+      </div>
+      <div class="form-group">
+        <label>ملاحظات:</label>
+        <input type="text" id="reqNotesInput">
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+        <button class="btn-action btn-green" onclick="saveRequestedGood()"><i class="fa-solid fa-floppy-disk"></i> حفظ الطلب</button>
+        <button class="btn-action" style="background:#64748b;" onclick="closeModal('requestedGoodModal')">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: إنشاء إذن صرف قطع غيار -->
+  <div class="modal-overlay" id="disbursementModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:12px; color:var(--btn-green);"><i class="fa-solid fa-file-circle-plus"></i> إصدار إذن صرف وتخصيم من المخزن</h3>
+      <div class="form-group">
+        <label>اختر الصنف من المخزن:</label>
+        <select id="disbItemSelect" onchange="onDisbItemChange()"></select>
+      </div>
+      <div class="form-group">
+        <label>الكمية المراد صرفها (الرصيد المتاح: <span id="disbMaxQty">0</span>):</label>
+        <input type="number" id="disbQtyInput" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>اسم العميل أو بيانات السيارة:</label>
+        <input type="text" id="disbClientInput" placeholder="مثال: محمد أحمد - تويوتا كورولا">
+      </div>
+      <div class="form-group">
+        <label>اسم أو رقم الفني المسؤول:</label>
+        <input type="text" id="disbTechInput" placeholder="مثال: الفني أحمد محمود">
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+        <button class="btn-action btn-green" onclick="executeDisbursement()"><i class="fa-solid fa-check"></i> اعتماد الصرف والتخصيم الفوري</button>
+        <button class="btn-action" style="background:#64748b;" onclick="closeModal('disbursementModal')">إلغاء</button>
       </div>
     </div>
   </div>
@@ -415,13 +598,17 @@
       appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
     let allStores = [];
     let allItems = [];
     let allSuppliers = [];
     let allShortages = [];
+    let allRequestedGoods = [];
+    let allDisbursements = [];
 
     document.getElementById('shortagePrintDate').textContent = new Date().toLocaleDateString('ar-EG');
 
@@ -438,6 +625,7 @@
       snap.forEach(doc => allItems.push({ id: doc.id, ...doc.data() }));
       renderInventoryTable();
       renderBestSellers();
+      renderShortages(); 
     });
 
     db.collection('suppliers').onSnapshot(snap => {
@@ -446,10 +634,22 @@
       renderSuppliers();
     });
 
-    db.collection('missing_parts').onSnapshot(snap => {
+    db.collection('inventory_shortages').orderBy('date', 'desc').onSnapshot(snap => {
       allShortages = [];
       snap.forEach(doc => allShortages.push({ id: doc.id, ...doc.data() }));
       renderShortages();
+    });
+
+    db.collection('requested_goods').orderBy('createdAt', 'desc').onSnapshot(snap => {
+      allRequestedGoods = [];
+      snap.forEach(doc => allRequestedGoods.push({ id: doc.id, ...doc.data() }));
+      renderRequestedGoods();
+    });
+
+    db.collection('disbursements').orderBy('createdAt', 'desc').onSnapshot(snap => {
+      allDisbursements = [];
+      snap.forEach(doc => allDisbursements.push({ id: doc.id, ...doc.data() }));
+      renderDisbursements();
     });
 
     function switchTab(tabId) {
@@ -468,7 +668,7 @@
           <div class="store-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <strong>${s.name}</strong>
-              <span class="store-badge" style="background:var(--primary-orange);">${count} أصناف</span>
+              <span class="store-badge" style="background:var(--primary-orange);">${count} أصناف/خدمات</span>
             </div>
             <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">${s.notes || ''}</div>
           </div>
@@ -476,7 +676,6 @@
       });
     }
 
-    // عرض جدول الأصناف مع فحص التنبيه بالنفاذ
     function renderInventoryTable() {
       const tbody = document.getElementById('inventoryTbody');
       const search = document.getElementById('itemSearchInput').value.trim().toLowerCase();
@@ -498,26 +697,31 @@
         const buyPrice = i.buyPrice || 0;
         const discount = i.discountPercent || 0;
         const sellPrice = i.price || 0;
+        const isService = i.isService === true;
         const minQty = i.minQty !== undefined ? i.minQty : 2;
-        const isLowStock = i.qty <= minQty;
+        const isLowStock = !isService && i.qty <= minQty;
 
         tbody.innerHTML += `
           <tr>
             <td><code>${i.partSerial || 'N/A'}</code></td>
-            <td><strong>${i.partName}</strong></td>
+            <td>
+              <strong>${i.partName}</strong>
+              ${isService ? '<br><span style="font-size:0.7rem; color:var(--btn-blue);"><i class="fa-solid fa-truck-fast"></i> خدمة ميدانية / كساحة</span>' : ''}
+            </td>
             <td><span style="background:rgba(2, 132, 199, 0.1); color:var(--btn-blue); padding:2px 6px; border-radius:4px; font-weight:bold;">${i.category || 'عام'}</span></td>
             <td>${store ? store.name : 'غير محدد'}</td>
             <td>
+              ${isService ? '<span class="stock-tag" style="background:rgba(2,132,199,0.1); color:var(--btn-blue);">متاح عند الطلب</span>' : `
               <span class="stock-tag ${isLowStock ? 'low' : 'normal'}">
                 ${isLowStock ? '<i class="fa-solid fa-triangle-exclamation"></i> ' : ''}${i.qty} قطعة
                 ${isLowStock ? ` (تنبيه ≤ ${minQty})` : ''}
-              </span>
+              </span>`}
             </td>
             <td><span class="price-badge badge-buy">${buyPrice} ج.م</span></td>
-            <td><span class="price-badge badge-discount">%${discount}</span></td>
+            <td><span class="price-badge badge-discount">${isService ? '-' : '%' + discount}</span></td>
             <td><span class="price-badge badge-sell">${sellPrice} ج.م</span></td>
             <td>
-              <button class="btn-action btn-purple" style="padding:4px 8px; font-size:0.75rem;" onclick="openCopyModal('${i.id}')" title="نسخ صنف"><i class="fa-solid fa-copy"></i></button>
+              ${!isService ? `<button class="btn-action btn-purple" style="padding:4px 8px; font-size:0.75rem;" onclick="openCopyModal('${i.id}')" title="نسخ صنف"><i class="fa-solid fa-copy"></i></button>` : ''}
               <button class="btn-action btn-blue" style="padding:4px 8px; font-size:0.75rem;" onclick='editItem(${JSON.stringify(i)})' title="تعديل"><i class="fa-solid fa-pen"></i></button>
               <button class="btn-action btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteItem('${i.id}')" title="حذف"><i class="fa-solid fa-trash"></i></button>
             </td>
@@ -547,19 +751,107 @@
       document.getElementById('itemModal').style.display = 'flex';
     }
 
+    function openAddServiceModal() {
+      document.getElementById('serviceEditId').value = '';
+      document.getElementById('serviceTypeOption').value = 'إرسال كساحة لنقل السيارة';
+      document.getElementById('customServiceNameGroup').style.display = 'none';
+      document.getElementById('serviceSerialInput').value = 'SRV-TOW';
+      document.getElementById('serviceBuyPriceInput').value = '0';
+      document.getElementById('servicePriceInput').value = '150';
+      document.getElementById('serviceNotesInput').value = '';
+      onServiceTypeChange();
+      document.getElementById('serviceModal').style.display = 'flex';
+    }
+
+    function onServiceTypeChange() {
+      const val = document.getElementById('serviceTypeOption').value;
+      const customGroup = document.getElementById('customServiceNameGroup');
+      if (val === 'CUSTOM') {
+        customGroup.style.display = 'block';
+        document.getElementById('serviceSerialInput').value = 'SRV-OTH';
+      } else {
+        customGroup.style.display = 'none';
+        if (val.includes('كساحة')) {
+          document.getElementById('serviceSerialInput').value = 'SRV-TOW';
+        } else {
+          document.getElementById('serviceSerialInput').value = 'SRV-TECH';
+        }
+      }
+    }
+
+    async function saveServiceItem() {
+      const id = document.getElementById('serviceEditId').value;
+      const typeOpt = document.getElementById('serviceTypeOption').value;
+      let serviceName = typeOpt;
+      if (typeOpt === 'CUSTOM') {
+        serviceName = document.getElementById('customServiceNameInput').value.trim();
+        if (!serviceName) { alert("يرجى إدخال اسم الخدمة المخصصة!"); return; }
+      }
+
+      const partSerial = document.getElementById('serviceSerialInput').value.trim();
+      const storeId = document.getElementById('serviceStoreSelect').value;
+      const buyPrice = parseFloat(document.getElementById('serviceBuyPriceInput').value) || 0;
+      const price = parseFloat(document.getElementById('servicePriceInput').value) || 0;
+      const notes = document.getElementById('serviceNotesInput').value.trim();
+
+      if (!storeId) { alert("يرجى اختيار المخزن أو القسم التابع له الخدمة!"); return; }
+
+      const payload = {
+        partName: serviceName,
+        partSerial: partSerial,
+        category: 'خدمات خارجية ورش',
+        isService: true,
+        qty: 1,
+        minQty: 0,
+        buyPrice: buyPrice,
+        discountPercent: 0,
+        price: price,
+        storeId: storeId,
+        notes: notes,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (id) {
+        await db.collection('inventory').doc(id).update(payload);
+      } else {
+        payload.salesCount = 0;
+        payload.createdAt = new Date().toISOString();
+        await db.collection('inventory').add(payload);
+      }
+      closeModal('serviceModal');
+    }
+
     function editItem(item) {
-      document.getElementById('itemEditId').value = item.id;
-      document.getElementById('itemSerialInput').value = item.partSerial || '';
-      document.getElementById('itemCategoryInput').value = item.category || '';
-      document.getElementById('itemNameInput').value = item.partName;
-      document.getElementById('itemQtyInput').value = item.qty;
-      document.getElementById('itemMinQtyInput').value = item.minQty !== undefined ? item.minQty : 2;
-      document.getElementById('itemBuyPriceInput').value = item.buyPrice || 0;
-      document.getElementById('itemDiscountInput').value = item.discountPercent || 0;
-      document.getElementById('itemPriceInput').value = item.price || 0;
-      document.getElementById('itemStoreSelect').value = item.storeId;
-      calculateNetCost();
-      document.getElementById('itemModal').style.display = 'flex';
+      if (item.isService) {
+        document.getElementById('serviceEditId').value = item.id;
+        if (item.partName.includes('كساحة') || item.partName.includes('فني')) {
+          document.getElementById('serviceTypeOption').value = item.partName;
+          document.getElementById('customServiceNameGroup').style.display = 'none';
+        } else {
+          document.getElementById('serviceTypeOption').value = 'CUSTOM';
+          document.getElementById('customServiceNameGroup').style.display = 'block';
+          document.getElementById('customServiceNameInput').value = item.partName;
+        }
+        document.getElementById('serviceSerialInput').value = item.partSerial || 'SRV-TOW';
+        document.getElementById('serviceStoreSelect').value = item.storeId;
+        document.getElementById('serviceBuyPriceInput').value = item.buyPrice || 0;
+        document.getElementById('servicePriceInput').value = item.price || 0;
+        document.getElementById('serviceNotesInput').value = item.notes || '';
+        document.getElementById('serviceModal').style.display = 'flex';
+      } else {
+        document.getElementById('itemEditId').value = item.id;
+        document.getElementById('itemSerialInput').value = item.partSerial || '';
+        document.getElementById('itemCategoryInput').value = item.category || '';
+        document.getElementById('itemNameInput').value = item.partName;
+        document.getElementById('itemQtyInput').value = item.qty;
+        document.getElementById('itemMinQtyInput').value = item.minQty !== undefined ? item.minQty : 2;
+        document.getElementById('itemBuyPriceInput').value = item.buyPrice || 0;
+        document.getElementById('itemDiscountInput').value = item.discountPercent || 0;
+        document.getElementById('itemPriceInput').value = item.price || 0;
+        document.getElementById('itemStoreSelect').value = item.storeId;
+        calculateNetCost();
+        document.getElementById('itemModal').style.display = 'flex';
+      }
     }
 
     async function saveItem() {
@@ -586,6 +878,7 @@
         discountPercent, 
         price, 
         storeId, 
+        isService: false,
         updatedAt: new Date().toISOString() 
       };
 
@@ -601,7 +894,7 @@
 
     function openCopyModal(itemId) {
       const item = allItems.find(i => i.id === itemId);
-      if (!item) return;
+      if (!item || item.isService) return;
 
       document.getElementById('copySourceItemId').value = itemId;
       document.getElementById('copyItemNameDisplay').textContent = `القطعة المراد نسخها: ${item.partName}`;
@@ -628,6 +921,7 @@
         partSerial: source.partSerial || '',
         category: source.category || '',
         storeId: targetStoreId,
+        isService: false,
         qty: 0,
         minQty: source.minQty || 2,
         buyPrice: 0,
@@ -651,6 +945,187 @@
         alert("✅ تم نسخ الصنف بنجاح!");
         closeModal('copyItemModal');
       } catch (e) { alert("خطأ في النسخ: " + e.message); }
+    }
+
+    function renderRequestedGoods() {
+      const tbody = document.getElementById('requestedGoodsTbody');
+      tbody.innerHTML = '';
+      if (allRequestedGoods.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد بضائع مطلوبة مسجلة حالياً.</td></tr>';
+        return;
+      }
+      allRequestedGoods.forEach((item, idx) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td><strong>${item.partName}</strong></td>
+            <td>${item.qty}</td>
+            <td>${item.supplierName || 'غير محدد'}</td>
+            <td>${item.notes || '-'}</td>
+            <td><span style="background: rgba(234,88,12,0.1); color: var(--primary-orange); padding:3px 8px; border-radius:4px; font-weight:bold; font-size:0.75rem;">${item.status || 'قيد الطلب'}</span></td>
+            <td>
+              <button class="btn-action btn-green" style="padding:4px 8px; font-size:0.75rem;" onclick="transferToInventory('${item.id}')"><i class="fa-solid fa-boxes-packing"></i> نقل للمخزن</button>
+              <button class="btn-action btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteRequestedGood('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openAddRequestedGoodModal() {
+      document.getElementById('reqGoodEditId').value = '';
+      document.getElementById('reqPartNameInput').value = '';
+      document.getElementById('reqQtyInput').value = '1';
+      document.getElementById('reqNotesInput').value = '';
+      
+      const supSelect = document.getElementById('reqSupplierSelect');
+      supSelect.innerHTML = '';
+      allSuppliers.forEach(s => {
+        supSelect.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+      });
+
+      document.getElementById('requestedGoodModal').style.display = 'flex';
+    }
+
+    async function saveRequestedGood() {
+      const partName = document.getElementById('reqPartNameInput').value.trim();
+      const qty = parseInt(document.getElementById('reqQtyInput').value) || 1;
+      const supplierName = document.getElementById('reqSupplierSelect').value;
+      const notes = document.getElementById('reqNotesInput').value.trim();
+
+      if (!partName) { alert("يرجى إدخال اسم الصنف!"); return; }
+
+      await db.collection('requested_goods').add({
+        partName,
+        qty,
+        supplierName,
+        notes,
+        status: 'قيد الطلب',
+        createdAt: new Date().toISOString()
+      });
+      closeModal('requestedGoodModal');
+    }
+
+    async function deleteRequestedGood(id) {
+      if (confirm("هل تريد حذف هذا الطلب؟")) {
+        await db.collection('requested_goods').doc(id).delete();
+      }
+    }
+
+    async function transferToInventory(reqId) {
+      const reqItem = allRequestedGoods.find(r => r.id === reqId);
+      if (!reqItem) return;
+      if (allStores.length === 0) { alert("يرجى إنشاء مخزن أولاً لنقل البضاعة إليه!"); return; }
+
+      const storeId = allStores[0].id;
+      await db.collection('inventory').add({
+        partName: reqItem.partName,
+        partSerial: 'REQ-' + Math.floor(1000 + Math.random() * 9000),
+        category: 'بضائع واردة حديثاً',
+        qty: reqItem.qty,
+        minQty: 2,
+        buyPrice: 0,
+        discountPercent: 0,
+        price: 0,
+        storeId: storeId,
+        isService: false,
+        salesCount: 0,
+        createdAt: new Date().toISOString()
+      });
+
+      await db.collection('requested_goods').doc(reqId).update({ status: 'تم التوريد والنقل للمخزن' });
+      alert("✅ تم نقل البضاعة وإضافتها إلى المخزن بنجاح!");
+    }
+
+    function renderDisbursements() {
+      const tbody = document.getElementById('disbursementsTbody');
+      tbody.innerHTML = '';
+      if (allDisbursements.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد إذونات صرف مسجلة.</td></tr>';
+        return;
+      }
+      allDisbursements.forEach((d, idx) => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#DISB-${idx + 101}</strong></td>
+            <td>${d.clientName}</td>
+            <td><strong>${d.partName}</strong></td>
+            <td><span style="color:var(--danger-color); font-weight:bold;">-${d.qtyDisbursed}</span></td>
+            <td>${d.technician}</td>
+            <td>${new Date(d.createdAt).toLocaleString('ar-EG')}</td>
+            <td><span style="background: rgba(16,185,129,0.1); color: var(--btn-green); padding:3px 8px; border-radius:4px; font-weight:bold; font-size:0.75rem;">تم الصرف والتخصيم</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    function openAddDisbursementModal() {
+      const select = document.getElementById('disbItemSelect');
+      select.innerHTML = '';
+      const availableItems = allItems.filter(i => !i.isService && i.qty > 0);
+      
+      if (availableItems.length === 0) {
+        alert("لا توجد أصناف متاحة في المخزن حالياً للصرف!");
+        return;
+      }
+
+      availableItems.forEach(i => {
+        const store = allStores.find(s => s.id === i.storeId);
+        select.innerHTML += `<option value="${i.id}" data-qty="${i.qty}">${i.partName} (الرصيد: ${i.qty}) - [${store ? store.name : ''}]</option>`;
+      });
+
+      document.getElementById('disbQtyInput').value = '1';
+      document.getElementById('disbClientInput').value = '';
+      document.getElementById('disbTechInput').value = '';
+      onDisbItemChange();
+      document.getElementById('disbursementModal').style.display = 'flex';
+    }
+
+    function onDisbItemChange() {
+      const select = document.getElementById('disbItemSelect');
+      const selectedOption = select.options[select.selectedIndex];
+      if (selectedOption) {
+        const maxQty = selectedOption.getAttribute('data-qty');
+        document.getElementById('disbMaxQty').textContent = maxQty;
+        document.getElementById('disbQtyInput').max = maxQty;
+      }
+    }
+
+    async function executeDisbursement() {
+      const itemId = document.getElementById('disbItemSelect').value;
+      const qtyDisbursed = parseInt(document.getElementById('disbQtyInput').value) || 1;
+      const clientName = document.getElementById('disbClientInput').value.trim();
+      const technician = document.getElementById('disbTechInput').value.trim();
+
+      if (!clientName || !technician) { alert("يرجى إدخال اسم العميل والفني المسؤول!"); return; }
+
+      const item = allItems.find(i => i.id === itemId);
+      if (!item) { alert("الصنف غير موجود!"); return; }
+
+      if (qtyDisbursed > item.qty) {
+        alert("الكمية المطلوبة أكبر من الرصيد المتاح في المخزن!");
+        return;
+      }
+
+      const newQty = item.qty - qtyDisbursed;
+      const newSalesCount = (item.salesCount || 0) + qtyDisbursed;
+
+      await db.collection('inventory').doc(itemId).update({
+        qty: newQty,
+        salesCount: newSalesCount
+      });
+
+      await db.collection('disbursements').add({
+        itemId,
+        partName: item.partName,
+        qtyDisbursed,
+        clientName,
+        technician,
+        createdAt: new Date().toISOString()
+      });
+
+      alert("✅ تم إصدار إذن الصرف وتخصيم الكمية من المخزن بنجاح!");
+      closeModal('disbursementModal');
     }
 
     function renderSuppliers() {
@@ -696,20 +1171,92 @@
     async function deleteSupplier(id) { if(confirm("حذف التاجر؟")) await db.collection('suppliers').doc(id).delete(); }
 
     function renderShortages() {
-      const tbody = document.getElementById('shortagesTbody');
-      tbody.innerHTML = '';
-      allShortages.forEach((sh, idx) => {
-        tbody.innerHTML += `
+      const inventoryTbody = document.getElementById('inventoryShortagesTbody');
+      const externalTbody = document.getElementById('externalShortagesTbody');
+      
+      inventoryTbody.innerHTML = '';
+      externalTbody.innerHTML = '';
+
+      if (allShortages.length === 0) {
+        inventoryTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد طلبات متوفرة في المخزن حالياً.</td></tr>';
+        externalTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد نواقص خارجية مسجلة حالياً.</td></tr>';
+        return;
+      }
+
+      let invCount = 0;
+      let extCount = 0;
+
+      allShortages.forEach((sh) => {
+        const pName = sh.partName || sh.partNames || 'طلب معلق';
+        const foundInStore = allItems.find(i => !i.isService && i.qty > 0 && i.partName.toLowerCase().includes(pName.toLowerCase().trim()));
+
+        const rowHtml = `
           <tr>
-            <td>${idx + 1}</td>
-            <td><strong>${sh.partName}</strong></td>
-            <td>${sh.category || 'عام'}</td>
-            <td><strong>${sh.qty || 1}</strong></td>
-            <td>${sh.carDetails || sh.clientName || 'غير محدد'}</td>
-            <td><span style="color:#ea580c; font-weight:bold;">مطلوب توفيرها</span></td>
+            <td>#${sh.id ? sh.id.slice(-4) : '---'}</td>
+            <td><strong>${pName}</strong></td>
+            <td><span style="color: var(--btn-blue); font-weight: bold;">${sh.customerBudget || 'غير محدد'}</span></td>
+            <td>${sh.clientName || sh.carDetails || 'سيارة عميل'}</td>
+            <td>${sh.date || '-'}</td>
+            <td><span style="background: rgba(234,88,12,0.1); color: var(--primary-orange); padding:3px 8px; border-radius:4px; font-weight:bold; font-size:0.75rem;">${sh.status || 'قيد التحضير'}</span></td>
+            <td>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                <button class="btn-action btn-green" style="padding:5px 8px; font-size:0.75rem;" onclick="fulfillPart('${sh.id}', '${sh.carId}')" title="تنفيذ">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+                <button class="btn-action btn-danger" style="padding:5px 8px; font-size:0.75rem;" onclick="deleteShortage('${sh.id}')" title="حذف الطلب">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
           </tr>
         `;
+
+        if (foundInStore) {
+          invCount++;
+          inventoryTbody.innerHTML += rowHtml;
+        } else {
+          extCount++;
+          externalTbody.innerHTML += rowHtml;
+        }
       });
+
+      if (invCount === 0) {
+        inventoryTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد طلبات تشخيص متوفرة بالمخزن حالياً.</td></tr>';
+      }
+      if (extCount === 0) {
+        externalTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد نواقص خارجية مطلوبة حالياً.</td></tr>';
+      }
+    }
+
+    async function fulfillPart(shortageId, carId) {
+      if (!confirm("هل تم إتمام الخدمة أو توفير القطعة المطلوبة وإتاحتها لصالح هذه السيارة؟")) return;
+
+      try {
+        await db.collection('inventory_shortages').doc(shortageId).update({
+          status: 'تم التنفيذ والتوفير'
+        });
+
+        if (carId) {
+          await db.collection('cars').doc(carId).update({
+            status: 'IN_PROGRESS',
+            statusLabel: 'جاري التركيب والصيانة',
+            electricItemStatus: 'تم توفير الطلب - استئناف العمل'
+          });
+        }
+
+        alert("✅ تم إتمام التحديث بنجاح وإبلاغ الورشة باستئناف العمل!");
+      } catch (err) {
+        alert("خطأ أثناء تحديث الحالة: " + err.message);
+      }
+    }
+
+    async function deleteShortage(shortageId) {
+      if (!confirm("هل أنت متأكد من حذف هذا الطلب من القائمة؟")) return;
+      try {
+        await db.collection('inventory_shortages').doc(shortageId).delete();
+      } catch (err) {
+        alert("خطأ أثناء الحذف: " + err.message);
+      }
     }
 
     function printShortagesList() { window.print(); }
@@ -725,7 +1272,7 @@
 
       let msg = `*طلب توريد قطع غيار ونواقص - مركز أوتو نون (NON)* 🚗\n------------------------------------\n`;
       allShortages.forEach((sh, i) => {
-        msg += `${i + 1}. *${sh.partName}* - الكمية: (${sh.qty || 1}) - [${sh.carDetails || ''}]\n`;
+        msg += `${i + 1}. *${sh.partName || sh.partNames}* - الميزانية: (${sh.customerBudget || 'عادي'})\n`;
       });
       msg += `\nبرجاء التأكيد وإفادتنا بالتوفر والأسعار.`;
 
@@ -753,13 +1300,13 @@
         tbody.innerHTML += `
           <tr>
             <td><strong style="color:var(--primary-orange); font-size:1.1rem;">#${idx + 1}</strong></td>
-            <td><strong>${item.partName}</strong></td>
+            <td><strong>${item.partName}</strong> ${item.isService ? '<span style="color:var(--btn-blue); font-size:0.75rem;">(خدمة)</span>' : ''}</td>
             <td>${item.category || 'عام'}</td>
             <td><code>${item.partSerial || 'N/A'}</code></td>
-            <td><strong style="color:var(--btn-green); font-size:1rem;">${item.salesCount || 0} عملية طلب</strong></td>
+            <td><strong style="color:var(--btn-green); font-size:1rem;">${item.salesCount || 0} طلب</strong></td>
             <td>${item.buyPrice || 0} ج.م</td>
             <td>${item.price || 0} ج.م</td>
-            <td>${item.qty}</td>
+            <td>${item.isService ? '-' : item.qty}</td>
           </tr>
         `;
       });
@@ -768,15 +1315,20 @@
     function updateDropdowns() {
       const filter = document.getElementById('storeFilterSelect');
       const itemSelect = document.getElementById('itemStoreSelect');
-      filter.innerHTML = `<option value="ALL">جميع المخازن</option>`;
+      const serviceStoreSelect = document.getElementById('serviceStoreSelect');
+
+      filter.innerHTML = `<option value="ALL">جميع المخازن والخدمات</option>`;
       itemSelect.innerHTML = '';
+      serviceStoreSelect.innerHTML = '';
+
       allStores.forEach(s => {
         filter.innerHTML += `<option value="${s.id}">${s.name}</option>`;
         itemSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+        serviceStoreSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
       });
     }
 
-    async function deleteItem(id) { if(confirm("هل أنت تأكد من حذف الصنف؟")) await db.collection('inventory').doc(id).delete(); }
+    async function deleteItem(id) { if(confirm("هل أنت تأكد من الحذف؟")) await db.collection('inventory').doc(id).delete(); }
     function openAddStoreModal() { document.getElementById('storeModal').style.display = 'flex'; }
     async function saveStore() {
       const name = document.getElementById('storeNameInput').value;
