@@ -768,7 +768,7 @@ let currentClientPhone = "";
     </div>
 
     <div style="margin-bottom: 8px; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px;">
-      <h5 style="color: #ea580c; margin-bottom: 4px; font-size: 0.85rem;">فحص واستلام السيارة الشامل والتشخيص:</h5>
+      <h5 style="color: #ea580c; margin-bottom: 4px; font-size: 0.85rem;">فحص واستلاستخدام السيارة الشامل والتشخيص:</h5>
       <p id="jobDiagnosis" style="font-size: 0.8rem; min-height: 25px;">--</p>
     </div>
 
@@ -908,6 +908,19 @@ let currentClientPhone = "";
     let pendingRequestsMap = {}; 
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+    // دالة مساعدة لتنظيف رقم الهاتف وإزالة أي كود دولة محتمل (مثل 20) ليبدأ برقم العميل الطبيعي مباشرة (مثلاً 01...)
+    function formatPhoneNumberForWhatsApp(phone) {
+      if (!phone) return "";
+      let clean = phone.replace(/\D/g, ''); // الاحتفاظ بالأرقام فقط
+      
+      // إذا كان الرقم يبدأ بـ 20 (كود مصر) وطوله 12 رقم مثلاً (مثل 2010xxxxxxxx)، نقوم بإزالة الـ 20 لتبدأ بـ 01
+      if (clean.startsWith('20') && clean.length === 12) {
+        clean = '0' + clean.slice(2);
+      }
+      // إذا أردت إرساله بدون كود دولة نهائياً وتأكيد البدء بـ 01:
+      return clean;
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       try {
@@ -1054,10 +1067,8 @@ let currentClientPhone = "";
         return;
       }
 
-      // تنظيف رقم الهاتف وإزالة أي رمز دولة محتمل أو رموز زائدة ليبقى الرقم المحلي أو الرقم الصافي
-      let cleanPhone = phone.replace(/\D/g, '');
-      // إذا أردت التأكد من إزالة رمز الدولة (مثال: لو يبدأ بـ 20 لمصر أو أي كود دولة مفترض)، يمكنك التحكم هنا.
-      // الكود التالي يستخدم الرقم الصافي المتبقي بدون رموز:
+      // تطبيق إزالة رمز الدولة ليبدأ الرقم بـ 01 طبيعياً
+      let cleanPhone = formatPhoneNumberForWhatsApp(phone);
       
       const clientName = reqData.clientName || reqData.name || 'عميلنا العزيز';
       const partsText = document.getElementById('modalParts').innerText;
@@ -1944,10 +1955,11 @@ let currentClientPhone = "";
     function sendDetailedWhatsAppReport() {
       const phone = document.getElementById('diagPhone').value;
       if (!phone) { alert("رقم الهاتف غير متوفر!"); return; }
+      const cleanPhone = formatPhoneNumberForWhatsApp(phone);
       const name = document.getElementById('diagClientName').value;
       const diag = document.getElementById('diagIssueText').value;
       const msg = `مرحباً أ/ ${name}\nتقرير الفحص والتشخيص من مركز أوتو نون (NON):\n${diag}`;
-      window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function sendWhatsAppDetailedCostToClient() {
