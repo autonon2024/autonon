@@ -34,25 +34,44 @@
     }
     .brand-logo { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: bold; color: var(--primary-orange); }
     .btn-nav { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 7px 14px; border-radius: 20px; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; }
-    
-    .suspended-ticker {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white; padding: 10px 15px; border-radius: 12px; margin-bottom: 14px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
-      animation: pulseGlow 2s infinite;
-    }
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-      50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
-      100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-    }
 
     .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 14px; }
     @media(max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
 
-    .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 14px; margin-bottom: 14px; }
+    .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 14px; margin-bottom: 14px; position: relative; }
     .card-title { color: var(--primary-orange); font-size: 0.95rem; font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* أنماط حالة التعليق والختم */
+    .card-box.suspended-card {
+      background: rgba(245, 158, 11, 0.08) !important;
+      border: 2px dashed var(--btn-yellow) !important;
+    }
+    .suspended-stamp {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      border: 4px solid var(--btn-yellow);
+      color: var(--btn-yellow);
+      font-size: 2.2rem;
+      font-weight: 900;
+      padding: 10px 30px;
+      border-radius: 12px;
+      letter-spacing: 2px;
+      pointer-events: none;
+      opacity: 0.85;
+      z-index: 50;
+      display: none;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+      background: rgba(255, 255, 255, 0.85);
+    }
+    body.dark-mode .suspended-stamp {
+      background: rgba(30, 41, 59, 0.85);
+    }
+    .card-box.suspended-card .suspended-stamp {
+      display: block;
+    }
 
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
     .sub-tab { background: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; color: var(--text-main); display: inline-flex; align-items: center; gap: 4px; }
@@ -61,6 +80,7 @@
     .car-list-item { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; cursor: pointer; background: var(--input-bg); }
     .car-list-item:hover { border-color: var(--primary-orange); }
     .car-list-item.active { border: 2px solid var(--primary-orange); background: rgba(234, 88, 12, 0.04); }
+    .car-list-item.suspended { border-left: 5px solid var(--btn-yellow); background: rgba(245, 158, 11, 0.05); }
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
     .form-field { display: flex; flex-direction: column; gap: 3px; }
@@ -84,6 +104,34 @@
     .btn-whatsapp { background: #25d366; color: white; }
     .btn-dark { background: #334155; color: white; }
     .btn-danger { background: var(--danger-red); color: white; }
+
+    .display-toggle-container {
+      background: rgba(234, 88, 12, 0.08);
+      border: 2px solid var(--primary-orange);
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--btn-green); }
+    input:checked + .slider:before { transform: translateX(30px); }
 
     table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.8rem; }
     th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 8px; text-align: right; }
@@ -121,8 +169,6 @@
     </div>
   </div>
 
-  <div id="suspendedTickerContainer"></div>
-
   <div class="sub-tabs" id="subTabsContainer">
     <div class="sub-tab active" onclick="filterCategory('ALL', this)"><i class="fa-solid fa-layer-group"></i> الكل</div>
   </div>
@@ -152,10 +198,27 @@
     </div>
 
     <div>
-      <div class="card-box">
+      <div class="card-box" id="mainDetailCardBox">
+        <!-- ختم معلق يظهر في المنتصف عند التعليق -->
+        <div class="suspended-stamp">معلق</div>
+
         <div class="card-title">
           <span><i class="fa-solid fa-screwdriver-wrench"></i> تفاصيل أعمال الميكانيكا والريداتير</span>
           <span id="activeCarTitle" style="font-size:0.8rem; color:var(--btn-blue);">اختر سيارة للبدء</span>
+        </div>
+
+        <div class="display-toggle-container">
+          <div>
+            <strong style="display: block; font-size: 0.9rem; color: var(--primary-orange);"><i class="fa-solid fa-display"></i> عرض السيارة واسم القسم على شاشة العرض (Display)</strong>
+            <small style="color: #64748b;">عند التفعيل (ON)، تظهر هذه السيارة وقسمها مباشرة على الشاشة العامة للمركز.</small>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="displayStatusLabel" style="font-weight: bold; font-size: 0.85rem;">OFF</span>
+            <label class="switch">
+              <input type="checkbox" id="displayToggleCheckbox" onchange="toggleCarDisplayStatus()">
+              <span class="slider"></span>
+            </label>
+          </div>
         </div>
 
         <div class="form-grid">
@@ -204,24 +267,53 @@
           </div>
         </div>
 
+        <!-- قسم قطع الغيار وطلب صنف غير موجود -->
         <div class="card-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; margin-bottom:8px;">
+          <div style="font-weight: bold; color: var(--primary-orange); margin-bottom: 8px; font-size: 0.85rem;">
+            <i class="fa-solid fa-boxes-stacked"></i> قطع الغيار المطلوبة:
+          </div>
+          
           <div class="form-grid">
-            <div class="form-field">
-              <label>مدى سرعة الحضور المطلوبة:</label>
-              <select id="detailUrgency">
-                <option value="عاجل فورا (طوارئ)">⚡ عاجل فوراً (طوارئ)</option>
-                <option value="خلال ساعة">⏱️ خلال ساعة</option>
-                <option value="خلال اليوم">📅 خلال اليوم</option>
-                <option value="عادي">🟢 عادي</option>
-              </select>
-            </div>
             <div class="form-field inventory-dropdown-container">
               <label>ابحث واختر من أصناف المخزن:</label>
-              <input type="text" id="inventorySearchInput" placeholder="اكتب اسم الصنف للبحث المباشر في المخزن..." oninput="filterInventoryList()" onfocus="openInventoryDropdown()">
+              <input type="text" id="inventorySearchInput" placeholder="اكتب اسم الصنف للبحث المباشر..." oninput="filterInventoryList()" onfocus="openInventoryDropdown()">
               <div id="inventoryDropdownList" class="inventory-list-box"></div>
+            </div>
+            
+            <div class="form-field">
+              <label>صنف غير موجود بالمخزن؟ أدرجه هنا للإرسال:</label>
+              <div style="display: flex; gap: 4px;">
+                <input type="text" id="missingPartInput" placeholder="اكتب اسم الصنف الناقص...">
+                <button type="button" class="btn-action btn-yellow" style="padding: 4px 8px; font-size: 0.75rem;" onclick="sendMissingPartToInventory()">إرسال للمخزن</button>
+              </div>
             </div>
           </div>
           <div id="selectedPartsContainer" style="margin-top:8px; display:flex; flex-direction:column; gap:4px;"></div>
+        </div>
+
+        <!-- قسم اختبار السيارة بعد التصليح الجديد -->
+        <div class="card-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid var(--btn-green); padding: 10px; margin-bottom: 8px;">
+          <div class="card-title" style="color: var(--btn-green); margin-bottom: 8px;">
+            <span><i class="fa-solid fa-car-on"></i> قسم اختبار السيارة بعد التصليح (Test Drive & Quality Check)</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>حالة اختبار السيارة:</label>
+              <select id="testDriveStatus">
+                <option value="لم يتم الاختبار">⏳ لم يتم الاختبار بعد</option>
+                <option value="اجتاز الاختبار بنجاح">🟢 اجتاز الاختبار بنجاح تام</option>
+                <option value="يحتاج مراجعة إضافية">🟠 يحتاج مراجعة وتعديل</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>اسم الفني / المسؤول عن الاختبار:</label>
+              <input type="text" id="testDriveTester" placeholder="اكتب اسم فحص الجودة أو الفني المسؤول...">
+            </div>
+          </div>
+          <div class="form-field" style="margin-top: 6px;">
+            <label>بنود وبنود فحص الجودة وملاحظات الطريق:</label>
+            <textarea id="testDriveNotes" rows="2" placeholder="سجل هنا نتائج اختبار المحرك، الحرارة، الفرامل، والأصوات بعد الإصلاح..."></textarea>
+          </div>
         </div>
 
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
@@ -233,9 +325,7 @@
 
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; margin-bottom:12px;">
           <button class="btn-action btn-primary" onclick="saveMechanicWorkData()"><i class="fa-solid fa-floppy-disk"></i> حفظ التحديثات</button>
-          <button class="btn-action btn-yellow" onclick="requestApprovalForParts()"><i class="fa-solid fa-file-circle-check"></i> إرسال للتشخيص للحصول على موافقة وصرف القطع</button>
-          <button class="btn-action btn-yellow" onclick="suspendCarJob()"><i class="fa-solid fa-pause"></i> تعليق السيارة (Pause)</button>
-          <button class="btn-action btn-green" onclick="resumeCarJob()"><i class="fa-solid fa-play"></i> استكمال العمل (وصول القطع)</button>
+          <button class="btn-action btn-yellow" id="approvalActionButton" onclick="handleApprovalOrResumeAction()"><i class="fa-solid fa-file-circle-check"></i> إرسال للتشخيص للحصول على موافقة وصرف القطع</button>
           <button class="btn-action btn-whatsapp" onclick="sendDetailedWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> إرسال التقرير والقطع واتساب</button>
           <button class="btn-action btn-green" onclick="completeMechanicJob()"><i class="fa-solid fa-check-double"></i> إنهاء وتسليم العمل</button>
         </div>
@@ -336,7 +426,7 @@
 
     function editCurrentSubCategory() {
       if (currentFilter === 'ALL') {
-        alert("الرجاء اختيار قسم فرعي محدد لتعديله (من أزرار الأقسام بالأعلى).");
+        alert("الرجاء اختيار قسم فرعي محدد لتعديله.");
         return;
       }
 
@@ -348,9 +438,7 @@
 
       const trimmed = newName.trim();
       catObj.name = trimmed;
-      if (currentFilter === currentFilter) {
-        currentFilter = trimmed;
-      }
+      currentFilter = trimmed;
 
       saveSubCategoriesToStorage();
       renderCarsList();
@@ -398,7 +486,7 @@
           serviceType.includes('ريداتير') ||
           carData.mechanicDiagnosisNotes || 
           carData.status === 'PENDING_APPROVAL' ||
-          carData.status === 'SUSPENDED';
+          carData.status === 'WAITING_FOR_PARTS';
 
         if (isForMechanics || targetDept === 'ميكانيكا') {
           allMechanicCars.push(carData);
@@ -406,7 +494,6 @@
       });
       
       renderCarsList();
-      renderSuspendedTicker();
       if (currentSelectedCarId) {
         selectCar(currentSelectedCarId);
       }
@@ -436,36 +523,6 @@
       document.getElementById('darkModeIcon').className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
     }
 
-    function renderSuspendedTicker() {
-      const container = document.getElementById('suspendedTickerContainer');
-      const suspendedCars = allMechanicCars.filter(c => c.status === 'SUSPENDED' || c.status === 'PENDING_APPROVAL');
-
-      if (suspendedCars.length === 0) {
-        container.innerHTML = '';
-        return;
-      }
-
-      let html = `
-        <div class="suspended-ticker">
-          <div style="display:flex; align-items:center; gap:8px; font-weight:bold;">
-            <i class="fa-solid fa-triangle-exclamation fa-shake" style="font-size: 1.2rem;"></i>
-            <span>تنبيه: توجد (${suspendedCars.length}) سيارة معلقة أو بانتظار موافقة صرف قطع الغيار:</span>
-          </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-      `;
-
-      suspendedCars.forEach(car => {
-        html += `
-          <button class="btn-action" style="background:white; color:#b45309; padding:4px 10px; font-size:0.8rem;" onclick="selectCar('${car.id}')">
-            ${car.name} (${car.brand || 'سيارة'}) - الحالة: ${car.suspendReason || car.statusLabel || 'معلقة'}
-          </button>
-        `;
-      });
-
-      html += `</div></div>`;
-      container.innerHTML = html;
-    }
-
     function renderCarsList() {
       const container = document.getElementById('carsListContainer');
       container.innerHTML = '';
@@ -485,12 +542,12 @@
 
       filtered.forEach(car => {
         const isSelected = car.id === currentSelectedCarId;
-        const isSuspended = car.status === 'SUSPENDED' || car.status === 'PENDING_APPROVAL';
+        const isSuspended = car.status === 'PENDING_APPROVAL' || car.status === 'WAITING_FOR_PARTS';
         container.innerHTML += `
-          <div class="car-list-item ${isSelected ? 'active' : ''}" onclick="selectCar('${car.id}')">
+          <div class="car-list-item ${isSelected ? 'active' : ''} ${isSuspended ? 'suspended' : ''}" onclick="selectCar('${car.id}')">
             <div style="display:flex; justify-content:space-between; font-weight:bold;">
               <span>${car.name}</span>
-              <span style="color:${isSuspended ? 'var(--danger-red)' : 'var(--primary-orange)'}; font-size:0.75rem;">${isSuspended ? (car.statusLabel || 'معلقة') : (car.queueNo || '-')}</span>
+              <span style="color:${isSuspended ? 'var(--btn-yellow)' : 'var(--primary-orange)'}; font-size:0.75rem;">${isSuspended ? 'معلق ⏳' : (car.queueNo || '-')}</span>
             </div>
             <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
               ${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || 'بدون'})
@@ -501,6 +558,23 @@
           </div>
         `;
       });
+    }
+
+    function updateApprovalButtonState(car) {
+      const btn = document.getElementById('approvalActionButton');
+      const mainCardBox = document.getElementById('mainDetailCardBox');
+      if (!btn) return;
+
+      const status = car ? car.status : '';
+      if (status === 'PENDING_APPROVAL' || status === 'WAITING_FOR_PARTS') {
+        btn.innerHTML = `<i class="fa-solid fa-play"></i> استكمال التعليق (تم وصول القطع)`;
+        btn.className = "btn-action btn-green";
+        if (mainCardBox) mainCardBox.classList.add('suspended-card');
+      } else {
+        btn.innerHTML = `<i class="fa-solid fa-file-circle-check"></i> إرسال للتشخيص للحصول على موافقة وصرف القطع`;
+        btn.className = "btn-action btn-yellow";
+        if (mainCardBox) mainCardBox.classList.remove('suspended-card');
+      }
     }
 
     function selectCar(carId) {
@@ -523,17 +597,66 @@
       document.getElementById('detailItemStatus').value = car.mechanicItemStatus || 'قيد العمل';
       
       document.getElementById('detailDiagnosisNotes').value = car.mechanicDiagnosisNotes || car.diagnosisDetails || '';
-      
       document.getElementById('detailTechNotes').value = car.mechanicTechNotes || '';
       document.getElementById('activeCarTitle').textContent = `العميل: ${car.name}`;
+
+      document.getElementById('testDriveStatus').value = car.testDriveStatus || 'لم يتم الاختبار';
+      document.getElementById('testDriveTester').value = car.testDriveTester || '';
+      document.getElementById('testDriveNotes').value = car.testDriveNotes || '';
+
+      const isDisplayed = car.showOnDisplay === true;
+      const checkbox = document.getElementById('displayToggleCheckbox');
+      const label = document.getElementById('displayStatusLabel');
+      checkbox.checked = isDisplayed;
+      label.textContent = isDisplayed ? 'ON (معروضة)' : 'OFF (مخفية)';
+      label.style.color = isDisplayed ? 'var(--btn-green)' : 'var(--danger-red)';
 
       currentCarAttachments = car.attachments || [];
       currentRequiredParts = car.requiredPartsList || [];
       renderAttachmentsPreview();
       renderRequiredPartsList();
+      updateApprovalButtonState(car);
 
       renderCarsList();
       loadMechanicHistory(carId);
+    }
+
+    async function toggleCarDisplayStatus() {
+      if (!currentSelectedCarId) {
+        alert("الرجاء اختيار سيارة أولاً!");
+        document.getElementById('displayToggleCheckbox').checked = false;
+        return;
+      }
+
+      const isChecked = document.getElementById('displayToggleCheckbox').checked;
+      const label = document.getElementById('displayStatusLabel');
+      label.textContent = isChecked ? 'ON (معروضة)' : 'OFF (مخفية)';
+      label.style.color = isChecked ? 'var(--btn-green)' : 'var(--danger-red)';
+
+      const subCatName = document.getElementById('detailSubCategory').value;
+      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
+      const clientName = document.getElementById('detailClientName').value || (car ? car.name : '');
+      const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
+
+      try {
+        await db.collection('cars').doc(currentSelectedCarId).set({
+          showOnDisplay: isChecked,
+          mechanicSubCategory: subCatName
+        }, { merge: true });
+
+        await db.collection('technicians').doc('mechanic_dept').set({
+          name: 'قسم الميكانيكا',
+          department: 'mechanics',
+          currentCar: isChecked ? `${car ? car.brand : ''} ${car ? car.model : ''}`.trim() || 'سيارة صيانة' : 'لا يوجد',
+          clientName: clientName,
+          carPlate: carPlate,
+          status: isChecked ? 'BUSY' : 'AVAILABLE',
+          showOnDisplay: isChecked
+        }, { merge: true });
+
+      } catch (err) {
+        console.error("خطأ في تحديث حالة الشاشة:", err);
+      }
     }
 
     function openInventoryDropdown() {
@@ -577,8 +700,6 @@
     }
 
     function selectInventoryProduct(productName, availableQty) {
-      const urgency = document.getElementById('detailUrgency').value;
-      
       const existingIndex = currentRequiredParts.findIndex(p => p.name === productName);
       if (existingIndex > -1) {
         alert("⚠️ هذا الصنف مضاف مسبقاً لقائمة القطع المطلوبة.");
@@ -589,8 +710,7 @@
         name: productName,
         source: 'مخزن المركز (Inventory)',
         availableQty: availableQty,
-        urgency: urgency,
-        status: availableQty > 0 ? 'متاح بالمخزن' : 'رصيد غير متوفر'
+        quantityNeeded: 1
       });
 
       document.getElementById('inventorySearchInput').value = '';
@@ -598,9 +718,49 @@
       renderRequiredPartsList();
     }
 
+    async function sendMissingPartToInventory() {
+      const missingInput = document.getElementById('missingPartInput');
+      const partName = missingInput.value.trim();
+      if (!partName) {
+        alert("الرجاء كتابة اسم الصنف غير الموجود أولاً.");
+        return;
+      }
+
+      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
+      const carInfo = car ? `${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || 'بدون'})` : 'سيارة ورشة';
+
+      try {
+        await db.collection('missingPartsRequests').add({
+          partName: partName,
+          requestedByDepartment: 'قسم الميكانيكا',
+          carInfo: carInfo,
+          carId: currentSelectedCarId || '',
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        });
+
+        currentRequiredParts.push({
+          name: partName + ' (غير موجود بالمخزن - طلب توريد)',
+          source: 'طلب خارجي للمخزن',
+          availableQty: 0,
+          quantityNeeded: 1
+        });
+
+        missingInput.value = '';
+        renderRequiredPartsList();
+        alert("✅ تم إرسال طلب الصنف غير الموجود إلى المخزن بنجاح!");
+      } catch (err) {
+        alert("خطأ أثناء إرسال الصنف: " + err.message);
+      }
+    }
+
     function removeRequiredPart(index) {
       currentRequiredParts.splice(index, 1);
       renderRequiredPartsList();
+    }
+
+    function updatePartQuantity(index, val) {
+      currentRequiredParts[index].quantityNeeded = parseInt(val) || 1;
     }
 
     function renderRequiredPartsList() {
@@ -608,19 +768,21 @@
       container.innerHTML = '';
 
       if (currentRequiredParts.length === 0) {
-        container.innerHTML = `<small style="color:#64748b;">لم يتم اختيار قطع غيار من المخزن بعد.</small>`;
+        container.innerHTML = `<small style="color:#64748b;">لم يتم اختيار قطع غيار بعد.</small>`;
         return;
       }
 
       currentRequiredParts.forEach((p, idx) => {
         container.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--input-bg); padding:6px 10px; border-radius:6px; border:1px solid var(--border-color); font-size:0.80rem;">
-            <div>
-              <b>${p.name}</b> 
-              <span style="color:var(--btn-blue); font-size:0.75rem;">(المتوفر: ${p.availableQty ?? 0})</span>
-              <span style="background:rgba(234,88,12,0.1); color:var(--primary-orange); padding:2px 6px; border-radius:4px; font-size:0.72rem;">الأولوية: ${p.urgency}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--input-bg); padding:6px 10px; border-radius:6px; border:1px solid var(--border-color); font-size:0.80rem; gap:10px;">
+            <div style="flex:1;">
+              <b>${p.name}</b>
             </div>
-            <button type="button" onclick="removeRequiredPart(${idx})" style="background:none; border:none; color:red; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:0.75rem;">الكمية المطلوبة:</label>
+              <input type="number" min="1" value="${p.quantityNeeded || 1}" style="width: 60px; padding: 3px 6px; font-size: 0.8rem; text-align: center;" onchange="updatePartQuantity(${idx}, this.value)">
+              <button type="button" onclick="removeRequiredPart(${idx})" style="background:none; border:none; color:red; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+            </div>
           </div>
         `;
       });
@@ -683,6 +845,11 @@
       const itemStatus = document.getElementById('detailItemStatus').value;
       const techNotes = document.getElementById('detailTechNotes').value;
       const diagNotes = document.getElementById('detailDiagnosisNotes').value;
+      const isDisplayed = document.getElementById('displayToggleCheckbox').checked;
+
+      const testDriveStatus = document.getElementById('testDriveStatus').value;
+      const testDriveTester = document.getElementById('testDriveTester').value;
+      const testDriveNotes = document.getElementById('testDriveNotes').value;
 
       try {
         await db.collection('cars').doc(currentSelectedCarId).set({
@@ -690,7 +857,11 @@
           mechanicItemStatus: itemStatus,
           mechanicTechNotes: techNotes,
           requiredPartsList: currentRequiredParts,
-          attachments: currentCarAttachments
+          attachments: currentCarAttachments,
+          showOnDisplay: isDisplayed,
+          testDriveStatus: testDriveStatus,
+          testDriveTester: testDriveTester,
+          testDriveNotes: testDriveNotes
         }, { merge: true });
 
         await db.collection('cars').doc(currentSelectedCarId).collection('mechanic_history').add({
@@ -699,30 +870,59 @@
           status: itemStatus,
           diagnosisNotes: diagNotes,
           techNotes: techNotes,
+          testDriveStatus: testDriveStatus,
           timestamp: new Date().toISOString()
         });
 
-        alert("✅ تم حفظ تحديثات قسم الميكانيكا بنجاح!");
+        alert("✅ تم حفظ تحديثات قسم الميكانيكا واختبار السيارة بنجاح!");
         loadMechanicHistory(currentSelectedCarId);
       } catch (err) {
         alert("خطأ أثناء الحفظ: " + err.message);
       }
     }
 
-    async function requestApprovalForParts() {
+    // دالة مرنة تتولى الإرسال للتشخيص أو الاستكمال بناءً على حالة السيارة وحالة التعليق
+    async function handleApprovalOrResumeAction() {
       if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
 
+      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
+      const currentStatus = car ? car.status : '';
+
+      // إذا كانت السيارة معلقة، فإن الضغط على "استكمال التعليق" يلغي التعليق ويعيد الحالة للعمل العادي
+      if (currentStatus === 'PENDING_APPROVAL' || currentStatus === 'WAITING_FOR_PARTS') {
+        if (confirm("هل تريد استكمال التعليق (تم وصول القطع) وإعادة تفعيل السيارة للعمل؟")) {
+          try {
+            await db.collection('cars').doc(currentSelectedCarId).set({
+              status: 'IN_PROGRESS',
+              statusLabel: 'قيد العمل (بعد استكمال التعليق)',
+              mechanicItemStatus: 'قيد العمل',
+              showOnDisplay: true 
+            }, { merge: true });
+
+            document.getElementById('displayToggleCheckbox').checked = true;
+            document.getElementById('displayStatusLabel').textContent = 'ON (معروضة)';
+            document.getElementById('displayStatusLabel').style.color = 'var(--btn-green)';
+            document.getElementById('detailItemStatus').value = 'قيد العمل';
+
+            updateApprovalButtonState({ status: 'IN_PROGRESS' });
+            alert("🚀 تم استكمال العمل وإلغاء التعليق وتفعيل عرض السيارة على الشاشة بنجاح.");
+            renderCarsList();
+          } catch (err) {
+            alert("خطأ أثناء استكمال التعليق: " + err.message);
+          }
+        }
+        return;
+      }
+
+      // وإلا، يتم إرسال طلب الموافقة وصرف القطع وتحويل الكارت إلى اللون البرتقالي مع ظهور ختم معلق
       if (currentRequiredParts.length === 0) {
-        if (!confirm("⚠️ لم يتم اختيار قطع غيار. هل تريد إرسال تقرير التشخيص للحصول على موافقة عامة على أي حال؟")) {
+        if (!confirm("⚠️ لم يتم اختيار قطع غيار. هل تريد إرسال تقرير التشخيص للموافقة على أي حال؟")) {
           return;
         }
       }
 
       const note = prompt("أدخل ملاحظات إضافية لطلب اعتماد الموافقة وصرف القطع (اختياري):") || "طلب موافقة صرف قطع غيار ميكانيكا";
-
-      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
       
-      // جلب بيانات العميل، وتقرير الفني، وتقرير المهندس بدقة لإرسالها لصفحة التشخيص
       const clientName = document.getElementById('detailClientName').value || (car ? car.name : '');
       const clientPhone = document.getElementById('detailClientPhone').value || (car ? (car.phone || car.clientPhone) : '');
       const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
@@ -734,7 +934,7 @@
       const technicianReport = document.getElementById('detailTechNotes').value || 'لا توجد ملاحظات للفني';
       const engineerReport = document.getElementById('detailDiagnosisNotes').value || 'لا يوجد تقرير مهندس مسجل';
 
-      let partsString = currentRequiredParts.map(p => `${p.name} (المتوفر: ${p.availableQty ?? 0}) - الأولوية: ${p.urgency}`).join('\n');
+      let partsString = currentRequiredParts.map(p => `- ${p.name} (الكمية المطلوبة: ${p.quantityNeeded || 1})`).join('\n');
 
       try {
         await db.collection('cars').doc(currentSelectedCarId).set({
@@ -745,10 +945,10 @@
           mechanicSubCategory: departmentName,
           mechanicTechNotes: technicianReport,
           requiredPartsList: currentRequiredParts,
+          showOnDisplay: false, 
           approvalRequestedAt: new Date().toISOString()
         }, { merge: true });
 
-        // تخزين كافة التفاصيل (بيانات العميل، تقرير الفني، تقرير المهندس، وشكوى العميل) في طلبات قطع الغيار لتظهر في التشخيص
         await db.collection('partsRequests').add({
           carId: currentSelectedCarId,
           clientName: clientName,
@@ -767,56 +967,16 @@
         });
 
         document.getElementById('detailItemStatus').value = 'بانتظار قطع غيار';
+        document.getElementById('displayToggleCheckbox').checked = false;
+        document.getElementById('displayStatusLabel').textContent = 'OFF (مخفية)';
+        document.getElementById('displayStatusLabel').style.color = 'var(--danger-red)';
 
-        alert("⏳ تم إرسال طلب اعتماد وصرف قطع الغيار مع بيانات العميل والتقارير إلى صفحة التشخيص بنجاح.");
+        updateApprovalButtonState({ status: 'PENDING_APPROVAL' });
+
+        alert("⏳ تم إرسال طلب اعتماد وصرف قطع الغيار بنجاح، وتفعيل حالة التعليق على الكارت.");
         renderCarsList();
-        renderSuspendedTicker();
       } catch (err) {
         alert("خطأ أثناء إرسال طلب الموافقة: " + err.message);
-      }
-    }
-
-    async function suspendCarJob() {
-      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
-      const suspendReason = prompt("الرجاء إدخال سبب تعليق العمل على السيارة:");
-      if (!suspendReason) return;
-
-      try {
-        await db.collection('cars').doc(currentSelectedCarId).set({
-          status: 'SUSPENDED',
-          statusLabel: 'معلقة',
-          suspendReason: suspendReason,
-          suspendedAt: new Date().toISOString()
-        }, { merge: true });
-
-        alert("⏸️ تم تغيير حالة السيارة إلى معلقة (SUSPENDED) بنجاح.");
-        renderCarsList();
-        renderSuspendedTicker();
-      } catch (err) {
-        alert("خطأ أثناء تعليق السيارة: " + err.message);
-      }
-    }
-
-    async function resumeCarJob() {
-      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
-      if (confirm("هل تريد استكمال العمل وإدخال السيارة للورشة بعد توفر القطع والموافقة؟")) {
-        try {
-          await db.collection('cars').doc(currentSelectedCarId).set({
-            status: 'IN_PROGRESS',
-            statusLabel: 'قيد العمل بالورشة',
-            mechanicItemStatus: 'قيد العمل',
-            suspendReason: firebase.firestore.FieldValue.delete()
-          }, { merge: true });
-
-          document.getElementById('detailItemStatus').value = 'قيد العمل';
-          alert("🚀 تم إعادة السيارة للورشة بنجاح للاستكمال!");
-          renderCarsList();
-          renderSuspendedTicker();
-        } catch (err) {
-          alert("خطأ: " + err.message);
-        }
       }
     }
 
@@ -835,12 +995,15 @@
       const diagNotes = document.getElementById('detailDiagnosisNotes').value || 'لا توجد ملاحظات';
       const techNotes = document.getElementById('detailTechNotes').value || 'لا توجد ملاحظات';
       
+      const testStatus = document.getElementById('testDriveStatus').value;
+      const testNotes = document.getElementById('testDriveNotes').value;
+      
       let partsText = 'لا توجد قطع مطلوبة';
       if (currentRequiredParts.length > 0) {
-        partsText = currentRequiredParts.map(p => `- ${p.name} (المتوفر: ${p.availableQty ?? 0}) [الأولوية: ${p.urgency}]`).join('\n');
+        partsText = currentRequiredParts.map(p => `- ${p.name} (الكمية: ${p.quantityNeeded || 1})`).join('\n');
       }
 
-      const message = `*مركز أوتو نون (NON) - تقرير الميكانيكا والريداتير*\n\n` +
+      const message = `*مركز أوتو نون (NON) - تقرير الميكانيكا واختبار السيارة*\n\n` +
                       `👤 العميل: ${clientName}\n` +
                       `📞 الهاتف: ${phone}\n` +
                       `🔢 السيريال نمبر: ${serialNo}\n` +
@@ -849,7 +1012,8 @@
                       `⚠️ *شكوى العميل:*\n${complaintText}\n\n` +
                       `🔍 *تقرير المهندس:*\n${diagNotes}\n\n` +
                       `🛠️ *تقرير الفني:*\n${techNotes}\n\n` +
-                      `📦 *قطع الغيار المطلوبة (بانتظار الموافقة والصرف):*\n${partsText}\n\n` +
+                      `📦 *قطع الغيار المطلوبة:*\n${partsText}\n\n` +
+                      `🏁 *اختبار السيارة بعد التصليح:*\n- الحالة: ${testStatus}\n- ملاحظات الاختبار: ${testNotes || 'لا توجد'}\n\n` +
                       `نشكر ثقتكم بمركز أوتو نون.`;
 
       const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
@@ -888,16 +1052,16 @@
     async function completeMechanicJob() {
       if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
 
-      if (confirm("هل أنت متأكد من إنهاء كافة أعمال الميكانيكا والريداتير لهذه السيارة؟")) {
+      if (confirm("هل أنت متأكد من إنهاء كافة أعمال الميكانيكا واختبار السيارة بنجاح؟")) {
         try {
           await db.collection('cars').doc(currentSelectedCarId).update({
             mechanicItemStatus: 'تم الانتهاء',
             status: 'MECH_DONE',
-            statusLabel: 'تم إنهاء الميكانيكا والريداتير'
+            statusLabel: 'تم إنهاء الميكانيكا والاختبار',
+            showOnDisplay: false
           });
-          alert("🎉 تم إتمام العمل بنجاح وتسجيل الحالة!");
+          alert("🎉 تم إتمام العمل وتسجيل الحالة بنجاح!");
           renderCarsList();
-          renderSuspendedTicker();
         } catch (err) {
           alert("خطأ: " + err.message);
         }
