@@ -35,8 +35,8 @@
       background: rgba(2, 132, 199, 0.08);
       border: 2px solid var(--btn-blue);
       border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
     }
     body.dark-mode .client-info-box {
       background: rgba(14, 165, 233, 0.15);
@@ -50,8 +50,8 @@
       text-align: right !important;
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 10px;
-      font-size: 0.9rem;
+      padding: 12px;
+      font-size: 0.95rem;
     }
 
     #floatingPartsAlert {
@@ -60,13 +60,13 @@
       left: 25px;
       background: linear-gradient(135deg, #ea580c, #9a3412);
       color: white;
-      padding: 16px 22px;
+      padding: 18px 24px;
       border-radius: 16px;
       box-shadow: 0 8px 30px rgba(234, 88, 12, 0.7);
       z-index: 10000;
       display: none;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       cursor: pointer;
       animation: bounce 0.8s infinite alternate;
       border: 3px solid #ffedd5;
@@ -79,11 +79,11 @@
     .urgency-banner {
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 8px;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
       animation: pulse-red 1.5s infinite;
       display: none;
@@ -93,11 +93,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
       background: var(--card-bg);
-      padding: 10px 15px;
+      padding: 12px 18px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       border: 1px solid var(--border-color);
@@ -105,90 +105,103 @@
     .brand-logo {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 1.2rem;
+      gap: 10px;
+      font-size: 1.3rem;
       font-weight: bold;
       color: var(--primary-orange);
     }
-    .brand-logo i { font-size: 1.5rem; }
+    .brand-logo i { font-size: 1.6rem; }
 
-    .center-nav { display: flex; justify-content: center; gap: 8px; }
+    .engineer-badge-header {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+    }
+
+    .center-nav { display: flex; justify-content: center; gap: 10px; }
     .btn-nav {
       background: linear-gradient(135deg, #ea580c, #c2410c);
-      color: white; padding: 8px 16px; border-radius: 20px;
-      font-weight: bold; font-size: 0.85rem; text-decoration: none;
-      box-shadow: 0 3px 10px rgba(234, 88, 12, 0.2); display: flex; align-items: center; gap: 6px;
+      color: white; padding: 9px 18px; border-radius: 20px;
+      font-weight: bold; font-size: 0.9rem; text-decoration: none;
+      box-shadow: 0 3px 10px rgba(234, 88, 12, 0.2); display: flex; align-items: center; gap: 8px;
     }
     .btn-nav-sec {
       background: var(--input-bg); color: var(--text-main);
-      border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 20px;
-      font-weight: bold; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border-color); padding: 9px 18px; border-radius: 20px;
+      font-weight: bold; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 8px;
     }
 
-    .top-controls { display: flex; align-items: center; gap: 8px; }
+    .top-controls { display: flex; align-items: center; gap: 10px; }
     .btn-dark-toggle {
       background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);
-      padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;
+      padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
     }
 
     .top-search-card {
       background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
-      padding: 10px 14px; margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
       box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .top-search-card input {
-      padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px;
-      background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; outline: none;
+      padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 8px;
+      background: var(--input-bg); color: var(--text-main); font-size: 0.9rem; outline: none;
     }
 
     .diag-tabs-container {
-      display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px;
+      display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 6px;
     }
     .diag-tab {
-      background: var(--card-bg); border: 1px solid var(--border-color); padding: 6px 12px;
-      border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 14px;
+      border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;
       white-space: nowrap;
     }
     .diag-tab.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
 
-    .main-layout { display: grid; grid-template-columns: 540px 1fr; gap: 14px; }
+    .main-layout { display: grid; grid-template-columns: 560px 1fr; gap: 16px; }
     @media (max-width: 1100px) { .main-layout { grid-template-columns: 1fr; } }
 
     .card-box {
       background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);
-      padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); text-align: right;
+      padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); text-align: right;
     }
     .card-title {
-      color: var(--primary-orange); font-size: 0.95rem; font-weight: bold; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+      color: var(--primary-orange); font-size: 1.05rem; font-weight: bold; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
     }
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     @media (max-width: 600px) {
       .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
     }
 
-    .form-field { display: flex; flex-direction: column; gap: 3px; text-align: right; }
-    .form-field label { font-size: 0.76rem; font-weight: bold; opacity: 0.85; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+    .form-field label { font-size: 0.85rem; font-weight: bold; opacity: 0.9; }
     .form-field input, .form-field textarea, .form-field select {
-      width: 100%; padding: 7px 10px; border: 1px solid var(--border-color); background: var(--input-bg);
-      border-radius: 6px; font-size: 0.83rem; color: var(--text-main); outline: none; text-align: right;
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border-color); background: var(--input-bg);
+      border-radius: 8px; font-size: 0.9rem; color: var(--text-main); outline: none; text-align: right;
     }
 
     .maint-item-card {
       background: rgba(234, 88, 12, 0.04); border: 1px solid var(--border-color); border-radius: 8px;
-      padding: 8px; margin-top: 6px; position: relative;
+      padding: 10px; margin-top: 8px; position: relative;
     }
 
     .image-upload-container {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 8px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 10px;
     }
     .image-preview-card {
       position: relative; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-color);
     }
-    .image-preview-card img { width: 100%; height: 75px; object-fit: cover; display: block; }
-    .image-preview-card input { font-size: 0.7rem; padding: 4px; border: none; border-top: 1px solid var(--border-color); width: 100%; text-align: right; }
+    .image-preview-card img { width: 100%; height: 80px; object-fit: cover; display: block; }
+    .image-preview-card input { font-size: 0.75rem; padding: 5px; border: none; border-top: 1px solid var(--border-color); width: 100%; text-align: right; }
 
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
@@ -197,16 +210,16 @@
     }
     .suspended-alert { animation: pulse-red 2s infinite; border: 2px solid #ef4444 !important; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.8rem; direction: rtl; text-align: right; }
-    th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 8px; text-align: right; font-weight: bold; }
-    td { padding: 8px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: right; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; direction: rtl; text-align: right; }
+    th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 10px; text-align: right; font-weight: bold; }
+    td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: right; }
 
-    .badge-status { padding: 3px 7px; border-radius: 6px; font-weight: bold; font-size: 0.72rem; }
+    .badge-status { padding: 4px 9px; border-radius: 6px; font-weight: bold; font-size: 0.78rem; }
     .badge-queue { background: var(--primary-orange); color: white; }
     .badge-suspended { background: #ef4444; color: white; }
     .badge-in-diag { background: #8b5cf6; color: white; }
 
-    .btn-action-sm { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-action-sm { padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-primary { background: var(--primary-orange); color: white; }
     .btn-danger { background: var(--danger-red); color: white; }
     .btn-whatsapp { background: #22c55e; color: white; }
@@ -223,23 +236,23 @@
       justify-content: space-between;
       background: rgba(139, 92, 246, 0.08);
       border: 1px solid var(--btn-dz);
-      padding: 10px 12px;
+      padding: 12px 14px;
       border-radius: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .switch {
       position: relative;
       display: inline-block;
-      width: 50px;
-      height: 24px;
+      width: 52px;
+      height: 26px;
     }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .3s; border-radius: 24px;
+      background-color: #ccc; transition: .3s; border-radius: 26px;
     }
     .slider:before {
-      position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
       background-color: white; transition: .3s; border-radius: 50%;
     }
     input:checked + .slider { background-color: var(--btn-dz); }
@@ -247,16 +260,16 @@
 
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
-      display: none; justify-content: center; align-items: center; z-index: 9999; padding: 10px;
+      display: none; justify-content: center; align-items: center; z-index: 9999; padding: 12px;
     }
     .modal-content {
-      background: var(--card-bg); width: 100%; max-width: 680px; border-radius: 12px; padding: 18px;
+      background: var(--card-bg); width: 100%; max-width: 720px; border-radius: 12px; padding: 22px;
       max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.25); text-align: right;
     }
     
     .app-icon-btn {
-      display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color);
-      border-radius: 8px; cursor: pointer; background: var(--input-bg); margin-bottom: 6px; font-weight: bold;
+      display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border-color);
+      border-radius: 8px; cursor: pointer; background: var(--input-bg); margin-bottom: 8px; font-weight: bold;
     }
     .app-icon-btn:hover { border-color: var(--primary-orange); background: rgba(234, 88, 12, 0.05); }
 
@@ -268,14 +281,14 @@
         left: 0;
         top: 0;
         width: 100%;
-        background: white !important;
-        color: black !important;
+        background: #fffdf5 !important;
+        color: #000 !important;
         padding: 10px;
         font-size: 11pt;
       }
       @page {
         size: A4 portrait;
-        margin: 8mm;
+        margin: 6mm;
       }
     }
   </style>
@@ -285,63 +298,63 @@
 </head>
 <body>
 
-  <div id="floatingNotification" style="position: fixed; bottom: 25px; right: 25px; z-index: 1050; display: none; max-width: 420px; filter: drop-shadow(0 10px 25px rgba(234, 88, 12, 0.5));">
+  <div id="floatingNotification" style="position: fixed; bottom: 25px; right: 25px; z-index: 1050; display: none; max-width: 440px; filter: drop-shadow(0 10px 25px rgba(234, 88, 12, 0.5));">
       <div class="toast show shadow-lg" role="alert" style="width: 100%; border: 3px solid #ea580c; border-radius: 14px; overflow: hidden;">
-          <div class="toast-header" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #ea580c, #c2410c); color: white; font-size: 1rem;">
-              <strong class="me-auto" style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-bell fa-shake" style="font-size: 1.2rem;"></i> طلبات قطع غيار (<span id="activeRequestsCount" style="background: #fff; color: #ea580c; padding: 2px 8px; border-radius: 10px; font-weight: bold;">0</span>)</strong>
-              <button type="button" class="btn-close btn-close-white" onclick="closeNotification()" style="background:none; border:none; color:#fff; cursor:pointer; font-size: 1.2rem; font-weight: bold;">✕</button>
+          <div class="toast-header" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: linear-gradient(135deg, #ea580c, #c2410c); color: white; font-size: 1.05rem;">
+              <strong class="me-auto" style="display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-bell fa-shake" style="font-size: 1.3rem;"></i> طلبات قطع غيار (<span id="activeRequestsCount" style="background: #fff; color: #ea580c; padding: 3px 10px; border-radius: 10px; font-weight: bold;">0</span>)</strong>
+              <button type="button" class="btn-close btn-close-white" onclick="closeNotification()" style="background:none; border:none; color:#fff; cursor:pointer; font-size: 1.3rem; font-weight: bold;">✕</button>
           </div>
-          <div class="toast-body p-3" id="notificationBody" style="max-height: 240px; overflow-y: auto; background: #fffbeb; cursor: pointer; font-weight: bold; color: #1e293b;" onclick="openRequestDetails()">
+          <div class="toast-body p-3" id="notificationBody" style="max-height: 250px; overflow-y: auto; background: #fffbeb; cursor: pointer; font-weight: bold; color: #1e293b;" onclick="openRequestDetails()">
           </div>
       </div>
   </div>
 
   <div class="modal fade" id="requestModal" tabindex="-1" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1060; align-items:center; justify-content:center;">
-    <div class="modal-dialog" style="background:var(--card-bg); padding:20px; border-radius:12px; width:90%; max-width:620px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 2px solid var(--primary-orange);">
+    <div class="modal-dialog" style="background:var(--card-bg); padding:22px; border-radius:12px; width:90%; max-width:640px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 2px solid var(--primary-orange);">
         <div class="modal-content" style="background: transparent; border: none; box-shadow: none; padding: 0;">
-            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">
-                <h5 class="modal-title" style="color:var(--primary-orange); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px;">
+                <h5 class="modal-title" style="color:var(--primary-orange); font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-boxes-stacked"></i> طلبات قطع الغيار
                 </h5>
-                <button type="button" class="btn-close" onclick="closeRequestModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color: var(--text-main);">✕</button>
+                <button type="button" class="btn-close" onclick="closeRequestModal()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color: var(--text-main);">✕</button>
             </div>
-            <div class="modal-body" style="font-size: 0.9rem; line-height: 1.6;">
+            <div class="modal-body" style="font-size: 0.95rem; line-height: 1.7;">
                 
-                <div class="form-field" style="margin-bottom: 12px;">
+                <div class="form-field" style="margin-bottom: 14px;">
                     <label style="font-weight: bold; color: var(--primary-orange);"><i class="fa-solid fa-car"></i> اختر الطلب أو السيارة:</label>
-                    <div style="display: flex; gap: 6px;">
-                        <select id="modalCarSelect" onchange="onModalCarSelectionChange()" style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: bold;"></select>
-                        <button type="button" class="btn-action-sm btn-danger" onclick="deleteCurrentRequest()" title="حذف/مسح هذا الطلب" style="padding: 6px 12px;"><i class="fa-solid fa-xmark"></i> مسح الطلب</button>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="modalCarSelect" onchange="onModalCarSelectionChange()" style="flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: bold;"></select>
+                        <button type="button" class="btn-action-sm btn-danger" onclick="deleteCurrentRequest()" title="حذف/مسح هذا الطلب" style="padding: 8px 14px;"><i class="fa-solid fa-xmark"></i> مسح الطلب</button>
                     </div>
                 </div>
 
-                <div style="background: rgba(234, 88, 12, 0.05); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <div style="background: rgba(234, 88, 12, 0.05); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
                     
-                    <div style="margin-bottom: 8px;" id="boxClientNameContainer">
+                    <div style="margin-bottom: 10px;" id="boxClientNameContainer">
                       <p><strong><i class="fa-solid fa-user"></i> اسم العميل:</strong> <span id="modalClientName" style="color: var(--primary-orange); font-weight: bold;">غير متوفر</span></p>
                     </div>
                     
-                    <div style="margin-bottom: 8px;" id="boxEngineerReportContainer">
+                    <div style="margin-bottom: 10px;" id="boxEngineerReportContainer">
                       <p><strong><i class="fa-solid fa-user-gear"></i> تقرير المهندس:</strong> <span id="modalEngineerReport" style="color: var(--primary-orange); font-weight: bold;">لا يوجد تقرير مهندس مسجل</span></p>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                       <p><strong><i class="fa-solid fa-car-side"></i> بيانات السيارة:</strong> <span id="modalCarDetails" style="color: var(--primary-orange); font-weight: bold;">--</span></p>
                       <p><strong><i class="fa-solid fa-barcode"></i> السيريال:</strong> <span id="modalClientSerial" style="color: var(--primary-orange); font-weight: bold;">--</span></p>
                     </div>
                     
-                    <p style="margin-bottom: 6px; margin-top: 10px;"><strong><i class="fa-solid fa-toolbox"></i> قطع الغيار المطلوبة، العدد، والأسعار:</strong></p>
-                    <div id="modalParts" style="background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; margin-top: 4px; font-weight: bold;">--</div>
+                    <p style="margin-bottom: 8px; margin-top: 12px;"><strong><i class="fa-solid fa-toolbox"></i> قطع الغيار المطلوبة، العدد، والأسعار:</strong></p>
+                    <div id="modalParts" style="background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-top: 6px; font-weight: bold;">--</div>
                 </div>
 
             </div>
-            <div class="modal-footer" style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap; gap: 8px;">
-                <button type="button" class="btn btn-secondary btn-action-sm" onclick="closeRequestModal()" style="background:#64748b; color:white; padding:8px 16px; border-radius:8px;">إغلاق</button>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" class="btn btn-whatsapp btn-action-sm" onclick="sendWhatsAppPartsToClient()" style="padding:10px 16px; border-radius: 8px;">
+            <div class="modal-footer" style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; border-top: 1px solid var(--border-color); padding-top: 14px; flex-wrap: wrap; gap: 10px;">
+                <button type="button" class="btn btn-secondary btn-action-sm" onclick="closeRequestModal()" style="background:#64748b; color:white; padding:9px 18px; border-radius:8px;">إغلاق</button>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-whatsapp btn-action-sm" onclick="sendWhatsAppPartsToClient()" style="padding:10px 18px; border-radius: 8px;">
                         <i class="fa-brands fa-whatsapp"></i> إرسال واتساب للعميل بقطع الغيار
                     </button>
-                    <button type="button" class="btn btn-success btn-action-sm" id="confirmAndSendBtn" onclick="confirmAndSendToStore()" style="background:var(--btn-green); color:white; padding:10px 16px; font-size: 0.9rem; border-radius: 8px; border:none; cursor:pointer;">
+                    <button type="button" class="btn btn-success btn-action-sm" id="confirmAndSendBtn" onclick="confirmAndSendToStore()" style="background:var(--btn-green); color:white; padding:10px 18px; font-size: 0.95rem; border-radius: 8px; border:none; cursor:pointer;">
                         <i class="fa-solid fa-check-circle"></i> موافقة وإرسال للمخزن
                     </button>
                 </div>
@@ -356,10 +369,10 @@ let currentClientPhone = "";
 </script>
 
   <div id="floatingPartsAlert" onclick="openCarFromFloatingAlert()">
-    <i class="fa-solid fa-boxes-stacked fa-bounce" style="font-size: 1.8rem; color: #fff;"></i>
+    <i class="fa-solid fa-boxes-stacked fa-bounce" style="font-size: 2rem; color: #fff;"></i>
     <div>
-      <div id="floatingAlertTitle" style="font-weight: bold; font-size: 1rem; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">⚠️ طلب قطع غيار جديد!</div>
-      <div id="floatingAlertSubtitle" style="font-size: 0.85rem; color: #ffedd5; font-weight: 600;">انقر هنا فوراً لعرض بيانات السيارة والأسعار</div>
+      <div id="floatingAlertTitle" style="font-weight: bold; font-size: 1.1rem; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">⚠️ طلب قطع غيار جديد!</div>
+      <div id="floatingAlertSubtitle" style="font-size: 0.9rem; color: #ffedd5; font-weight: 600;">انقر هنا فوراً لعرض بيانات السيارة والأسعار</div>
     </div>
   </div>
 
@@ -367,6 +380,11 @@ let currentClientPhone = "";
     <div class="brand-logo">
       <i class="fa-solid fa-car-tunnel"></i>
       <span>مركز أوتو نون (NON) - الفحص والتشخيص</span>
+    </div>
+
+    <div class="engineer-badge-header">
+      <i class="fa-solid fa-user-tie"></i>
+      <span>المهندس: <strong id="loggedEngineerName">جاري التحميل...</strong></span>
     </div>
 
     <div class="center-nav">
@@ -383,22 +401,23 @@ let currentClientPhone = "";
   </div>
 
   <div class="top-search-card">
-    <i class="fa-solid fa-magnifying-glass" style="color:var(--primary-orange); font-size:1.1rem;"></i>
-    <input type="text" id="topSearchInput" placeholder="ابحث بالاسم، الهاتف، السيريال، أو رقم اللوحة..." onkeyup="if(event.key==='Enter') executeSearch()" style="flex:1; min-width:180px;">
+    <i class="fa-solid fa-magnifying-glass" style="color:var(--primary-orange); font-size:1.2rem;"></i>
+    <input type="text" id="topSearchInput" placeholder="ابحث بالاسم، الهاتف، السيريال، أو رقم اللوحة..." onkeyup="if(event.key==='Enter') executeSearch()" style="flex:1; min-width:200px;">
     
     <button class="btn-action-sm btn-primary" onclick="executeSearch()"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
 
-    <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-      <label style="font-size:0.75rem; font-weight:bold;">من:</label>
+    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+      <label style="font-size:0.8rem; font-weight:bold;">من:</label>
       <input type="date" id="filterFromDate">
-      <label style="font-size:0.75rem; font-weight:bold;">إلى:</label>
+      <label style="font-size:0.8rem; font-weight:bold;">إلى:</label>
       <input type="date" id="filterToDate">
     </div>
 
-    <button class="btn-action-sm btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة</button>
+    <button class="btn-action-sm btn-print" onclick="openJobOrderPreviewModal()"><i class="fa-solid fa-eye"></i> معاينة جيب الأوردر</button>
+    <button class="btn-action-sm btn-print" onclick="printJobOrderModal()"><i class="fa-solid fa-print"></i> طباعة جيب أوردر</button>
   </div>
 
-  <div style="margin-bottom: 6px; font-weight: bold; font-size: 0.8rem; color: var(--primary-orange);">
+  <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.85rem; color: var(--primary-orange);">
     <i class="fa-solid fa-folder-tree"></i> السيارات المفتوحة للتشخيص حالياً (التشخيص المتعدد):
   </div>
   <div class="diag-tabs-container" id="diagTabsContainer">
@@ -420,10 +439,10 @@ let currentClientPhone = "";
 
         <div class="switch-container">
           <div>
-            <div style="font-weight: bold; color: var(--btn-dz); font-size: 0.85rem;">
+            <div style="font-weight: bold; color: var(--btn-dz); font-size: 0.9rem;">
               <i class="fa-solid fa-toggle-on"></i> حالة التحويل للتشخيص التلقائي (تفعيل على شاشة العرض Display)
             </div>
-            <small style="color: var(--text-main); opacity: 0.75;">عند التفعيل (ON): يتقفل العميل بالاستقبال وتتحول حالته للشاشة إلى قسم التشخيص</small>
+            <small style="color: var(--text-main); opacity: 0.8;">عند التفعيل (ON): يتقفل العميل بالاستقبال وتتحول حالته للشاشة إلى قسم التشخيص</small>
           </div>
           <label class="switch">
             <input type="checkbox" id="clientDiagnosisToggle" onchange="handleClientDiagnosisToggle(this)">
@@ -431,16 +450,16 @@ let currentClientPhone = "";
           </label>
         </div>
 
-        <div style="background:rgba(234, 88, 12, 0.05); border:1px dashed var(--primary-orange); border-radius:8px; padding:8px; margin-bottom:10px;">
-          <label style="font-size: 0.78rem; font-weight: bold; color: var(--primary-orange);">ربط وتفعيل سيريال السيارة:</label>
-          <div style="display:flex; gap:6px; margin-top:4px;">
-            <input type="text" id="diagSerialInput" placeholder="أدخل السيريال..." style="flex:1; padding:6px; border-radius:6px; border:1px solid var(--border-color);">
+        <div style="background:rgba(234, 88, 12, 0.05); border:1px dashed var(--primary-orange); border-radius:8px; padding:10px; margin-bottom:12px;">
+          <label style="font-size: 0.82rem; font-weight: bold; color: var(--primary-orange);">ربط وتفعيل سيريال السيارة (VIN):</label>
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <input type="text" id="diagSerialInput" placeholder="أدخل السيريال..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--border-color);">
             <button class="btn-action-sm btn-primary" onclick="activateAndSaveSerial()"><i class="fa-solid fa-key"></i> حفظ السيريال</button>
           </div>
         </div>
 
         <div class="client-info-box">
-          <div style="font-weight: bold; color: var(--btn-blue); font-size: 0.85rem; margin-bottom: 8px;">
+          <div style="font-weight: bold; color: var(--btn-blue); font-size: 0.9rem; margin-bottom: 10px;">
             <i class="fa-solid fa-user-circle"></i> بيانات العميل والسيارة الأساسية:
           </div>
 
@@ -477,7 +496,7 @@ let currentClientPhone = "";
             <div class="form-field"><label>اللوحة:</label><input type="text" id="diagPlate"></div>
           </div>
 
-          <div class="form-grid" style="margin-top: 6px;">
+          <div class="form-grid" style="margin-top: 8px;">
             <div class="form-field">
               <label><i class="fa-solid fa-gauge"></i> قراءة العداد الحالية (كم):</label>
               <input type="number" id="diagCurrentOdoInput" placeholder="مثال: 120000" oninput="updateAllMaintenanceOdometer(); triggerDynamicStatusUpdate();">
@@ -488,23 +507,50 @@ let currentClientPhone = "";
             </div>
           </div>
 
-          <div class="form-field" style="margin-top: 8px; background: var(--input-bg); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+          <!-- خانة المصنعية وملاحظات المصنعية المضافة حديثاً -->
+          <div class="form-grid" style="margin-top: 8px;">
+            <div class="form-field">
+              <label style="color: var(--primary-orange); font-weight: bold;"><i class="fa-solid fa-screwdriver-wrench"></i> تكلفة المصنعية (ج.م):</label>
+              <input type="number" id="diagLaborCostInput" placeholder="مثال: 350" oninput="triggerDynamicStatusUpdate()" style="border-color: var(--primary-orange); font-weight: bold; color: var(--primary-orange);">
+            </div>
+            <div class="form-field">
+              <label><i class="fa-solid fa-clipboard-list"></i> ملاحظات المصنعية:</label>
+              <input type="text" id="diagLaborNotesInput" placeholder="تفاصيل الأعمال أو ملاحظات المصنعية..." oninput="triggerDynamicStatusUpdate()">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: 8px;">
+            <div class="form-field">
+              <label style="color: var(--btn-green); font-weight: bold;"><i class="fa-solid fa-money-bill-wave"></i> الدفع مقدماً (الدفعة المقدمة ج.م):</label>
+              <input type="number" id="diagAdvancePaymentInput" placeholder="مثال: 500" oninput="triggerDynamicStatusUpdate()" style="border-color: var(--btn-green); font-weight: bold; color: var(--btn-green);">
+            </div>
+            <div class="form-field">
+              <label>طريقة السداد المقدم:</label>
+              <select id="diagAdvancePaymentMethod" onchange="triggerDynamicStatusUpdate()">
+                <option value="كاش">كاش (نقدي)</option>
+                <option value="انستا باى / تحويل">انستا باى / تحويل بنكي</option>
+                <option value="فيزا">بطاقة فيزا</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top: 10px; background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
             <label style="color: var(--primary-orange);"><i class="fa-solid fa-comment-dots"></i> شكوى العميل (كما وصفها عند الاستقبال):</label>
             <textarea id="receptionComplaintText" rows="2" placeholder="اكتب النص الذي ذكره العميل حرفياً عند قدومه..." oninput="triggerDynamicStatusUpdate()" style="background: var(--input-bg); font-weight: bold;"></textarea>
           </div>
         </div>
 
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px;">
-          <div class="form-field" style="margin-top: 4px;">
-            <label style="color:var(--primary-orange); font-size:0.8rem;"><i class="fa-solid fa-user-gear"></i> تقرير التشخيص والفحص الفني:</label>
-            <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني والنتائج وحل شكوى العميل..." oninput="triggerDynamicStatusUpdate()"></textarea>
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:12px;">
+          <div class="form-field" style="margin-top: 6px;">
+            <label style="color:var(--primary-orange); font-size:0.85rem;"><i class="fa-solid fa-user-gear"></i> تقرير التشخيص والفحص الفني وملاحظات الفحص:</label>
+            <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني ونتائج فحص المجسم وحل شكوى العميل..." oninput="triggerDynamicStatusUpdate()"></textarea>
           </div>
 
-          <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-top: 8px; margin-bottom:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-              <label style="font-size:0.78rem; font-weight:bold;"><i class="fa-solid fa-camera"></i> صور الفحص الفني والعيوب:</label>
+          <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-top: 10px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <label style="font-size:0.82rem; font-weight:bold;"><i class="fa-solid fa-camera"></i> صور الفحص الفني والعيوب:</label>
               
-              <div style="display:flex; gap:6px;">
+              <div style="display:flex; gap:8px;">
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImageSelected(event)">
                 <button type="button" class="btn-action-sm btn-primary" onclick="document.getElementById('cameraInput').click()"><i class="fa-solid fa-camera"></i> التقاط</button>
 
@@ -515,18 +561,18 @@ let currentClientPhone = "";
             <div class="image-upload-container" id="uploadedImagesContainer"></div>
           </div>
 
-          <div style="display:flex; gap:6px; margin-top:8px;">
+          <div style="display:flex; gap:8px; margin-top:10px;">
             <button type="button" class="btn-action-sm btn-primary" style="flex:1;" onclick="updateClientDataInSystem()"><i class="fa-solid fa-floppy-disk"></i> تحديث بيانات العميل بالسيستم</button>
             <button type="button" class="btn-action-sm btn-danger" onclick="deleteCurrentClient()"><i class="fa-solid fa-trash"></i> حذف العميل من السيستم</button>
           </div>
         </div>
 
-        <div style="border:1px solid var(--primary-orange); background:rgba(234, 88, 12, 0.02); border-radius:8px; padding:10px; margin-bottom:10px;">
-          <div style="font-weight:bold; color:var(--primary-orange); font-size:0.85rem; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="border:1px solid var(--primary-orange); background:rgba(234, 88, 12, 0.02); border-radius:8px; padding:12px; margin-bottom:12px;">
+          <div style="font-weight:bold; color:var(--primary-orange); font-size:0.9rem; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fa-solid fa-sliders"></i> جدول الصيانة والأعمار الافتراضية:</span>
           </div>
 
-          <div class="form-field" style="margin-bottom:8px;">
+          <div class="form-field" style="margin-bottom:10px;">
             <label>اختر صنف صيانة لإضافته للجدول:</label>
             <select id="maintenanceCategorySelect" onchange="addMaintenanceCategoryFromDropdown()">
               <option value="">-- اختر صنف (زيت، تيل، سير، كاوتش، إلخ) --</option>
@@ -544,20 +590,20 @@ let currentClientPhone = "";
           <div id="maintenanceItemsContainer"></div>
         </div>
 
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px; background:rgba(234,88,12,0.01);">
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; background:rgba(234,88,12,0.01);">
           
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-            <span style="font-weight:bold; color:var(--primary-orange); font-size:0.85rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <span style="font-weight:bold; color:var(--primary-orange); font-size:0.9rem;">
               <i class="fa-solid fa-code-branch"></i> توجيه السيارات للأقسام المختصة:
             </span>
-            <button type="button" class="btn-action-sm btn-primary" style="font-size:0.75rem; padding:5px 10px;" onclick="openAddDepartmentModal()">
+            <button type="button" class="btn-action-sm btn-primary" style="font-size:0.8rem; padding:6px 12px;" onclick="openAddDepartmentModal()">
               <i class="fa-solid fa-folder-plus"></i> إضافة قسم جديد وتنسيقه
             </button>
           </div>
 
-          <div class="form-grid" style="margin-bottom:8px;">
+          <div class="form-grid" style="margin-bottom:10px;">
             <div class="form-field">
-              <label style="color:var(--primary-orange); font-size:0.8rem;">القسم المحول إليه:</label>
+              <label style="color:var(--primary-orange); font-size:0.85rem;">القسم المحول إليه:</label>
               <select id="diagTargetDepartment" onchange="onDepartmentChange(); triggerDynamicStatusUpdate();">
                 <option value="ميكانيكا وريداتير وزيت">⚙️ ميكانيكا وريداتير وزيت</option>
                 <option value="فرامل وعفشة">🛑 فرامل وعفشة</option>
@@ -569,54 +615,54 @@ let currentClientPhone = "";
             </div>
             
             <div class="form-field">
-              <label style="color:var(--primary-orange); font-size:0.8rem;">نوع الخدمة (بند الخدمة):</label>
+              <label style="color:var(--primary-orange); font-size:0.85rem;">نوع الخدمة (بند الخدمة):</label>
               <select id="diagServiceTypeSelect" onchange="triggerDynamicStatusUpdate()">
                 <option value="">-- اختر القسم أولاً --</option>
               </select>
-              <button type="button" class="btn-action-sm btn-primary" style="font-size:0.75rem; padding:4px 8px; margin-top: 4px; width: fit-content;" onclick="openAddServiceModal()">
+              <button type="button" class="btn-action-sm btn-primary" style="font-size:0.8rem; padding:5px 10px; margin-top: 6px; width: fit-content;" onclick="openAddServiceModal()">
                 <i class="fa-solid fa-plus"></i> إضافة بند خدمة جديد
               </button>
             </div>
           </div>
           
-          <div style="margin-top: 8px; text-align: left;">
+          <div style="margin-top: 10px; text-align: left;">
             <button type="button" class="btn-action-sm btn-whatsapp" style="background:#0284c7; width: 100%; justify-content: center;" onclick="navigateToAssignedDepartmentPage()">
               <i class="fa-solid fa-arrow-left"></i> الذهاب المباشر إلى صفحة القسم المختص الحالي
             </button>
           </div>
         </div>
 
-        <div style="border:2px solid #0284c7; background:rgba(2, 132, 199, 0.05); border-radius:12px; padding:12px; margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-            <span style="font-weight:bold; color:#0284c7; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-              <i class="fa-brands fa-bluetooth-b" style="font-size:1.1rem;"></i> ربط برامج الفحص والأعطال
+        <div style="border:2px solid #0284c7; background:rgba(2, 132, 199, 0.05); border-radius:12px; padding:14px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <span style="font-weight:bold; color:#0284c7; font-size:0.9rem; display:flex; align-items:center; gap:8px;">
+              <i class="fa-brands fa-bluetooth-b" style="font-size:1.2rem;"></i> ربط برامج الفحص والأعطال
             </span>
             <button type="button" class="btn-action-sm btn-obd" onclick="openOpenWithAppsModal()">
               <i class="fa-solid fa-up-right-from-square"></i> فتح باستخدام (برامج الفحص)
             </button>
           </div>
-          <textarea id="obdCodesInput" rows="2" placeholder="أكواد الأعطال المسجلة (مثال: P0300, P0171)..." oninput="triggerDynamicStatusUpdate()" style="width:100%; font-size:0.85rem; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-main); font-weight:bold; outline:none; font-family:monospace;"></textarea>
+          <textarea id="obdCodesInput" rows="2" placeholder="أكواد الأعطال المسجلة (مثال: P0300, P0171)..." oninput="triggerDynamicStatusUpdate()" style="width:100%; font-size:0.9rem; padding:9px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-main); font-weight:bold; outline:none; font-family:monospace;"></textarea>
         </div>
 
-        <div style="border:1px solid var(--border-color); border-radius:8px; padding:8px; margin-bottom:10px; background:rgba(16, 185, 129, 0.03);">
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:12px; background:rgba(16, 185, 129, 0.03);">
           <div class="form-field">
             <label style="color:#10b981; font-weight:bold;"><i class="fa-solid fa-cloud-arrow-up"></i> رابط مرفقات الفحص والصور الخارجية (Google Drive / Cloud):</label>
             <input type="url" id="cloudAttachmentLink" placeholder="https://drive.google.com/..." style="direction:ltr; text-align:left;">
           </div>
         </div>
 
-        <div style="border:1px solid var(--btn-dz); background:rgba(139, 92, 246, 0.03); border-radius:8px; padding:8px; margin-bottom:10px;">
-          <div style="display:flex; gap:6px; align-items:center;">
+        <div style="border:1px solid var(--btn-dz); background:rgba(139, 92, 246, 0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
+          <div style="display:flex; gap:8px; align-items:center;">
             <input type="file" id="dzPdfInput" accept="application/pdf" style="display:none;" onchange="handleDzPdfSelected(event)">
-            <button type="button" class="btn-action-sm btn-dz" style="padding:8px 12px; font-weight:bold; font-size:0.85rem;" onclick="document.getElementById('dzPdfInput').click()">
+            <button type="button" class="btn-action-sm btn-dz" style="padding:9px 14px; font-weight:bold; font-size:0.9rem;" onclick="document.getElementById('dzPdfInput').click()">
               <i class="fa-solid fa-file-pdf"></i> DZ (إرفاق ملف PDF)
             </button>
-            <span id="dzPdfFileName" style="font-size:0.75rem; color:var(--btn-dz); font-weight:bold; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">لم يتم إرفاق ملف PDF.</span>
+            <span id="dzPdfFileName" style="font-size:0.8rem; color:var(--btn-dz); font-weight:bold; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">لم يتم إرفاق ملف PDF.</span>
           </div>
         </div>
 
-        <div style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-          <label style="font-size: 0.85rem; font-weight: bold; color: #10b981; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+        <div style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+          <label style="font-size: 0.9rem; font-weight: bold; color: #10b981; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
             <i class="fa-solid fa-car-tunnel"></i> الرافعة / الكوريك والفني المسؤول:
           </label>
           <div class="form-grid">
@@ -633,36 +679,36 @@ let currentClientPhone = "";
           </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <button type="button" class="btn-action-sm" style="background:#16a34a; color:white; padding:11px; font-size:0.95rem;" onclick="finishDiagnosisAndTransferToDepartment()">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button type="button" class="btn-action-sm" style="background:#16a34a; color:white; padding:12px; font-size:1rem;" onclick="finishDiagnosisAndTransferToDepartment()">
             <i class="fa-solid fa-paper-plane"></i> إرسال للفني وتخصيص الكوريك (تغيير الحالة للقسم المختص)
           </button>
 
-          <button type="button" id="btnToggleHold" class="btn-action-sm btn-hold" style="padding:10px; font-size:0.9rem;" onclick="toggleCarHoldStatus()">
+          <button type="button" id="btnToggleHold" class="btn-action-sm btn-hold" style="padding:11px; font-size:0.95rem;" onclick="toggleCarHoldStatus()">
             <i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السياره لحين رد العميل
           </button>
 
-          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:10px; font-size:0.9rem;" onclick="sendWhatsAppDetailedCostToClient()">
-            <i class="fa-brands fa-whatsapp" style="font-size:1.1rem;"></i> 📱 إرسال تفاصيل التكلفة وقطع الغيار للعميل واتساب
+          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:11px; font-size:0.95rem;" onclick="sendWhatsAppDetailedCostToClient()">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> 📱 إرسال تفاصيل التكلفة والمصنعية للعميل واتساب
           </button>
 
-          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:10px; font-size:0.9rem;" onclick="sendDetailedWhatsAppReport()">
-            <i class="fa-brands fa-whatsapp" style="font-size:1.1rem;"></i> 📱 إرسال التقرير الشامل والمرفقات بالواتساب للعميل
+          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:11px; font-size:0.95rem;" onclick="sendDetailedWhatsAppReport()">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> 📱 إرسال التقرير الشامل والمرفقات بالواتساب للعميل
           </button>
 
-          <button type="button" id="btnPreviewBeforeSend" class="btn-action-sm btn-print" style="padding:10px; font-size:0.9rem;" onclick="openPreviewModal()">
-            <i class="fa-solid fa-eye"></i> معاينة التقرير والرسومات
+          <button type="button" id="btnPreviewBeforeSend" class="btn-action-sm btn-print" style="padding:11px; font-size:0.95rem;" onclick="openJobOrderPreviewModal()">
+            <i class="fa-solid fa-eye"></i> معاينة جيب الأوردر قبل الطباعة
           </button>
 
-          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:10px; font-size:0.9rem; background: #0284c7;" onclick="openReportPageAndSendWhatsApp()">
+          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:11px; font-size:0.95rem; background: #0284c7;" onclick="openReportPageAndSendWhatsApp()">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> 🌐 فتح صفحة التقرير وإرسال الرابط واتساب للعميل
           </button>
 
-          <button type="button" class="btn-action-sm" style="padding:10px; font-size:0.9rem; background:#d97706; color:white;" onclick="printJobOrderModal()">
-            <i class="fa-solid fa-print"></i> 🖨️ طباعة جيب أوردر جامع (على ورقة واحدة)
+          <button type="button" class="btn-action-sm" style="padding:11px; font-size:0.95rem; background:#d97706; color:white;" onclick="printJobOrderModal()">
+            <i class="fa-solid fa-print"></i> 🖨️ طباعة جيب أوردر جامع (محضر استلام وفحص)
           </button>
 
-          <button type="button" class="btn-action-sm btn-dz" style="padding:10px; font-size:0.9rem;" onclick="openClientReportModal()">
+          <button type="button" class="btn-action-sm btn-dz" style="padding:11px; font-size:0.95rem;" onclick="openClientReportModal()">
             <i class="fa-solid fa-id-card-clip"></i> 🧾 تقرير العميل (عرض بيانات العميل وتقرير السيارة)
           </button>
         </div>
@@ -745,75 +791,215 @@ let currentClientPhone = "";
 
   </div>
 
-  <div id="printableJobOrderModal" style="display:none; background: #fff; color: #000; padding: 15px; direction: rtl; text-align: right; max-width: 800px; margin: 0 auto;">
-    <div style="text-align:center; border-bottom: 2px solid #ea580c; padding-bottom: 6px; margin-bottom: 10px;">
-      <h3 style="color: #ea580c; margin-bottom: 2px; font-size: 1.2rem;"><i class="fa-solid fa-car-burst"></i> مركز أوتو نون (NON) لصيانة السيارات</h3>
-      <p style="font-size: 0.85rem; font-weight: bold; color: #334155;">استمارة جيب أوردر جامع (بيانات العميل، السيارة، وفحص الاستلام)</p>
-    </div>
+  <!-- نموذج محضر استلام السيارة وجيب الأوردر المطابق بخط مفرود ومسافات واسعة -->
+  <div id="printableJobOrderModal" style="display:none; background: #fffdf5; color: #000; padding: 18px; direction: rtl; text-align: right; max-width: 820px; margin: 0 auto; border: 3px solid #d97706; line-height: 1.8; font-size: 1.05rem;">
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; font-size: 0.85rem;">
-      <div><strong>رقم الدور / الطابور:</strong> <span id="jobQueueNo" style="color: #ea580c; font-weight: bold;">--</span></div>
-      <div><strong>تاريخ الاستلام:</strong> <span id="jobDate">--</span></div>
-      <div><strong>اسم العميل:</strong> <span id="jobClientName" style="font-weight: bold;">--</span></div>
-      <div><strong>رقم الهاتف / واتساب:</strong> <span id="jobClientPhone">--</span></div>
-      <div><strong>ماركة السيارة والموديل:</strong> <span id="jobCarInfo" style="font-weight: bold;">--</span></div>
-      <div><strong>رقم اللوحة:</strong> <span id="jobPlate">--</span></div>
-      <div><strong>قراءة العداد:</strong> <span id="jobOdo">--</span> كم</div>
-      <div><strong>نوع الوقود:</strong> <span id="jobFuel">--</span></div>
+    <!-- هيدر المركز -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #ea580c; padding-bottom: 10px; margin-bottom: 14px;">
+      <div style="font-size: 1.7rem; font-weight: bold; color: #ea580c;"><i class="fa-brands fa-vw"></i> AUTO NON</div>
+      <div style="text-align: center;">
+        <h2 style="color: #ea580c; margin: 0; font-size: 1.4rem; font-weight: bold;">مركز أوتو نون (NON) لصيانة السيارات</h2>
+        <div style="font-size: 0.95rem; font-weight: bold; color: #1e293b; margin-top: 4px;">محضر استلام سيارة وفحص شامل & Check-In Job Order</div>
+      </div>
+      <div style="font-size: 1.5rem; font-weight: bold; color: #008000;"><i class="fa-solid fa-car-tunnel"></i></div>
     </div>
 
-    <div style="margin-bottom: 8px; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px;">
-      <h5 style="color: #ea580c; margin-bottom: 4px; font-size: 0.85rem;">شكوى العميل عند الاستلام:</h5>
-      <p id="jobComplaint" style="font-size: 0.8rem; min-height: 20px;">--</p>
+    <!-- جدول بيانات العميل والسيارة مع شكل الباركود للسيريال بخط كبير -->
+    <table style="width: 100%; border-collapse: collapse; border: 2px solid #94a3b8; margin-bottom: 12px; font-size: 0.95rem;">
+      <tr>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; width: 18%; font-weight: bold;">اسم العميل:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; width: 32%; font-weight: bold; font-size: 1.1rem;" id="jobClientName">--</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; width: 18%; font-weight: bold;">رقم الهاتف:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; width: 32%; font-weight: bold;" id="jobClientPhone">--</td>
+      </tr>
+      <tr>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">ماركة السيارة:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; font-weight: bold;" id="jobBrand">--</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">الموديل / الفئة:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px;" id="jobModel">--</td>
+      </tr>
+      <tr>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">قراءة العداد:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px;" id="jobOdo">--</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">تاريخ الاستلام:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px;" id="jobDate">--</td>
+      </tr>
+      <tr>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">سيريال السيارة (VIN):</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <span id="jobSerialText" style="font-weight: bold;">--</span>
+            <div style="height: 22px; width: 100px; background: repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px); display: inline-block;" title="Barcode Scannable"></div>
+          </div>
+        </td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">رقم اللوحة:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; text-align: center; font-weight: bold; font-size: 1.1rem; background: #fff;" id="jobPlate">--</td>
+      </tr>
+      <tr>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">نوع الوقود واللون:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px;" id="jobFuel">--</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; background: #f1f5f9; font-weight: bold;">نوع الخدمة المطلوبة:</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 8px; font-weight: bold; color: #ea580c;">فحص وتشخيص وصيانة شاملة</td>
+      </tr>
+    </table>
+
+    <!-- شريط خيارات الاستلام والمستلزمات بخط واسع -->
+    <div style="display: flex; gap: 8px; margin-bottom: 12px; font-size: 0.9rem;">
+      <div style="border: 1.5px solid #94a3b8; padding: 6px; flex: 1; text-align: center; background: #e2e8f0; font-weight: bold;">محضر استلام سيارة وفحص [✓]</div>
+      <div style="border: 1.5px solid #94a3b8; padding: 6px; flex: 1; text-align: center; background: #fff; font-weight: bold;">كشف عطل بالكمبيوتر [✓]</div>
+      <div style="border: 1.5px solid #94a3b8; padding: 6px; flex: 1; text-align: center; background: #fff; font-weight: bold;">صيانة وتجهيز ورشة [✓]</div>
     </div>
 
-    <div style="margin-bottom: 8px; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px;">
-      <h5 style="color: #ea580c; margin-bottom: 4px; font-size: 0.85rem;">فحص واستلاستخدام السيارة الشامل والتشخيص:</h5>
-      <p id="jobDiagnosis" style="font-size: 0.8rem; min-height: 25px;">--</p>
+    <!-- جدول الملحقات والقطع الإضافية -->
+    <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #94a3b8; margin-bottom: 12px; font-size: 0.85rem; text-align: center;">
+      <tr style="background: #e2e8f0; font-weight: bold;">
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;">طقم عدة وصواميل</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;">شنطة إسعافات</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;">كونسول / راديو كاست</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;">طقم دواسات أرضية</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;">كوريك + مفتاح عجلة</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;">ولاعة / طفاية حريق</td>
+      </tr>
+      <tr>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;"><input type="checkbox" checked> متوفر</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;"><input type="checkbox" checked> متوفر</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;"><input type="checkbox" checked> متوفر</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;"><input type="checkbox" checked> متوفر</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;"><input type="checkbox" checked> متوفر</td>
+        <td style="border: 1.5px solid #94a3b8; padding: 6px;"><input type="checkbox" checked> متوفر</td>
+      </tr>
+    </table>
+
+    <!-- قسم مجسم السيارة للفحص والشكوى -->
+    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 10px; margin-bottom: 12px;">
+      
+      <div style="border: 1.5px solid #94a3b8; padding: 10px; text-align: center; background: #fff;">
+        <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 6px; color: #ea580c;">
+          <i class="fa-solid fa-car-side"></i> مجسم السيارة للفحص الظاهري والخدوش
+        </div>
+        <div style="border: 1.5px dashed #cbd5e1; padding: 10px; border-radius: 8px; background: #f8fafc; margin-top: 4px;">
+          <div style="display: flex; justify-content: space-around; font-size: 0.8rem; font-weight: bold; color: #475569; margin-bottom: 6px;">
+            <span>[مقدمة]</span><span>[الجانب الأيمن]</span><span>[الجانب الأيسر]</span><span>[الخلفية]</span><span>[السقف]</span>
+          </div>
+          <div style="font-size: 2.2rem; color: #334155; margin: 6px 0;"><i class="fa-solid fa-car-side"></i></div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; font-size: 0.75rem; color: #1e293b; margin-top: 6px; border-top: 1.5px solid #e2e8f0; padding-top: 6px; font-weight: bold;">
+            <div style="border: 1px solid #cbd5e1; padding: 3px;">خدش [ ]</div>
+            <div style="border: 1px solid #cbd5e1; padding: 3px;">خبطة [ ]</div>
+            <div style="border: 1px solid #cbd5e1; padding: 3px;">تعديل [ ]</div>
+            <div style="border: 1px solid #cbd5e1; padding: 3px;">دهان [ ]</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border: 1.5px solid #94a3b8; padding: 10px; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="font-weight: bold; font-size: 0.95rem; color: #ea580c;"><i class="fa-solid fa-note-sticky"></i> ملاحظات وشكوى العميل:</div>
+          <p id="jobComplaint" style="font-size: 0.9rem; min-height: 40px; margin-top: 6px; font-weight: bold;">--</p>
+        </div>
+        <div style="border-top: 1.5px dashed #cbd5e1; padding-top: 6px; margin-top: 8px;">
+          <div style="font-weight: bold; font-size: 0.95rem; color: #10b981;"><i class="fa-solid fa-money-bill-wave"></i> الدفعة المقدمة المستلمة:</div>
+          <p id="jobAdvancePayment" style="font-size: 1rem; font-weight: bold; color: #10b981; margin-top: 4px;">0 ج.م (طريقة السداد: --)</p>
+        </div>
+      </div>
     </div>
 
-    <div style="margin-bottom: 8px; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px;">
-      <h5 style="color: #ea580c; margin-bottom: 4px; font-size: 0.85rem;">القسم المحول إليه والكوريك والفني:</h5>
-      <p style="font-size: 0.8rem;"><strong>القسم:</strong> <span id="jobTargetDept">--</span> | <strong>الكوريك / الفني:</strong> <span id="jobLiftTech">--</span></p>
+    <!-- الأعمال المطلوبة والتشخيص الفني بخط بارز -->
+    <div style="border: 1.5px solid #94a3b8; padding: 10px; margin-bottom: 12px; background: #fff; font-size: 0.95rem;">
+      <div style="font-weight: bold; color: #ea580c; margin-bottom: 6px; font-size: 1rem;"><i class="fa-solid fa-stethoscope"></i> الأعمال المطلوبة وتقرير الفحص الفني:</div>
+      <p id="jobDiagnosis" style="min-height: 40px; font-weight: bold;">--</p>
     </div>
 
-    <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.8rem; font-weight: bold;">
-      <div>توقيع الاستقبال: ........................</div>
-      <div>توقيع المهندس/الفني: ........................</div>
+    <!-- جدول التكلفة والمصنعية المبدئية -->
+    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+      <div style="flex: 1;">
+        <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #94a3b8; font-size: 0.9rem;">
+          <tr style="background: #e2e8f0; font-weight: bold;">
+            <th style="border: 1.5px solid #94a3b8; padding: 6px;">البيان المالي والتكلفة والمصنعية</th>
+            <th style="border: 1.5px solid #94a3b8; padding: 6px; width: 30%;">القيمة (ج.م)</th>
+          </tr>
+          <tr><td style="border: 1.5px solid #94a3b8; padding: 6px; font-weight: bold;">تكلفة المصنعية وأتعاب الورشة</td><td style="border: 1.5px solid #94a3b8; padding: 6px; font-weight: bold; color: #ea580c;" id="jobOrderLaborVal">--</td></tr>
+          <tr><td style="border: 1.5px solid #94a3b8; padding: 6px;">رسوم الفحص والتشخيص الشامل</td><td style="border: 1.5px solid #94a3b8; padding: 6px;">--</td></tr>
+          <tr><td style="border: 1.5px solid #94a3b8; padding: 6px;">تكلفة قطع الغيار المقدرة</td><td style="border: 1.5px solid #94a3b8; padding: 6px;">--</td></tr>
+        </table>
+      </div>
+      <div style="width: 42%; border: 1.5px solid #94a3b8; padding: 8px; background: #fff; font-size: 0.8rem; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+        <strong style="color: red; font-size: 0.9rem;">إقرار العميل والشروط:</strong>
+        <p style="font-size: 0.75rem; margin-top: 4px; line-height: 1.5;">أقر بتسليم السيارة بحالتها الموضحة أعلاه. المركز غير مسؤول عن أي متعلقات شخصية لم يتم تسليمها للإدارة.</p>
+      </div>
+    </div>
+
+    <!-- التوقيعات بخط كبير -->
+    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 1rem; font-weight: bold; border-top: 2px dashed #94a3b8; padding-top: 8px;">
       <div>توقيع العميل: ........................</div>
+      <div>مهندس الاستقبال والفحص: <span id="jobEngineerSign" style="color: #0284c7;">--</span></div>
+    </div>
+
+    <!-- إذن استلام سيارة في الأسفل بخط واسع ومريح -->
+    <div style="border-top: 3px dashed #ea580c; margin-top: 12px; padding-top: 10px; font-size: 0.85rem; background: #fffbe6; padding: 10px; border-radius: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #ea580c; font-size: 0.95rem;">
+        <div><i class="fa-solid fa-file-invoice"></i> إذن استلام سيارة ومغادرة ورشة مركز أوتو نون (NON)</div>
+        <div>رقم اللوحة: <span id="jobFooterPlate" style="font-weight: bold;">--</span></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 6px; font-weight: bold;">
+        <div>اسم العميل: <span id="jobFooterClient">--</span></div>
+        <div>تاريخ الإصدار والتسليم: <span id="jobFooterDate">--</span></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 6px; font-size: 0.8rem; color: #334155; font-weight: bold;">
+        <div>العنوان: الإسكندرية - المعمورة البلد - طريق أبوقير - بجوار مسجد السادات</div>
+        <div style="color: #ea580c; font-size: 0.9rem;">خدمة العملاء والخط الساخن: 01004042250</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- نافذة معاينة جيب الأوردر قبل الطباعة -->
+  <div class="modal-overlay" id="jobOrderPreviewOverlay">
+    <div class="modal-content" style="max-width: 850px; background: #fffdf5; color: #000; text-align: right;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2px solid #ea580c; padding-bottom:8px;">
+        <h3 style="color:#ea580c; font-size:1.2rem; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-eye"></i> معاينة جيب الأوردر ومحضر الاستلام قبل الطباعة
+        </h3>
+        <button type="button" class="btn-close" onclick="document.getElementById('jobOrderPreviewOverlay').style.display='none'" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="previewJobOrderBodyClone" style="max-height: 72vh; overflow-y: auto; padding: 10px; border: 1px solid #d97706; background: #fffdf5;">
+      </div>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn-action-sm btn-print" onclick="printJobOrderModal()"><i class="fa-solid fa-print"></i> طباعة فورية الآن</button>
+        <button class="btn-action-sm" style="background:#64748b; color:white;" onclick="document.getElementById('jobOrderPreviewOverlay').style.display='none'">إغلاق المعاينة</button>
+      </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="previewModal">
     <div class="modal-content">
       <div id="pdfExportContainer">
-        <div style="text-align:center; border-bottom:2px solid var(--primary-orange); padding-bottom:8px; margin-bottom:12px;">
-          <h3 style="color:var(--primary-orange); font-size:1.2rem;"><i class="fa-solid fa-car-tunnel"></i> مركز أوتو نون (NON) لصيانة السيارات</h3>
-          <p style="font-size:0.8rem; color:#64748b;">تقرير الفحص الفني الشامل والتشخيص والمرفقات</p>
+        <div style="text-align:center; border-bottom:2px solid var(--primary-orange); padding-bottom:10px; margin-bottom:14px;">
+          <h3 style="color:var(--primary-orange); font-size:1.3rem;"><i class="fa-solid fa-car-tunnel"></i> مركز أوتو نون (NON) لصيانة السيارات</h3>
+          <p style="font-size:0.85rem; color:#64748b;">تقرير الفحص الفني الشامل والتشخيص والمرفقات</p>
         </div>
 
         <div id="previewDetailsContent"></div>
       </div>
 
-      <div style="margin-top:16px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
-        <button class="btn-action-sm btn-whatsapp" style="padding:8px 12px;" onclick="sendDetailedWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> إرسال للعميل (واتساب)</button>
-        <button class="btn-action-sm btn-dz" style="padding:8px 12px;" onclick="downloadPDF()"><i class="fa-solid fa-file-arrow-down"></i> الاحتفاظ بها PDF</button>
-        <button class="btn-action-sm" style="background:#64748b; color:white; padding:8px 12px;" onclick="closePreviewModal()">إلغاء</button>
+      <div style="margin-top:18px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+        <button class="btn-action-sm btn-whatsapp" style="padding:9px 14px;" onclick="sendDetailedWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> إرسال للعميل (واتساب)</button>
+        <button class="btn-action-sm btn-dz" style="padding:9px 14px;" onclick="downloadPDF()"><i class="fa-solid fa-file-arrow-down"></i> الاحتفاظ بها PDF</button>
+        <button class="btn-action-sm" style="background:#64748b; color:white; padding:9px 14px;" onclick="closePreviewModal()">إلغاء</button>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="clientReportModal">
-    <div class="modal-content" style="max-width: 750px;">
+    <div class="modal-content" style="max-width: 780px;">
       <div id="clientReportPrintContainer">
-        <div style="text-align:center; border-bottom:2px solid var(--primary-orange); padding-bottom:8px; margin-bottom:12px;">
-          <h3 style="color:var(--primary-orange); font-size:1.2rem;"><i class="fa-solid fa-id-card-clip"></i> تقرير بيانات العميل وسجل الإصلاحات الشامل</h3>
-          <p style="font-size:0.8rem; color:#64748b;">مركز أوتو نون (NON) لصيانة وفحص السيارات</p>
+        <div style="text-align:center; border-bottom:2px solid var(--primary-orange); padding-bottom:10px; margin-bottom:14px;">
+          <h3 style="color:var(--primary-orange); font-size:1.3rem;"><i class="fa-solid fa-id-card-clip"></i> تقرير بيانات العميل وسجل الإصلاحات الشامل</h3>
+          <p style="font-size:0.85rem; color:#64748b;">مركز أوتو نون (NON) لصيانة وفحص السيارات</p>
         </div>
         <div id="clientReportBodyContent"></div>
       </div>
 
-      <div style="margin-top:16px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+      <div style="margin-top:18px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
         <button class="btn-action-sm btn-primary" onclick="printClientReportModal()"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
         <button class="btn-action-sm" style="background:#64748b; color:white;" onclick="closeClientReportModal()">إغلاق</button>
       </div>
@@ -821,11 +1007,11 @@ let currentClientPhone = "";
   </div>
 
   <div class="modal-overlay" id="openWithAppsModal">
-    <div class="modal-content" style="max-width:450px;">
-      <h3 style="color:var(--primary-orange); margin-bottom:12px; font-size:1rem;"><i class="fa-solid fa-up-right-from-square"></i> اختر برنامج الفحص للفتح:</h3>
+    <div class="modal-content" style="max-width:480px;">
+      <h3 style="color:var(--primary-orange); margin-bottom:14px; font-size:1.1rem;"><i class="fa-solid fa-up-right-from-square"></i> اختر برنامج الفحص للفتح:</h3>
       
       <div class="app-icon-btn" onclick="launchApp('diagzone')">
-        <i class="fa-solid fa-microchip" style="font-size:1.5rem; color:#8b5cf6;"></i>
+        <i class="fa-solid fa-microchip" style="font-size:1.6rem; color:#8b5cf6;"></i>
         <div>
           <div>Diagzone Pro</div>
           <small style="color:#64748b;">برنامج الفحص الشامل للسيارات</small>
@@ -833,7 +1019,7 @@ let currentClientPhone = "";
       </div>
 
       <div class="app-icon-btn" onclick="launchApp('carscanner')">
-        <i class="fa-solid fa-gauge" style="font-size:1.5rem; color:#0284c7;"></i>
+        <i class="fa-solid fa-gauge" style="font-size:1.6rem; color:#0284c7;"></i>
         <div>
           <div>Car Scanner ELM OBD2</div>
           <small style="color:#0284c7;">برنامج قراءة واستخراج أكواد OBD2</small>
@@ -841,7 +1027,7 @@ let currentClientPhone = "";
       </div>
 
       <div class="app-icon-btn" onclick="launchApp('torque')">
-        <i class="fa-solid fa-bolt" style="font-size:1.5rem; color:#eab308;"></i>
+        <i class="fa-solid fa-bolt" style="font-size:1.6rem; color:#eab308;"></i>
         <div>
           <div>Torque Pro</div>
           <small style="color:#eab308;">تطبيق فحص محرك السيارة بالبلوتوث</small>
@@ -849,14 +1035,14 @@ let currentClientPhone = "";
       </div>
 
       <div class="app-icon-btn" onclick="launchApp('xdiag')">
-        <i class="fa-solid fa-laptop-code" style="font-size:1.5rem; color:#10b981;"></i>
+        <i class="fa-solid fa-laptop-code" style="font-size:1.6rem; color:#10b981;"></i>
         <div>
           <div>X-Diag Pro3</div>
           <small style="color:#10b981;">نظام البرمجة والتشخيص الذكي</small>
         </div>
       </div>
 
-      <div style="margin-top:12px; text-align:left;">
+      <div style="margin-top:14px; text-align:left;">
         <button class="btn-action-sm" style="background:#64748b; color:white;" onclick="document.getElementById('openWithAppsModal').style.display='none'">إغلاق</button>
       </div>
     </div>
@@ -909,20 +1095,25 @@ let currentClientPhone = "";
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 
-    // دالة مساعدة لتنظيف رقم الهاتف وإزالة أي كود دولة محتمل (مثل 20) ليبدأ برقم العميل الطبيعي مباشرة (مثلاً 01...)
+    /* دالة تنسيق رقم الهاتف بشكل دقيق لضمان فتح محادثة الواتساب تلقائياً */
     function formatPhoneNumberForWhatsApp(phone) {
       if (!phone) return "";
-      let clean = phone.replace(/\D/g, ''); // الاحتفاظ بالأرقام فقط
-      
-      // إذا كان الرقم يبدأ بـ 20 (كود مصر) وطوله 12 رقم مثلاً (مثل 2010xxxxxxxx)، نقوم بإزالة الـ 20 لتبدأ بـ 01
-      if (clean.startsWith('20') && clean.length === 12) {
-        clean = '0' + clean.slice(2);
+      let clean = phone.replace(/\D/g, ''); 
+      if (clean.startsWith('0')) {
+        clean = '20' + clean.slice(1);
+      } else if (!clean.startsWith('20') && clean.length === 10) {
+        clean = '20' + clean;
       }
-      // إذا أردت إرساله بدون كود دولة نهائياً وتأكيد البدء بـ 01:
       return clean;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      const loggedEngineer = localStorage.getItem('loggedEngineerName') || localStorage.getItem('currentEngineer') || 'مهندس الاستقبال والتشخيص';
+      const engNameEl = document.getElementById('loggedEngineerName');
+      if (engNameEl) {
+        engNameEl.innerText = loggedEngineer;
+      }
+
       try {
         const qPartsReq = db.collection("partsRequests");
         qPartsReq.onSnapshot((snapshot) => {
@@ -943,7 +1134,7 @@ let currentClientPhone = "";
             reqIds.forEach((id) => {
               const reqData = pendingRequestsMap[id];
               htmlContent += `
-                <div style="background: white; border: 1px solid #fde047; padding: 6px; border-radius: 6px; margin-bottom: 6px; font-size: 0.8rem; cursor: pointer;" onclick="openCarByRequest('${id}')">
+                <div style="background: white; border: 1px solid #fde047; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size: 0.85rem; cursor: pointer;" onclick="openCarByRequest('${id}')">
                   <div style="font-weight: bold; color: #ea580c; margin-bottom: 2px;">
                     <i class="fa-solid fa-car-side"></i> العميل: ${reqData.clientName || reqData.name || 'غير متوفر'} - السيارة: ${reqData.carPlate || 'بدون لوحة'}
                   </div>
@@ -1067,9 +1258,7 @@ let currentClientPhone = "";
         return;
       }
 
-      // تطبيق إزالة رمز الدولة ليبدأ الرقم بـ 01 طبيعياً
       let cleanPhone = formatPhoneNumberForWhatsApp(phone);
-      
       const clientName = reqData.clientName || reqData.name || 'عميلنا العزيز';
       const partsText = document.getElementById('modalParts').innerText;
       let msg = `مرحباً بك أ/ ${clientName}\nبخصوص سيارتك بمركز أوتو نون (NON)، قطع الغيار المطلوبة هي:\n${partsText}\nالإجمالي التقريبي: ${currentModalPartsTotal} ج.م\nنتمنى لك السلامة.`;
@@ -1253,25 +1442,81 @@ let currentClientPhone = "";
       }
     }
 
+    /* دالة فتح نافذة معاينة جيب الأوردر ومحضر الاستلام قبل الطباعة */
+    function openJobOrderPreviewModal() {
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة أو فتح ملف عميل أولاً لمعاينة جيب الأوردر ومحضر الاستلام!");
+        return;
+      }
+
+      document.getElementById('jobClientName').innerText = document.getElementById('diagClientName').value || 'غير متوفر';
+      document.getElementById('jobClientPhone').innerText = document.getElementById('diagPhone').value || 'غير متوفر';
+      document.getElementById('jobBrand').innerText = document.getElementById('diagBrand').value || '--';
+      document.getElementById('jobModel').innerText = document.getElementById('diagModel').value || '--';
+      document.getElementById('jobOdo').innerText = (document.getElementById('diagCurrentOdoInput').value || '0') + ' كم';
+      document.getElementById('jobDate').innerText = new Date().toLocaleDateString('ar-EG');
+      document.getElementById('jobSerialText').innerText = document.getElementById('diagSerialInput').value || 'غير مسجل';
+      document.getElementById('jobPlate').innerText = document.getElementById('diagPlate').value || 'بدون';
+      document.getElementById('jobFuel').innerText = (document.getElementById('diagFuelType').value || 'بنزين');
+      document.getElementById('jobComplaint').innerText = document.getElementById('receptionComplaintText').value || 'لا توجد شكوى مسجلة';
+      document.getElementById('jobDiagnosis').innerText = document.getElementById('diagIssueText').value || 'قيد الفحص والتشخيص...';
+      
+      const laborVal = document.getElementById('diagLaborCostInput').value || '0';
+      const laborNotes = document.getElementById('diagLaborNotesInput').value || '';
+      document.getElementById('jobOrderLaborVal').innerText = `${laborVal} ج.م ${laborNotes ? '(' + laborNotes + ')' : ''}`;
+
+      const advanceVal = document.getElementById('diagAdvancePaymentInput').value || '0';
+      const advanceMethod = document.getElementById('diagAdvancePaymentMethod').value || 'كاش';
+      document.getElementById('jobAdvancePayment').innerText = `${advanceVal} ج.م (طريقة السداد: ${advanceMethod})`;
+
+      const currentEng = localStorage.getItem('loggedEngineerName') || localStorage.getItem('currentEngineer') || 'مهندس المركز';
+      document.getElementById('jobEngineerSign').innerText = currentEng;
+      
+      document.getElementById('jobFooterPlate').innerText = document.getElementById('diagPlate').value || '--';
+      document.getElementById('jobFooterClient').innerText = document.getElementById('diagClientName').value || '--';
+      document.getElementById('jobFooterDate').innerText = new Date().toLocaleDateString('ar-EG');
+
+      const printModalContent = document.getElementById('printableJobOrderModal').innerHTML;
+      document.getElementById('previewJobOrderBodyClone').innerHTML = printModalContent;
+
+      document.getElementById('jobOrderPreviewOverlay').style.display = 'flex';
+    }
+
+    /* دالة طباعة جيب الأوردر */
     function printJobOrderModal() {
       if (!currentSelectedCarDocId) {
         alert("يرجى اختيار سيارة أو فتح ملف عميل أولاً لطباعة جيب الأوردر!");
         return;
       }
 
-      document.getElementById('jobQueueNo').innerText = document.getElementById('diagQueueNo').value || 'بدون';
-      document.getElementById('jobDate').innerText = new Date().toLocaleDateString('ar-EG');
       document.getElementById('jobClientName').innerText = document.getElementById('diagClientName').value || 'غير متوفر';
       document.getElementById('jobClientPhone').innerText = document.getElementById('diagPhone').value || 'غير متوفر';
-      document.getElementById('jobCarInfo').innerText = `${document.getElementById('diagBrand').value || ''} ${document.getElementById('diagModel').value || ''}`;
-      document.getElementById('jobPlate').innerText = document.getElementById('diagPlate').value || 'بدون لوحة';
-      document.getElementById('jobOdo').innerText = document.getElementById('diagCurrentOdoInput').value || '0';
-      document.getElementById('jobFuel').innerText = document.getElementById('diagFuelType').value || 'بنزين';
+      document.getElementById('jobBrand').innerText = document.getElementById('diagBrand').value || '--';
+      document.getElementById('jobModel').innerText = document.getElementById('diagModel').value || '--';
+      document.getElementById('jobOdo').innerText = (document.getElementById('diagCurrentOdoInput').value || '0') + ' كم';
+      document.getElementById('jobDate').innerText = new Date().toLocaleDateString('ar-EG');
+      document.getElementById('jobSerialText').innerText = document.getElementById('diagSerialInput').value || 'غير مسجل';
+      document.getElementById('jobPlate').innerText = document.getElementById('diagPlate').value || 'بدون';
+      document.getElementById('jobFuel').innerText = (document.getElementById('diagFuelType').value || 'بنزين');
       document.getElementById('jobComplaint').innerText = document.getElementById('receptionComplaintText').value || 'لا توجد شكوى مسجلة';
       document.getElementById('jobDiagnosis').innerText = document.getElementById('diagIssueText').value || 'قيد الفحص والتشخيص...';
-      document.getElementById('jobTargetDept').innerText = document.getElementById('diagTargetDepartment').value || 'غير محدد';
-      document.getElementById('jobLiftTech').innerText = `${document.getElementById('assignedLiftSelect').options[document.getElementById('assignedLiftSelect').selectedIndex]?.text || 'تلقائي'} / ${document.getElementById('assignedTechNameInput').value || 'غير مخصص'}`;
+      
+      const laborVal = document.getElementById('diagLaborCostInput').value || '0';
+      const laborNotes = document.getElementById('diagLaborNotesInput').value || '';
+      document.getElementById('jobOrderLaborVal').innerText = `${laborVal} ج.م ${laborNotes ? '(' + laborNotes + ')' : ''}`;
 
+      const advanceVal = document.getElementById('diagAdvancePaymentInput').value || '0';
+      const advanceMethod = document.getElementById('diagAdvancePaymentMethod').value || 'كاش';
+      document.getElementById('jobAdvancePayment').innerText = `${advanceVal} ج.م (طريقة السداد: ${advanceMethod})`;
+
+      const currentEng = localStorage.getItem('loggedEngineerName') || localStorage.getItem('currentEngineer') || 'مهندس المركز';
+      document.getElementById('jobEngineerSign').innerText = currentEng;
+      
+      document.getElementById('jobFooterPlate').innerText = document.getElementById('diagPlate').value || '--';
+      document.getElementById('jobFooterClient').innerText = document.getElementById('diagClientName').value || '--';
+      document.getElementById('jobFooterDate').innerText = new Date().toLocaleDateString('ar-EG');
+
+      document.getElementById('jobOrderPreviewOverlay').style.display = 'none';
       let modalEl = document.getElementById('printableJobOrderModal');
       modalEl.style.display = 'block';
       window.print();
@@ -1360,6 +1605,10 @@ let currentClientPhone = "";
       const targetDept = document.getElementById('diagTargetDepartment').value;
       const obdCodes = document.getElementById('obdCodesInput').value.trim();
       const complaintSolution = document.getElementById('receptionComplaintText').value.trim();
+      const laborCostVal = document.getElementById('diagLaborCostInput').value;
+      const laborNotesVal = document.getElementById('diagLaborNotesInput').value;
+      const advancePaymentVal = document.getElementById('diagAdvancePaymentInput').value;
+      const advancePaymentMethodVal = document.getElementById('diagAdvancePaymentMethod').value;
 
       let dynamicStatus = currentCarStatus;
       if (diagText.length > 3 || obdCodes.length > 0 || serviceType.length > 0) {
@@ -1376,6 +1625,10 @@ let currentClientPhone = "";
           fuelType: document.getElementById('diagFuelType').value,
           currentOdo: document.getElementById('diagCurrentOdoInput').value,
           odoNotes: document.getElementById('diagOdoNotesInput').value,
+          laborCost: laborCostVal,
+          laborNotes: laborNotesVal,
+          advancePayment: advancePaymentVal,
+          advancePaymentMethod: advancePaymentMethodVal,
           status: dynamicStatus,
           statusLabel: dynamicStatus === 'IN_DIAGNOSIS' ? 'تحت التشخيص الفعال' : 'قيد الانتظار'
         }, { merge: true });
@@ -1415,6 +1668,10 @@ let currentClientPhone = "";
       const updatedComplaint = document.getElementById('receptionComplaintText').value;
       const updatedCurrentOdo = document.getElementById('diagCurrentOdoInput').value;
       const updatedOdoNotes = document.getElementById('diagOdoNotesInput').value;
+      const updatedLaborCost = document.getElementById('diagLaborCostInput').value;
+      const updatedLaborNotes = document.getElementById('diagLaborNotesInput').value;
+      const updatedAdvancePayment = document.getElementById('diagAdvancePaymentInput').value;
+      const updatedAdvanceMethod = document.getElementById('diagAdvancePaymentMethod').value;
 
       try {
         await db.collection('cars').doc(currentSelectedCarDocId).update({
@@ -1426,7 +1683,11 @@ let currentClientPhone = "";
           fuelType: updatedFuel,
           receptionComplaint: updatedComplaint,
           currentOdo: updatedCurrentOdo,
-          odoNotes: updatedOdoNotes
+          odoNotes: updatedOdoNotes,
+          laborCost: updatedLaborCost,
+          laborNotes: updatedLaborNotes,
+          advancePayment: updatedAdvancePayment,
+          advancePaymentMethod: updatedAdvanceMethod
         });
         alert("✅ تم تحديث بيانات العميل بنجاح!");
       } catch (err) {
@@ -1461,8 +1722,12 @@ let currentClientPhone = "";
       document.getElementById('diagPlate').value = '';
       document.getElementById('diagCurrentOdoInput').value = '';
       document.getElementById('diagOdoNotesInput').value = '';
+      document.getElementById('diagLaborCostInput').value = '';
+      document.getElementById('diagLaborNotesInput').value = '';
+      document.getElementById('diagAdvancePaymentInput').value = '';
       document.getElementById('receptionComplaintText').value = '';
       document.getElementById('obdCodesInput').value = '';
+      document.getElementById('diagSerialInput').value = '';
       populateDepartmentsDropdown('ميكانيكا وريداتير وزيت');
       onDepartmentChange();
       document.getElementById('diagIssueText').value = '';
@@ -1522,7 +1787,7 @@ let currentClientPhone = "";
         container.innerHTML += `
           <div class="maint-item-card">
             <button style="position:absolute; top:4px; left:4px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;" onclick="removeMaintCategory(${idx})">×</button>
-            <div style="font-weight:bold; color:var(--primary-orange); font-size:0.8rem; margin-bottom:4px;">📌 ${item.name}</div>
+            <div style="font-weight:bold; color:var(--primary-orange); font-size:0.85rem; margin-bottom:6px;">📌 ${item.name}</div>
             
             <div class="form-grid">
               <div class="form-field">
@@ -1541,7 +1806,7 @@ let currentClientPhone = "";
               </div>
             </div>
 
-            <div class="form-field" style="margin-top:4px;">
+            <div class="form-field" style="margin-top:6px;">
               <label style="color:#22c55e;">قراءة العداد الحالية: <b>${mainOdo} كم</b> | التغيير القادم عند:</label>
               <input type="number" id="nextOdo_${idx}" readonly value="${item.nextOdo}" style="font-weight:bold; color:#22c55e;">
             </div>
@@ -1614,6 +1879,24 @@ let currentClientPhone = "";
       }, 1000);
     }
 
+    /* دالة إرسال تفاصيل التكلفة والمصنعية واتساب مع تصحيح رقم الهاتف */
+    window.sendWhatsAppDetailedCostToClient = function() {
+      const phone = document.getElementById('diagPhone').value;
+      if (!phone) {
+        alert("رقم هاتف العميل غير متوفر للإرسال!");
+        return;
+      }
+      let cleanPhone = formatPhoneNumberForWhatsApp(phone);
+      const clientName = document.getElementById('diagClientName').value || 'عميلنا العزيز';
+      const laborCost = document.getElementById('diagLaborCostInput').value || '0';
+      const laborNotes = document.getElementById('diagLaborNotesInput').value || 'لا توجد';
+      const diagText = document.getElementById('diagIssueText').value || 'قيد الفحص';
+
+      let msg = `مرحباً بك أ/ ${clientName}\nتحديث من مركز أوتو نون (NON) لصيانة السيارات:\n\n*تقرير الفحص:* ${diagText}\n*تكلفة المصنعية:* ${laborCost} ج.م\n*ملاحظات المصنعية:* ${laborNotes}\n\nننتظر موافقتكم لاستكمال الأعمال. شكراً لثقتكم بنا.`;
+      
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
     db.collection('cars').orderBy('createdAt', 'asc').onSnapshot(snapshot => {
       allCarsLocalData = [];
       const waitingTbody = document.getElementById('waitingCarsTbody');
@@ -1646,7 +1929,7 @@ let currentClientPhone = "";
             <tr>
               <td><span class="badge-status badge-queue">${car.queueNo || waitingCount}</span></td>
               <td><strong>${car.name}</strong><br><small>${car.phone}</small></td>
-              <td>${car.brand || ''} ${car.model || ''} <span style="color:var(--primary-orange); font-size:0.75rem;">${deptLabel}</span></td>
+              <td>${car.brand || ''} ${car.model || ''} <span style="color:var(--primary-orange); font-size:0.8rem;">${deptLabel}</span></td>
               <td><span class="badge-status ${isInDiag ? 'badge-in-diag' : 'badge-queue'}">${isInDiag ? 'تحت التشخيص' : 'في الانتظار'}</span></td>
               <td>
                 <button class="btn-action-sm btn-primary" onclick='startDiagnosisForCar("${car.docId}")'>
@@ -1658,86 +1941,16 @@ let currentClientPhone = "";
         }
       });
 
-      document.getElementById('waitingCountBadge').textContent = `${waitingCount} سيارة`;
-      document.getElementById('suspendedCountBadge').textContent = `${suspendedCount} سيارة`;
-
-      if (waitingCount === 0) waitingTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات منتظرة حالياً</td></tr>`;
-      if (suspendedCount === 0) suspendedTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات معلقة حالياً</td></tr>`;
+      document.getElementById('waitingCountBadge').innerText = `${waitingCount} سيارة`;
+      document.getElementById('suspendedCountBadge').innerText = `${suspendedCount} سيارة`;
     });
 
-    function openCarFromFloatingAlert() {
-      const reqIds = Object.keys(pendingRequestsMap);
-      if (reqIds.length === 1 && pendingRequestsMap[reqIds[0]]) {
-        const carDocId = pendingRequestsMap[reqIds[0]].carDocId;
-        if (carDocId) {
-          startDiagnosisForCar(carDocId);
-        }
-      }
-      openRequestDetails();
-    }
-
-    async function startDiagnosisForCar(carDocId) {
-      const car = allCarsLocalData.find(c => c.docId === carDocId);
+    window.startDiagnosisForCar = function(docId) {
+      const car = allCarsLocalData.find(c => c.docId === docId);
       if (!car) return;
 
-      try {
-        await db.collection('cars').doc(carDocId).update({
-          status: 'IN_DIAGNOSIS',
-          statusLabel: 'تحت التشخيص'
-        });
-      } catch(e) { console.log(e); }
-
-      activeDiagnosisCarsMap[carDocId] = car;
-      currentSelectedCarDocId = carDocId;
-      renderDiagTabs();
-      selectCarForDiag(car);
-    }
-
-    function renderDiagTabs() {
-      const container = document.getElementById('diagTabsContainer');
-      container.innerHTML = '';
-
-      const keys = Object.keys(activeDiagnosisCarsMap);
-      if (keys.length === 0) {
-        container.innerHTML = `<div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>`;
-        return;
-      }
-
-      keys.forEach(docId => {
-        const car = activeDiagnosisCarsMap[docId];
-        const isActive = docId === currentSelectedCarDocId;
-        container.innerHTML += `
-          <div class="diag-tab ${isActive ? 'active' : ''}" onclick="switchDiagTab('${docId}')">
-            <span>🚗 ${car.name} (${car.brand || ''})</span>
-            <span onclick="event.stopPropagation(); closeDiagTab('${docId}')" style="margin-right:4px; color:red; font-size:0.9rem;">×</span>
-          </div>
-        `;
-      });
-    }
-
-    function switchDiagTab(docId) {
       currentSelectedCarDocId = docId;
-      renderDiagTabs();
-      const car = activeDiagnosisCarsMap[docId];
-      if (car) selectCarForDiag(car);
-    }
-
-    function closeDiagTab(docId) {
-      delete activeDiagnosisCarsMap[docId];
-      const remainingKeys = Object.keys(activeDiagnosisCarsMap);
-      if (remainingKeys.length > 0) {
-        currentSelectedCarDocId = remainingKeys[0];
-        selectCarForDiag(activeDiagnosisCarsMap[currentSelectedCarDocId]);
-      } else {
-        currentSelectedCarDocId = null;
-        resetDiagForm();
-      }
-      renderDiagTabs();
-    }
-
-    function selectCarForDiag(car) {
-      currentSelectedCarDocId = car.docId;
-      currentCarStatus = car.status;
+      currentCarStatus = car.status || 'IN_DIAGNOSIS';
 
       document.getElementById('diagQueueNo').value = car.queueNo || '';
       document.getElementById('diagClientName').value = car.name || '';
@@ -1745,250 +1958,75 @@ let currentClientPhone = "";
       document.getElementById('diagBrand').value = car.brand || '';
       document.getElementById('diagModel').value = car.model || '';
       document.getElementById('diagPlate').value = car.plate || '';
+      document.getElementById('diagFuelType').value = car.fuelType || 'بنزين';
       document.getElementById('diagCurrentOdoInput').value = car.currentOdo || '';
       document.getElementById('diagOdoNotesInput').value = car.odoNotes || '';
-      document.getElementById('diagFuelType').value = car.fuelType || 'بنزين';
-      document.getElementById('diagSerialInput').value = car.serialNo || '';
-      
-      const urgencyBanner = document.getElementById('urgencyBanner');
-      if (car.urgency || car.isUrgent || car.speedUrgency) {
-        urgencyBanner.style.display = 'block';
-      } else {
-        urgencyBanner.style.display = 'none';
-      }
-
-      if (car.serialNo && car.serialActive) {
-        document.getElementById('serialStatusBadge').textContent = `السيريال مفعل: ${car.serialNo}`;
-        document.getElementById('serialStatusBadge').style.background = '#10b981';
-      } else {
-        document.getElementById('serialStatusBadge').textContent = 'السيريال غير مفعل';
-        document.getElementById('serialStatusBadge').style.background = '#64748b';
-      }
-
-      document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.clientSaid || car.complaint || '';
-      document.getElementById('clientDiagnosisToggle').checked = (car.status === 'IN_DIAGNOSIS' && car.receptionLocked === true);
-
-      if (car.assignedLiftId) {
-        document.getElementById('assignedLiftSelect').value = car.assignedLiftId;
-      }
-      document.getElementById('assignedTechNameInput').value = car.assignedTechName || '';
-
-      maintenanceCategoriesArr = car.maintenanceCategories || [];
-      renderMaintenanceCategoriesUI();
-
+      document.getElementById('diagLaborCostInput').value = car.laborCost || '';
+      document.getElementById('diagLaborNotesInput').value = car.laborNotes || '';
+      document.getElementById('diagAdvancePaymentInput').value = car.advancePayment || '';
+      if (car.advancePaymentMethod) document.getElementById('diagAdvancePaymentMethod').value = car.advancePaymentMethod;
+      document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.complaint || '';
+      document.getElementById('diagIssueText').value = car.diagnosisDetails || '';
       document.getElementById('obdCodesInput').value = car.obdCodes || '';
-      
-      const targetDept = car.targetDepartment || 'ميكانيكا وريداتير وزيت';
-      populateDepartmentsDropdown(targetDept);
+      document.getElementById('diagSerialInput').value = car.serialNo || '';
+      document.getElementById('cloudAttachmentLink').value = car.cloudAttachment || '';
+
+      populateDepartmentsDropdown(car.targetDepartment || 'ميكانيكا وريداتير وزيت');
       onDepartmentChange(car.serviceType || '');
 
-      document.getElementById('diagIssueText').value = car.diagnosisDetails || '';
-      document.getElementById('cloudAttachmentLink').value = car.cloudAttachmentLink || '';
+      if (car.liftId) {
+        document.getElementById('assignedLiftSelect').value = car.liftId;
+        onLiftSelectionChange();
+      }
 
-      capturedImagesArr = car.images || [];
-      renderCapturedImages();
-      updateHoldButtonUI();
-    }
-
-    function updateHoldButtonUI() {
-      const btn = document.getElementById('btnToggleHold');
-      if (currentCarStatus === 'SUSPENDED') {
-        btn.className = 'btn-action-sm btn-resume';
-        btn.innerHTML = `<i class="fa-solid fa-play-circle"></i> ▶️ استئناف العمل`;
+      if (car.urgency === 'عالية جداً' || car.urgency === true) {
+        document.getElementById('urgencyBanner').style.display = 'block';
       } else {
-        btn.className = 'btn-action-sm btn-hold';
-        btn.innerHTML = `<i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السياره لحين رد العميل`;
+        document.getElementById('urgencyBanner').style.display = 'none';
       }
-    }
 
-    async function saveDiagnosisToDatabase(extraData = {}) {
-      if (!currentSelectedCarDocId) return;
-      const diagText = document.getElementById('diagIssueText').value.trim();
-      const serviceType = document.getElementById('diagServiceTypeSelect').value;
-      const targetDept = document.getElementById('diagTargetDepartment').value;
-      const obdCodes = document.getElementById('obdCodesInput').value.trim();
-      const complaintSolution = document.getElementById('receptionComplaintText').value.trim();
+      document.getElementById('clientDiagnosisToggle').checked = car.receptionLocked || false;
 
-      const payload = {
-        diagnosisDetails: diagText,
-        serviceType: serviceType,
-        targetDepartment: targetDept,
-        obdCodes: obdCodes,
-        receptionComplaint: complaintSolution,
-        fuelType: document.getElementById('diagFuelType').value,
-        currentOdo: document.getElementById('diagCurrentOdoInput').value,
-        odoNotes: document.getElementById('diagOdoNotesInput').value,
-        maintenanceCategories: maintenanceCategoriesArr,
-        images: capturedImagesArr,
-        cloudAttachmentLink: document.getElementById('cloudAttachmentLink').value,
-        assignedLiftId: document.getElementById('assignedLiftSelect').value,
-        assignedTechName: document.getElementById('assignedTechNameInput').value,
-        ...extraData
-      };
-
-      await db.collection('cars').doc(currentSelectedCarDocId).set(payload, { merge: true });
-    }
-
-    async function toggleCarHoldStatus() {
-      if (!currentSelectedCarDocId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
-      if (currentCarStatus === 'SUSPENDED') {
-        try {
-          await saveDiagnosisToDatabase({ status: 'IN_DIAGNOSIS', suspendedReason: null });
-          currentCarStatus = 'IN_DIAGNOSIS';
-          updateHoldButtonUI();
-          alert("▶️ تم استئناف العمل بنجاح!");
-        } catch (err) { alert("خطأ: " + err.message); }
-      } else {
-        const reason = prompt("أدخل سبب تعليق السيارة:", "لحين رد العميل وموافقيته على التكلفة");
-        if (!reason) return;
-
-        try {
-          await saveDiagnosisToDatabase({ status: 'SUSPENDED', suspendedReason: reason });
-          currentCarStatus = 'SUSPENDED';
-          updateHoldButtonUI();
-          alert("⏸️ تم تعليق السيارة بنجاح!");
-        } catch (err) { alert("خطأ: " + err.message); }
+      if (!activeDiagnosisCarsMap[docId]) {
+        activeDiagnosisCarsMap[docId] = car;
       }
-    }
+      renderDiagTabs();
+    };
 
-    async function finishDiagnosisAndTransferToDepartment() {
-      if (!currentSelectedCarDocId) { alert("يرجى اختيار سيارة لتشخيصها أولاً!"); return; }
+    function renderDiagTabs() {
+      const container = document.getElementById('diagTabsContainer');
+      const keys = Object.keys(activeDiagnosisCarsMap);
 
-      const targetDept = document.getElementById('diagTargetDepartment').value;
-      const serviceType = document.getElementById('diagServiceTypeSelect').value;
-
-      try {
-        await saveDiagnosisToDatabase({
-          status: 'sent_to_tech',
-          statusLabel: `تم التحويل إلى: ${targetDept}`,
-          targetDepartment: targetDept,
-          serviceType: serviceType,
-          diagnosisCompletedAt: new Date().toISOString()
-        });
-
-        alert(`✅ تم حفظ الفحص بنجاح وتحويل السيارة إلى القسم المختص (${targetDept})!`);
-      } catch (err) {
-        alert("خطأ أثناء إرسال السيارة: " + err.message);
-      }
-    }
-
-    function handleImageSelected(event) {
-      const files = event.target.files;
-      if (!files || files.length === 0) return;
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files.item(i);
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          capturedImagesArr.push({
-            url: e.target.result,
-            caption: file.name || `صورة فحص ${capturedImagesArr.length + 1}`
-          });
-          renderCapturedImages();
-          triggerDynamicStatusUpdate();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function renderCapturedImages() {
-      const container = document.getElementById('uploadedImagesContainer');
-      container.innerHTML = '';
-
-      if (capturedImagesArr.length === 0) {
-        container.innerHTML = `<small style="color:#94a3b8; grid-column:1/-1;">لم يتم إرفاق صور بعد.</small>`;
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>`;
         return;
       }
 
-      capturedImagesArr.forEach((imgObj, idx) => {
+      container.innerHTML = '';
+      keys.forEach(id => {
+        const c = activeDiagnosisCarsMap[id];
+        const isActive = id === currentSelectedCarDocId;
         container.innerHTML += `
-          <div class="image-preview-card">
-            <button style="position:absolute; top:2px; left:2px; background:red; color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer;" onclick="removeCapturedImage(${idx})">×</button>
-            <img src="${imgObj.url}" alt="فحص">
-            <input type="text" value="${imgObj.caption || ''}" placeholder="تعليق الصورة..." oninput="updateImageCaption(${idx}, this.value)">
+          <div class="diag-tab ${isActive ? 'active' : ''}" onclick="startDiagnosisForCar('${id}')">
+            <i class="fa-solid fa-car"></i> ${c.name || 'عميل'} (${c.plate || c.brand || ''})
+            <span style="cursor:pointer; margin-right:6px; color:red;" onclick="event.stopPropagation(); closeDiagTab('${id}')">×</span>
           </div>
         `;
       });
     }
 
-    function removeCapturedImage(idx) {
-      capturedImagesArr.splice(idx, 1);
-      renderCapturedImages();
-      triggerDynamicStatusUpdate();
-    }
-
-    function updateImageCaption(idx, val) {
-      if (capturedImagesArr[idx]) {
-        capturedImagesArr[idx].caption = val;
+    window.closeDiagTab = function(id) {
+      delete activeDiagnosisCarsMap[id];
+      if (currentSelectedCarDocId === id) {
+        const remainingKeys = Object.keys(activeDiagnosisCarsMap);
+        if (remainingKeys.length > 0) {
+          startDiagnosisForCar(remainingKeys[0]);
+        } else {
+          currentSelectedCarDocId = null;
+          resetDiagForm();
+        }
       }
-    }
-
-    function handleDzPdfSelected(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      attachedDzPdfFile = file;
-      document.getElementById('dzPdfFileName').textContent = file.name;
-    }
-
-    function openPreviewModal() {
-      const content = document.getElementById('previewDetailsContent');
-      content.innerHTML = `
-        <p><strong>اسم العميل:</strong> ${document.getElementById('diagClientName').value}</p>
-        <p><strong>الهاتف:</strong> ${document.getElementById('diagPhone').value}</p>
-        <p><strong>السيارة:</strong> ${document.getElementById('diagBrand').value} ${document.getElementById('diagModel').value} - لوحة: ${document.getElementById('diagPlate').value}</p>
-        <p><strong>القسم المحول:</strong> ${document.getElementById('diagTargetDepartment').value}</p>
-        <p><strong>تقرير التشخيص:</strong> ${document.getElementById('diagIssueText').value || 'لا يوجد'}</p>
-      `;
-      document.getElementById('previewModal').style.display = 'flex';
-    }
-
-    function closePreviewModal() {
-      document.getElementById('previewModal').style.display = 'none';
-    }
-
-    function downloadPDF() {
-      const element = document.getElementById('pdfExportContainer');
-      html2pdf().from(element).save('diagnosis_report.pdf');
-    }
-
-    function sendDetailedWhatsAppReport() {
-      const phone = document.getElementById('diagPhone').value;
-      if (!phone) { alert("رقم الهاتف غير متوفر!"); return; }
-      const cleanPhone = formatPhoneNumberForWhatsApp(phone);
-      const name = document.getElementById('diagClientName').value;
-      const diag = document.getElementById('diagIssueText').value;
-      const msg = `مرحباً أ/ ${name}\nتقرير الفحص والتشخيص من مركز أوتو نون (NON):\n${diag}`;
-      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    function sendWhatsAppDetailedCostToClient() {
-      sendDetailedWhatsAppReport();
-    }
-
-    function openReportPageAndSendWhatsApp() {
-      sendDetailedWhatsAppReport();
-    }
-
-    function openClientReportModal() {
-      const content = document.getElementById('clientReportBodyContent');
-      content.innerHTML = `
-        <p><strong>اسم العميل:</strong> ${document.getElementById('diagClientName').value}</p>
-        <p><strong>الهاتف:</strong> ${document.getElementById('diagPhone').value}</p>
-      `;
-      document.getElementById('clientReportModal').style.display = 'flex';
-    }
-
-    function closeClientReportModal() {
-      document.getElementById('clientReportModal').style.display = 'none';
-    }
-
-    function printClientReportModal() {
-      window.print();
-    }
-
-    function toggleFullHistory() {
-      alert("خاصية عرض السجل الكامل قيد التحديث.");
+      renderDiagTabs();
     }
   </script>
 </body>
