@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - تسجيل الدخول</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-orange: #ea580c;
+      --card-bg: rgba(15, 23, 42, 0.88);
+      --text-main: #f8fafc;
+      --border-color: rgba(255, 255, 255, 0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    html, body { width: 100%; height: 100vh; direction: rtl !important; text-align: right !important; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+
+    /* خلفية متحركة باستخدام صورة non.jpg */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url('non.jpg') no-repeat center center/cover;
+      filter: brightness(0.35) blur(4px);
+      z-index: -1;
+      animation: bgZoom 25s infinite alternate;
+    }
+    @keyframes bgZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-color);
+      padding: 35px 25px;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      color: var(--text-main);
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* لوجو متحرك باسم non.jpg */
+    .logo-container { margin-bottom: 20px; }
+    .logo-img {
+      width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--primary-orange);
+      box-shadow: 0 0 25px rgba(234, 88, 12, 0.7);
+      animation: pulseLogo 3s infinite ease-in-out;
+    }
+    @keyframes pulseLogo {
+      0% { transform: scale(1); box-shadow: 0 0 15px rgba(234, 88, 12, 0.5); }
+      50% { transform: scale(1.06); box-shadow: 0 0 30px rgba(234, 88, 12, 0.95); }
+      100% { transform: scale(1); box-shadow: 0 0 15px rgba(234, 88, 12, 0.5); }
+    }
+
+    h1 { font-size: 1.35rem; margin-bottom: 5px; color: var(--primary-orange); font-weight: bold; }
+    p.subtitle { font-size: 0.82rem; opacity: 0.75; margin-bottom: 22px; }
+
+    .form-group { margin-bottom: 16px; text-align: right; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 6px; opacity: 0.9; }
+    .form-control {
+      width: 100%; padding: 11px 15px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 9px; color: #fff; font-size: 0.9rem; outline: none;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: var(--primary-orange);
+      box-shadow: 0 0 10px rgba(234, 88, 12, 0.5);
+    }
+
+    .btn-login {
+      width: 100%; padding: 12px; background: var(--primary-orange);
+      color: white; border: none; border-radius: 9px; font-size: 0.95rem;
+      font-weight: bold; cursor: pointer; transition: background 0.3s, transform 0.2s; margin-top: 10px;
+    }
+    .btn-login:hover { background: #c2410c; transform: translateY(-2px); }
+
+    .welcome-box {
+      font-size: 1.15rem; color: #10b981; font-weight: bold; padding: 15px 0; display: none;
+    }
+    .error-msg { color: #ef4444; font-size: 0.8rem; margin-top: 10px; display: none; }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="logo-container">
+      <img src="non.jpg" alt="NON Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=NON'">
+    </div>
+    
+    <h1>مركز أوتو نون (NON)</h1>
+    <p class="subtitle">بوابة الدخول الموحدة للورشة والتحكم</p>
+
+    <div id="welcomeBox" class="welcome-box"></div>
+    <div id="errorMsg" class="error-msg">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+
+    <form id="loginForm" onsubmit="handleUserLogin(event)">
+      <div class="form-group">
+        <label><i class="fa-solid fa-user"></i> اسم المستخدم (Username):</label>
+        <input type="text" id="usernameInput" class="form-control" placeholder="أدخل اسم المستخدم..." required>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fa-solid fa-key"></i> كلمة المرور (Password):</label>
+        <input type="password" id="passwordInput" class="form-control" placeholder="أدخل كلمة المرور..." required>
+      </div>
+
+      <button type="submit" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
+    </form>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function handleUserLogin(e) {
+      e.preventDefault();
+      const uInput = document.getElementById('usernameInput').value.trim();
+      const pInput = document.getElementById('passwordInput').value.trim();
+      const errBox = document.getElementById('errorMsg');
+      errBox.style.display = 'none';
+
+      try {
+        // البحث عن المستخدم في قاعدة البيانات عبر الـ username
+        const snapshot = await db.collection('users').where('username', '==', uInput).get();
+        
+        if (snapshot.empty) {
+          // حساب افتراضي رئيسي للطوارئ (مدير النظام)
+          if (uInput === 'admin' && pInput === '1234') {
+            executeLoginSuccess("مدير النظام الرئيسي", "admin-master.html");
+            return;
+          }
+          errBox.style.display = 'block';
+          return;
+        }
+
+        let userData = null;
+        snapshot.forEach(doc => { userData = doc.data(); });
+
+        if (userData.password === pInput) {
+          executeLoginSuccess(userData.fullName, userData.targetPage);
+        } else {
+          errBox.style.display = 'block';
+        }
+      } catch (err) {
+        console.error(err);
+        // حساب الطوارئ المحلي في حال عدم اتصال الإنترنت
+        if (uInput === 'admin' && pInput === '1234') {
+          executeLoginSuccess("مدير النظام الرئيسي", "admin-master.html");
+        } else {
+          errBox.style.display = 'block';
+        }
+      }
+    }
+
+    function executeLoginSuccess(fullName, targetPage) {
+      document.getElementById('loginForm').style.display = 'none';
+      const wBox = document.getElementById('welcomeBox');
+      wBox.style.display = 'block';
+      wBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> مرحباً بك يا ${fullName}<br><span style="font-size:0.8rem; color:#cbd5e1;">جاري توجيهك لسيستم العمل...</span>`;
+
+      localStorage.setItem('currentUser', fullName);
+      localStorage.setItem('currentRolePage', targetPage);
+
+      setTimeout(() => {
+        window.location.href = targetPage || 'index.html';
+      }, 1200);
+    }
+  </script>
+</body>
+</html>
