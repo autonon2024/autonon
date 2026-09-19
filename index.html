@@ -58,6 +58,18 @@
     .header-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; }
     .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
+    .user-badge-display {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
     .dropdown { position: relative; display: inline-block; }
     .dropdown-btn { background: var(--accent); color: var(--btn-text); border: none; padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
     .dropdown-content {
@@ -127,7 +139,6 @@
     .btn-info { background: var(--info); color: #ffffff; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
 
-    /* تصميم زر التبديل (Toggle Switch) لـ ON / OFF */
     .switch {
       position: relative; display: inline-block; width: 50px; height: 24px; vertical-align: middle;
     }
@@ -196,17 +207,6 @@
     </div>
   </div>
 
-  <!-- نافذة تسجيل الدخول -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h2><i class="fa-solid fa-lock"></i> دخول الاستقبال والورشة</h2>
-      <p style="font-size: 0.8rem; color: #64748b; margin: 8px 0 15px;">أدخل اسم المستخدم وكلمة المرور</p>
-      <div class="form-group"><input type="text" id="loginUser" placeholder="اسم المستخدم"></div>
-      <div class="form-group"><input type="password" id="loginPass" placeholder="كلمة المرور"></div>
-      <button onclick="checkLogin()" class="btn btn-block"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
-    </div>
-  </div>
-
   <div class="header">
     <div class="header-brand">
       <div class="logo-container">
@@ -217,7 +217,14 @@
         <small style="color: #cbd5e1; font-size:0.75rem;">نظام الاستقبال ومتابعة حالة الصيانة</small>
       </div>
     </div>
+    
     <div class="header-actions">
+      <!-- عرض اسم الفني الحالي في أعلى الصفحة -->
+      <div class="user-badge-display" title="المستخدم الحالي">
+        <i class="fa-solid fa-user-gear" style="color: #38bdf8;"></i>
+        <span id="currentTechName">جار التحميل...</span>
+      </div>
+
       <!-- القائمة المنسدلة -->
       <div class="dropdown">
         <button class="dropdown-btn"><i class="fa-solid fa-file-arrow-up"></i> استيراد وتصدير البيانات <i class="fa-solid fa-chevron-down"></i></button>
@@ -238,12 +245,22 @@
       <button onclick="toggleDarkMode()" class="btn btn-outline" title="الوضع المظلم / المضيء">
         <i id="themeIcon" class="fa-solid fa-moon"></i>
       </button>
+      
+      <!-- زر الانتقال لصفحة طباعة الباركود (print-barcodes.html) -->
+      <a href="print-barcodes.html" target="_blank" class="btn btn-info" title="طباعة الباركود والسيريال"><i class="fa-solid fa-barcode"></i> طباعة الباركود</a>
+
+      <!-- رابط صفحة الاستعلام (check.html) -->
+      <a href="check.html" target="_blank" class="btn btn-success" title="استعلام العملاء الخارجي"><i class="fa-solid fa-magnifying-glass"></i> الاستعلام</a>
+
+      <!-- زر الانتقال لصفحة الأرشيف (archive.html) -->
+      <a href="archive.html" target="_blank" class="btn btn-info" title="صفحة الأرشيف الشامل"><i class="fa-solid box-archive"></i> صفحة الأرشيف</a>
+
       <a href="display.html" target="_blank" class="btn btn-warning"><i class="fa-solid fa-desktop"></i> الشاشة</a>
       
       <!-- زر الانتقال لصفحة التشخيص -->
       <a href="diagnosis (1)_3.html" class="btn btn-info"><i class="fa-solid fa-stethoscope"></i> صفحة التشخيص</a>
 
-      <button onclick="logout()" class="btn btn-danger"><i class="fa-solid fa-power-off"></i> خروج</button>
+      <button onclick="logout()" class="btn btn-danger" title="تسجيل الخروج"><i class="fa-solid fa-power-off"></i> خروج</button>
     </div>
   </div>
 
@@ -258,16 +275,16 @@
 
       <form id="receptionForm">
         <input type="hidden" id="editingDocId" value="">
-        <!-- البحث والاستعلام باللوحة -->
+        <!-- البحث والاستعلام باللوحة مع دعم التنقل والترحيل الخلفي للأمام -->
         <div class="form-group">
           <label>رقم اللوحة المعدنية:</label>
           <div class="plate-wrapper">
             <div>
               <div class="plate-group-label">حروف اللوحة</div>
               <div class="plate-group">
-                <input type="text" id="p_char1" class="plate-input" maxlength="1" oninput="moveNext(this, 'p_char2')">
-                <input type="text" id="p_char2" class="plate-input" maxlength="1" oninput="moveNext(this, 'p_char3')">
-                <input type="text" id="p_char3" class="plate-input" maxlength="1" oninput="moveNext(this, 'p_num1')">
+                <input type="text" id="p_char1" class="plate-input" maxlength="1">
+                <input type="text" id="p_char2" class="plate-input" maxlength="1">
+                <input type="text" id="p_char3" class="plate-input" maxlength="1">
               </div>
             </div>
 
@@ -276,10 +293,10 @@
             <div>
               <div class="plate-group-label">أرقام اللوحة</div>
               <div class="plate-group" dir="ltr">
-                <input type="text" id="p_num1" class="plate-input" maxlength="1" oninput="moveNext(this, 'p_num2')">
-                <input type="text" id="p_num2" class="plate-input" maxlength="1" oninput="moveNext(this, 'p_num3')">
-                <input type="text" id="p_num3" class="plate-input" maxlength="1" oninput="moveNext(this, 'p_num4')">
-                <input type="text" id="p_num4" class="plate-input" maxlength="1" oninput="checkPlateAuto()">
+                <input type="text" id="p_num1" class="plate-input" maxlength="1">
+                <input type="text" id="p_num2" class="plate-input" maxlength="1">
+                <input type="text" id="p_num3" class="plate-input" maxlength="1">
+                <input type="text" id="p_num4" class="plate-input" maxlength="1">
               </div>
             </div>
           </div>
@@ -297,29 +314,32 @@
           <input type="text" id="clientPhone" required placeholder="010xxxxxxxx">
         </div>
 
-        <!-- المنشأ والماركة -->
+        <!-- المنشأ والماركة مع خيار الإدخال اليدوي -->
         <div class="form-row">
           <div class="form-group">
             <label>بلد المنشأ:</label>
-            <select id="carOrigin" onchange="filterBrands()">
+            <select id="carOrigin" onchange="handleOriginChange()">
               <option value="">اختر بلد المنشأ</option>
             </select>
+            <input type="text" id="customOriginInput" placeholder="أدخل بلد المنشأ الجديد..." style="display:none; margin-top:6px;">
           </div>
           <div class="form-group">
             <label>الماركة:</label>
-            <select id="carBrand" onchange="filterModels()">
+            <select id="carBrand" onchange="handleBrandChange()">
               <option value="">اختر الماركة</option>
             </select>
+            <input type="text" id="customBrandInput" placeholder="أدخل الماركة الجديدة..." style="display:none; margin-top:6px;">
           </div>
         </div>
 
-        <!-- الموديل واللون المطور -->
+        <!-- الموديل واللون المطور مع خيار الإدخال اليدوي للموديل -->
         <div class="form-row">
           <div class="form-group">
             <label>الموديل (النوع):</label>
-            <select id="carModel">
+            <select id="carModel" onchange="handleModelChange()">
               <option value="">اختر الموديل</option>
             </select>
+            <input type="text" id="customModelInput" placeholder="أدخل الموديل الجديد..." style="display:none; margin-top:6px;">
           </div>
           
           <div class="form-group">
@@ -370,7 +390,7 @@
               </label>
             </div>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="serialNo" readonly style="background-color: var(--table-header); font-weight:bold; color:var(--accent);" placeholder="أدخل السيريال يدوياً أو تلقائي...">
+              <input type="text" id="serialNo" readonly oninput="checkSerialAuto()" style="background-color: var(--table-header); font-weight:bold; color:var(--accent);" placeholder="أدخل السيريال يدوياً أو تلقائي...">
               <button type="button" onclick="startCameraScanner()" class="btn btn-warning" title="فتح الكاميرا لمسح باركود سيريال" style="padding: 0 12px; white-space:nowrap;">
                 <i class="fa-solid fa-camera"></i>
               </button>
@@ -391,7 +411,7 @@
     <div class="card">
       <h3>
         <span><i class="fa-solid fa-list-check"></i> قائمة انتظار السيارات وحالات الصيانة الحالية</span>
-        <button onclick="closeAndArchiveDay()" class="btn btn-danger" style="font-size:0.8rem; padding:6px 12px;" title="ترحيل السيارات المستكملة وتثبيت المعلقة كأول دور للغد">
+        <button onclick="closeAndArchiveDay()" class="btn btn-danger" style="font-size:0.8rem; padding:6px 12px;" title="أرشفة بيانات اليوم وتقفيل اليومية">
           <i class="fa-solid fa-box-archive"></i> إغلاق وتقفيل اليومية
         </button>
       </h3>
@@ -477,7 +497,6 @@
       measurementId: "G-94YDPEKLJJ"
     };
 
-    // Initialize Firebase (Compat API)
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const analytics = firebase.analytics();
@@ -485,6 +504,7 @@
     let allCarsCache = [];
     let html5QrScanner = null;
     let isCurrentPlateDuplicate = false;
+    let isCurrentSerialDuplicate = false;
 
     const logoFormats = ['NON.jpg', 'NON.PNG', 'non.jpg', 'non.png', 'NON.jpeg', 'non.jpeg'];
     let formatIndex = 0;
@@ -549,8 +569,33 @@
       Object.keys(carDatabase).forEach(origin => {
         originSelect.innerHTML += `<option value="${origin}">${origin}</option>`;
       });
+      originSelect.innerHTML += '<option value="CUSTOM">➕ إضافة بلد منشأ جديد...</option>';
       filterBrands();
       generateDefaultSerialNumber();
+    }
+
+    function initPlateNavigation() {
+      const plateIds = ['p_char1', 'p_char2', 'p_char3', 'p_num1', 'p_num2', 'p_num3', 'p_num4'];
+      plateIds.forEach((id, index) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.addEventListener('input', function(e) {
+          if (this.value.length >= 1 && index < plateIds.length - 1) {
+            document.getElementById(plateIds[index + 1]).focus();
+          }
+          checkPlateAuto();
+        });
+
+        el.addEventListener('keydown', function(e) {
+          if (e.key === 'Backspace' && this.value === '' && index > 0) {
+            const prevEl = document.getElementById(plateIds[index - 1]);
+            prevEl.focus();
+            prevEl.select();
+            checkPlateAuto();
+          }
+        });
+      });
     }
 
     function toggleAutoSerialInput() {
@@ -570,13 +615,76 @@
 
     function generateDefaultSerialNumber() {
       if (document.getElementById('autoSerialToggle').checked) {
-        const randomSN = 'NON-' + Math.floor(100000 + Math.random() * 900000);
+        let randomSN;
+        let exists = true;
+        // توليد رقم عشوائي مضاف إليه بادئة S/N- وعدم تكراره مع السجلات الحالية
+        while (exists) {
+          randomSN = 'S/N-' + Math.floor(100000 + Math.random() * 900000).toString();
+          exists = allCarsCache.some(c => (c.serialNo || '').trim() === randomSN);
+        }
         document.getElementById('serialNo').value = randomSN;
+        isCurrentSerialDuplicate = false;
+      }
+    }
+
+    // التحقق من السيريال نمبر المدخل أو الممسوح للبحث عن بيانات العميل ومنع التكرار
+    function checkSerialAuto() {
+      const editingId = document.getElementById('editingDocId').value;
+      const serialVal = document.getElementById('serialNo').value.trim();
+      const dangerNotice = document.getElementById('alertDangerNotice');
+      const notice = document.getElementById('alertNotice');
+
+      if (!serialVal) {
+        isCurrentSerialDuplicate = false;
+        if (!isCurrentPlateDuplicate) dangerNotice.style.display = 'none';
+        return;
+      }
+
+      // البحث عن العميل المرتبط بهذا السيريال
+      const existingCar = allCarsCache.find(c => (c.serialNo || '').trim() === serialVal);
+
+      if (existingCar) {
+        // إذا كنا لا نقوم بتعديل نفس السجل الحالي الخاص بهذا العميل
+        if (!editingId || editingId !== existingCar.docId) {
+          isCurrentSerialDuplicate = true;
+          dangerNotice.innerHTML = `⚠️ <strong>السيريال نمبر مدخل ومسجل مسبقاً!</strong><br>العميل: ${existingCar.name} - اللوحة: ${existingCar.plate}`;
+          dangerNotice.style.display = 'block';
+          notice.style.display = 'none';
+          
+          // استدعاء بيانات العميل المرتبط بهذا السيريال تلقائياً
+          fillFormWithCarData(existingCar);
+          return;
+        }
+      }
+
+      isCurrentSerialDuplicate = false;
+      if (!isCurrentPlateDuplicate) {
+        dangerNotice.style.display = 'none';
+      }
+    }
+
+    function handleOriginChange() {
+      const originSelect = document.getElementById('carOrigin');
+      const customInput = document.getElementById('customOriginInput');
+      if (originSelect.value === 'CUSTOM') {
+        customInput.style.display = 'block';
+        customInput.focus();
+        document.getElementById('carBrand').innerHTML = '<option value="">اختر الماركة</option><option value="CUSTOM">➕ إضافة ماركة جديدة...</option>';
+        document.getElementById('carModel').innerHTML = '<option value="">اختر الموديل</option><option value="CUSTOM">➕ إضافة موديل جديد...</option>';
+        document.getElementById('customBrandInput').style.display = 'none';
+        document.getElementById('customModelInput').style.display = 'none';
+      } else {
+        customInput.style.display = 'none';
+        customInput.value = '';
+        filterBrands();
       }
     }
 
     function filterBrands() {
-      const origin = document.getElementById('carOrigin').value;
+      const originSelect = document.getElementById('carOrigin');
+      let origin = originSelect.value;
+      if (origin === 'CUSTOM') return;
+
       const brandSelect = document.getElementById('carBrand');
       brandSelect.innerHTML = '<option value="">اختر الماركة</option>';
 
@@ -585,12 +693,33 @@
           brandSelect.innerHTML += `<option value="${brand}">${brand}</option>`;
         });
       }
+      brandSelect.innerHTML += '<option value="CUSTOM">➕ إضافة ماركة جديدة...</option>';
       filterModels();
     }
 
+    function handleBrandChange() {
+      const brandSelect = document.getElementById('carBrand');
+      const customInput = document.getElementById('customBrandInput');
+      if (brandSelect.value === 'CUSTOM') {
+        customInput.style.display = 'block';
+        customInput.focus();
+        document.getElementById('carModel').innerHTML = '<option value="">اختر الموديل</option><option value="CUSTOM">➕ إضافة موديل جديد...</option>';
+        document.getElementById('customModelInput').style.display = 'none';
+      } else {
+        customInput.style.display = 'none';
+        customInput.value = '';
+        filterModels();
+      }
+    }
+
     function filterModels() {
-      const origin = document.getElementById('carOrigin').value;
-      const brand = document.getElementById('carBrand').value;
+      const originSelect = document.getElementById('carOrigin');
+      const brandSelect = document.getElementById('carBrand');
+      let origin = originSelect.value;
+      let brand = brandSelect.value;
+
+      if (origin === 'CUSTOM' || brand === 'CUSTOM') return;
+
       const modelSelect = document.getElementById('carModel');
       modelSelect.innerHTML = '<option value="">اختر الموديل</option>';
 
@@ -599,6 +728,57 @@
           modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
         });
       }
+      modelSelect.innerHTML += '<option value="CUSTOM">➕ إضافة موديل جديد...</option>';
+    }
+
+    function handleModelChange() {
+      const modelSelect = document.getElementById('carModel');
+      const customInput = document.getElementById('customModelInput');
+      if (modelSelect.value === 'CUSTOM') {
+        customInput.style.display = 'block';
+        customInput.focus();
+      } else {
+        customInput.style.display = 'none';
+        customInput.value = '';
+      }
+    }
+
+    function getSelectedOrigin() {
+      const originSelect = document.getElementById('carOrigin');
+      if (originSelect.value === 'CUSTOM') {
+        return document.getElementById('customOriginInput').value.trim();
+      }
+      return originSelect.value;
+    }
+
+    function getSelectedBrand() {
+      const brandSelect = document.getElementById('carBrand');
+      if (brandSelect.value === 'CUSTOM') {
+        return document.getElementById('customBrandInput').value.trim();
+      }
+      return brandSelect.value;
+    }
+
+    function getSelectedModel() {
+      const modelSelect = document.getElementById('carModel');
+      if (modelSelect.value === 'CUSTOM') {
+        return document.getElementById('customModelInput').value.trim();
+      }
+      return modelSelect.value;
+    }
+
+    function saveNewCarAttributesToDatabase(origin, brand, model) {
+      if (!origin || !brand) return;
+      if (!carDatabase[origin]) {
+        carDatabase[origin] = {};
+      }
+      if (!carDatabase[origin][brand]) {
+        carDatabase[origin][brand] = [];
+      }
+      if (model && !carDatabase[origin][brand].includes(model)) {
+        carDatabase[origin][brand].push(model);
+      }
+      localStorage.setItem('autonon_car_db', JSON.stringify(carDatabase));
     }
 
     function importCarDatabase(event) {
@@ -691,13 +871,6 @@
       return colorSelect.value;
     }
 
-    function moveNext(current, nextId) {
-      if (current.value.length >= 1 && nextId) {
-        document.getElementById(nextId).focus();
-      }
-      checkPlateAuto();
-    }
-
     function fillFormWithCarData(car) {
       if (car.plate) {
         const parts = car.plate.split('-');
@@ -740,14 +913,33 @@
       }
 
       if (car.brand) {
-        for (const origin in carDatabase) {
-          if (carDatabase[origin][car.brand]) {
-            document.getElementById('carOrigin').value = origin;
-            filterBrands();
-            document.getElementById('carBrand').value = car.brand;
-            filterModels();
-            if (car.model) document.getElementById('carModel').value = car.model;
-            break;
+        let foundOrigin = car.origin;
+        if (!foundOrigin) {
+          for (const orig in carDatabase) {
+            if (carDatabase[orig][car.brand]) {
+              foundOrigin = orig;
+              break;
+            }
+          }
+        }
+
+        if (foundOrigin && carDatabase[foundOrigin]) {
+          document.getElementById('carOrigin').value = foundOrigin;
+          filterBrands();
+          document.getElementById('carBrand').value = car.brand;
+          filterModels();
+          if (car.model) document.getElementById('carModel').value = car.model;
+        } else if (car.origin) {
+          document.getElementById('carOrigin').value = 'CUSTOM';
+          document.getElementById('customOriginInput').style.display = 'block';
+          document.getElementById('customOriginInput').value = car.origin;
+          document.getElementById('carBrand').value = 'CUSTOM';
+          document.getElementById('customBrandInput').style.display = 'block';
+          document.getElementById('customBrandInput').value = car.brand;
+          if (car.model) {
+            document.getElementById('carModel').value = 'CUSTOM';
+            document.getElementById('customModelInput').style.display = 'block';
+            document.getElementById('customModelInput').value = car.model;
           }
         }
       }
@@ -760,7 +952,6 @@
     }
 
     function checkPlateAuto() {
-      // إذا كنا في وضع التعديل، لا نطلق تنبيهات التكرار للوحات الحالية
       if (document.getElementById('editingDocId').value) return;
 
       const c1 = document.getElementById('p_char1').value.trim();
@@ -775,7 +966,7 @@
       if (!c1) { 
         badge.style.display = 'none'; 
         notice.style.display = 'none'; 
-        dangerNotice.style.display = 'none'; 
+        if (!isCurrentSerialDuplicate) dangerNotice.style.display = 'none'; 
         isCurrentPlateDuplicate = false;
         return; 
       }
@@ -810,7 +1001,7 @@
           return;
         } else {
           isCurrentPlateDuplicate = false;
-          dangerNotice.style.display = 'none';
+          if (!isCurrentSerialDuplicate) dangerNotice.style.display = 'none';
         }
 
         const pastCar = allCarsCache.slice().reverse().find(c => (c.plate || '').replace(/\s+/g, '') === plateKey);
@@ -839,6 +1030,8 @@
         config,
         (decodedText) => {
           document.getElementById('serialNo').value = decodedText;
+          // تفعيل الفحص التلقائي بعد مسح السيريال بالكاميرا لجلب بيانات العميل ومنع التكرار
+          checkSerialAuto();
           stopCameraScanner();
         },
         () => {}
@@ -863,12 +1056,16 @@
       document.getElementById('alertNotice').style.display = 'none';
       document.getElementById('alertDangerNotice').style.display = 'none';
       document.getElementById('customColorInput').style.display = 'none';
+      document.getElementById('customOriginInput').style.display = 'none';
+      document.getElementById('customBrandInput').style.display = 'none';
+      document.getElementById('customModelInput').style.display = 'none';
       document.getElementById('cancelEditBtn').style.display = 'none';
       document.getElementById('formTitle').querySelector('span').innerHTML = '<i class="fa-solid fa-circle-plus"></i> إدخال واستعلام السيارة';
       document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تسجيل ودخول قائمة الانتظار';
       document.getElementById('autoSerialToggle').checked = true;
       toggleAutoSerialInput();
       isCurrentPlateDuplicate = false;
+      isCurrentSerialDuplicate = false;
       generateDefaultSerialNumber();
     }
 
@@ -876,7 +1073,6 @@
       clearForm();
     }
 
-    // تفعيل وضع التعديل عند الضغط على زر التعديل في الجدول
     function editClientCar(docId) {
       const car = allCarsCache.find(c => c.docId === docId);
       if (!car) return;
@@ -885,12 +1081,10 @@
       document.getElementById('editingDocId').value = car.docId;
       fillFormWithCarData(car);
 
-      // تغيير مظهر الفورم ليعبر عن التعديل
       document.getElementById('formTitle').querySelector('span').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color:var(--warning);"></i> تعديل بيانات العميل: ${car.name}`;
       document.getElementById('cancelEditBtn').style.display = 'inline-block';
       document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات`;
       
-      // التمرير لأعلى لعرض الفورم
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -902,6 +1096,11 @@
         return;
       }
 
+      if (!editingId && isCurrentSerialDuplicate) {
+        alert("⚠️ خطأ: السيريال نمبر مدخل ومسجل مسبقاً لعميل آخر! يُمنع تكرار السيريال نمبر.");
+        return;
+      }
+
       const name = document.getElementById('clientName').value.trim();
       const phone = document.getElementById('clientPhone').value.trim();
 
@@ -910,22 +1109,38 @@
         return;
       }
 
+      const serialNoVal = document.getElementById('serialNo').value.trim();
+      
+      // التحقق النهائي من تكرار السيريال عند الحفظ
+      if (!editingId) {
+        const serialExists = allCarsCache.some(c => (c.serialNo || '').trim() === serialNoVal);
+        if (serialExists) {
+          alert("⚠️ السيريال نمبر مستخدم بالفعل لسيارة أخرى! يجدر تغيير السيريال أو استخدام سيريال غير مكرر.");
+          return;
+        }
+      }
+
+      const originVal = getSelectedOrigin();
+      const brandVal = getSelectedBrand();
+      const modelVal = getSelectedModel();
+
+      if (originVal && brandVal) {
+        saveNewCarAttributesToDatabase(originVal, brandVal, modelVal);
+      }
+
       const pChars = (document.getElementById('p_char1').value + document.getElementById('p_char2').value + document.getElementById('p_char3').value).trim();
       const pNums = (document.getElementById('p_num1').value + document.getElementById('p_num2').value + document.getElementById('p_num3').value + document.getElementById('p_num4').value).trim();
       const plateFull = `${pChars} - ${pNums}`;
       const govName = document.getElementById('govBadge').dataset.gov || 'عام';
-
-      const serialNoVal = document.getElementById('serialNo').value.trim();
       const complaintText = document.getElementById('carIssue').value.trim();
 
       if (editingId) {
-        // تحديث بيانات عميل حالي
         const updatedData = {
           name: name,
           phone: phone,
-          origin: document.getElementById('carOrigin').value,
-          brand: document.getElementById('carBrand').value,
-          model: document.getElementById('carModel').value,
+          origin: originVal,
+          brand: brandVal,
+          model: modelVal,
           color: getSelectedColor(),
           year: document.getElementById('carYear').value.trim(),
           engine: document.getElementById('engineCapacity').value.trim(),
@@ -947,7 +1162,6 @@
         }
 
       } else {
-        // تسجيل سيارة جديدة
         const idDoc = 'CAR-' + Date.now();
         const activeCarsToday = allCarsCache.filter(c => c.clientStatus !== 'OFF' && c.date === new Date().toLocaleDateString('ar-EG'));
 
@@ -956,9 +1170,9 @@
           queueNo: activeCarsToday.length + 1,
           name: name,
           phone: phone,
-          origin: document.getElementById('carOrigin').value,
-          brand: document.getElementById('carBrand').value,
-          model: document.getElementById('carModel').value,
+          origin: originVal,
+          brand: brandVal,
+          model: modelVal,
           color: getSelectedColor(),
           year: document.getElementById('carYear').value.trim(),
           engine: document.getElementById('engineCapacity').value.trim(),
@@ -983,7 +1197,6 @@
       }
     }
 
-    // دالة لتحديث وضع العميل تلقائياً (ON أو OFF) عند تغيير زر الـ Toggle
     async function toggleClientStatus(docId, checkboxEl) {
       const newStatus = checkboxEl.checked ? "ON" : "OFF";
       try {
@@ -1064,7 +1277,7 @@
     }
 
     async function closeAndArchiveDay() {
-      if (!confirm('هل أنت متأكد من إغلاق وتقفيل يومية اليوم؟\n\n- العملاء الذين تم إيقافهم (OFF) سيتم أرشفتهم.\n- العملاء النشطين (ON) ستُرحّل سياراتهم أوتوماتيكياً وتأخذ أولوية أول دور للغد.')) {
+      if (!confirm('هل أنت متأكد من إغلاق وتقفيل يومية اليوم؟\n\n- سيتم حفظ ونسخ كافة بيانات العملاء والسيارات المسجلة إلى مجموعة الأرشيف (archive).\n- السيارات النشطة ستُرحّل أوتوماتيكياً لتأخذ أولوية أول دور لليوم التالي.')) {
         return;
       }
 
@@ -1073,9 +1286,21 @@
       tomorrowDate.setDate(tomorrowDate.getDate() + 1);
       const tomorrowStr = tomorrowDate.toLocaleDateString('ar-EG');
 
-      const uncompletedCars = allCarsCache.filter(c => c.clientStatus !== 'OFF');
-
       try {
+        for (let car of allCarsCache) {
+          const archivePayload = {
+            clientName: car.name || 'غير محدد',
+            clientPhone: car.phone || 'غير محدد',
+            carDetails: `${car.brand || ''} ${car.model || ''} - لوحة: ${car.plate || 'بدون'} - سيريال: ${car.serialNo || 'بدون'}`,
+            paymentAmount: car.paymentAmount || 0,
+            notes: `شكوى الإصلاح: ${car.issue || car.receptionComplaint || 'صيانة عامة'} | حالة العميل عند التقفيل: ${car.clientStatus || 'ON'}`,
+            createdAt: new Date().toISOString().split('T')[0],
+            archiveDateTag: todayStr
+          };
+          await db.collection('workshop_archive').add(archivePayload);
+        }
+
+        const uncompletedCars = allCarsCache.filter(c => c.clientStatus !== 'OFF');
         let index = 1;
         for (let car of uncompletedCars) {
           await db.collection('cars').doc(car.docId).update({
@@ -1086,9 +1311,9 @@
           });
         }
 
-        alert('تم تقفيل اليومية بنجاح! السيارات النشطة تم ترحيلها لتأخذ أسبقية الدور لليوم التالي.');
+        alert('تم تقفيل اليومية وأرشفة كافة البيانات بنجاح في ملف الأرشيف السحابي! والسيارات النشطة تم ترحيلها لليوم التالي.');
       } catch (err) {
-        alert('حدث خطأ أثناء تقفيل اليومية: ' + err.message);
+        alert('حدث خطأ أثناء تقفيل اليومية والأرشفة: ' + err.message);
       }
     }
 
@@ -1159,18 +1384,23 @@
       link.click();
     }
 
-    function checkLogin() {
-      if (document.getElementById('loginUser').value === "admin" && document.getElementById('loginPass').value === "1234") {
-        document.getElementById('loginModal').style.display = 'none';
-        sessionStorage.setItem('autonon_auth', 'true');
-      } else alert('بيانات الدخول خاطئة!');
+    function logout() { 
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentRolePage');
+      window.location.href = 'login.html';
     }
 
-    function logout() { sessionStorage.removeItem('autonon_auth'); location.reload(); }
-
     window.onload = function() {
-      if (sessionStorage.getItem('autonon_auth') === 'true') document.getElementById('loginModal').style.display = 'none';
+      const loggedUser = localStorage.getItem('currentUser');
+      if (!loggedUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      document.getElementById('currentTechName').textContent = loggedUser;
+
       initOrigins();
+      initPlateNavigation();
 
       const savedLogo = localStorage.getItem('autonon_custom_logo');
       if (savedLogo) { setAllLogosSrc(savedLogo); }
