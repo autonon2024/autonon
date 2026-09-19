@@ -17,6 +17,7 @@
       --input-bg: #ffffff;
       --btn-green: #10b981;
       --btn-blue: #0284c7;
+      --border-red: #dc2626; /* لون الإطار الأحمر */
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     html, body { direction: rtl !important; text-align: right !important; background-color: var(--bg-color); color: var(--text-main); padding: 10px; font-size: 0.9rem; }
@@ -50,13 +51,13 @@
       border-radius: 6px; font-size: 0.88rem; font-weight: 600; color: var(--text-main); outline: none; text-align: right;
     }
 
-    /* معاينات الباركود الشبكية */
+    /* معاينات الباركود الشبكية مع إطار أحمر */
     .barcode-sheet-preview {
       background: #ffffff; color: #000000; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1;
       max-height: 600px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; justify-items: center;
     }
     .barcode-item-box {
-      border: 1px dashed #94a3b8; padding: 6px; text-align: center; background: #fff; width: 100%; border-radius: 6px; page-break-inside: avoid; break-inside: avoid;
+      border: 1px solid var(--border-red) !important; padding: 6px; text-align: center; background: #fff; width: 100%; border-radius: 6px; page-break-inside: avoid; break-inside: avoid;
     }
     .barcode-item-box svg { max-width: 100%; height: 38px; }
     .barcode-text-val { font-size: 0.72rem; font-weight: bold; margin-top: 2px; }
@@ -67,41 +68,41 @@
     .item-row { padding: 8px 10px; border-bottom: 1px solid var(--border-color); cursor: pointer; font-size: 0.85rem; }
     .item-row:hover { background: rgba(234, 88, 12, 0.05); }
 
-    /* إعدادات الطباعة: جعل الباركود يبدأ من أعلى الورقة تماماً لاستيعاب أقصى عدد */
-   @media print {
-  @page {
-    size: A4;
-    margin: 0mm; /* إلغاء هوامش الصفحة بالكامل */
-  }
-  body * {
-    visibility: hidden;
-  }
-  #printableBarcodeArea, #printableBarcodeArea * {
-    visibility: visible;
-  }
-  #printableBarcodeArea {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    max-height: none !important;
-    overflow: visible !important;
-    border: none !important;
-    padding: 2mm !important; /* مسافة بسيطة جداً من الحواف للطباعة السليمة */
-    margin: 0 !important;
-    background: transparent !important;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4mm 3mm; /* تقليل الفراغات بين مربعات الباركود لزيادة السعة */
-    align-content: start;
-  }
-  .barcode-item-box {
-    border: 1px solid #000 !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    padding: 4px !important;
-  }
-}
+    /* إعدادات الطباعة: إطار أحمر والبدء من أعلى الورقة تماماً لاستيعاب أقصى عدد */
+    @media print {
+      @page {
+        size: A4;
+        margin: 2mm 5mm;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #printableBarcodeArea, #printableBarcodeArea * {
+        visibility: visible;
+      }
+      #printableBarcodeArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-height: none !important;
+        overflow: visible !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6mm 4mm;
+        align-content: start;
+      }
+      .barcode-item-box {
+        border: 1px solid #dc2626 !important; /* إطار أحمر قوي عند الطباعة */
+        break-inside: avoid;
+        page-break-inside: avoid;
+        padding: 4px !important;
+      }
+    }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -115,10 +116,7 @@
       <span>AUTO NON - صانع وطباعة الباركود والتسلسل</span>
     </div>
     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-      <a href="wash.html" class="btn-nav"><i class="fa-solid fa-water-ladder"></i> المغسلة</a>
-      <a href="accounting.html" class="btn-nav"><i class="fa-solid fa-cash-register"></i> الحسابات</a>
-      <a href="diagnosis.html" class="btn-nav"><i class="fa-solid fa-stethoscope"></i> التشخيص</a>
-      <a href="index.html" class="btn-nav"><i class="fa-solid fa-house"></i> الاستقبال</a>
+      
     </div>
   </div>
 
