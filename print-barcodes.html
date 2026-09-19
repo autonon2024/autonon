@@ -53,52 +53,55 @@
     /* معاينات الباركود الشبكية */
     .barcode-sheet-preview {
       background: #ffffff; color: #000000; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1;
-      max-height: 600px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; justify-items: center;
+      max-height: 600px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; justify-items: center;
     }
     .barcode-item-box {
-      border: 1px dashed #94a3b8; padding: 8px; text-align: center; background: #fff; width: 100%; border-radius: 6px; page-break-inside: avoid; break-inside: avoid;
+      border: 1px dashed #94a3b8; padding: 6px; text-align: center; background: #fff; width: 100%; border-radius: 6px; page-break-inside: avoid; break-inside: avoid;
     }
-    .barcode-item-box svg { max-width: 100%; height: 42px; }
-    .barcode-text-val { font-size: 0.75rem; font-weight: bold; margin-top: 3px; }
-    .item-price-tag { font-size: 0.72rem; color: #ea580c; font-weight: 800; }
-    .link-info-tag { font-size: 0.65rem; color: #0284c7; font-weight: 700; margin-top: 2px; }
+    .barcode-item-box svg { max-width: 100%; height: 38px; }
+    .barcode-text-val { font-size: 0.72rem; font-weight: bold; margin-top: 2px; }
+    .item-price-tag { font-size: 0.7rem; color: #ea580c; font-weight: 800; }
+    .link-info-tag { font-size: 0.62rem; color: #0284c7; font-weight: 700; margin-top: 1px; }
 
     .items-list-sidebar { max-height: 350px; overflow-y: auto; }
     .item-row { padding: 8px 10px; border-bottom: 1px solid var(--border-color); cursor: pointer; font-size: 0.85rem; }
     .item-row:hover { background: rgba(234, 88, 12, 0.05); }
 
-    /* إعدادات الطباعة لملء الورقة بالكامل بدون هوامش مقتطعة */
-    @media print {
-      @page {
-        size: A4;
-        margin: 10mm;
-      }
-      body * {
-        visibility: hidden;
-      }
-      #printableBarcodeArea, #printableBarcodeArea * {
-        visibility: visible;
-      }
-      #printableBarcodeArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        max-height: none !important;
-        overflow: visible !important;
-        border: none !important;
-        padding: 0 !important;
-        background: transparent !important;
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10mm;
-      }
-      .barcode-item-box {
-        border: 1px solid #000 !important;
-        break-inside: avoid;
-        page-break-inside: avoid;
-      }
-    }
+    /* إعدادات الطباعة: جعل الباركود يبدأ من أعلى الورقة تماماً لاستيعاب أقصى عدد */
+   @media print {
+  @page {
+    size: A4;
+    margin: 0mm; /* إلغاء هوامش الصفحة بالكامل */
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printableBarcodeArea, #printableBarcodeArea * {
+    visibility: visible;
+  }
+  #printableBarcodeArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    padding: 2mm !important; /* مسافة بسيطة جداً من الحواف للطباعة السليمة */
+    margin: 0 !important;
+    background: transparent !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4mm 3mm; /* تقليل الفراغات بين مربعات الباركود لزيادة السعة */
+    align-content: start;
+  }
+  .barcode-item-box {
+    border: 1px solid #000 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 4px !important;
+  }
+}
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
