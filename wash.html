@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - قسم المغسلة والخدمات</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --text-main: #0f172a;
+      --border-color: #e2e8f0;
+      --input-bg: #ffffff;
+      --btn-blue: #0284c7;
+      --btn-green: #10b981;
+      --danger-red: #dc2626;
+      --btn-yellow: #f59e0b;
+    }
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    html, body { direction: rtl !important; text-align: right !important; background-color: var(--bg-color); color: var(--text-main); padding: 10px; font-size: 0.9rem; transition: background 0.3s, color 0.3s; }
+    
+    .header-top-bar {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px;
+      background: var(--card-bg); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border-color); flex-wrap: wrap;
+    }
+    .brand-logo { display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 800; color: var(--primary-orange); }
+    .btn-nav { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 7px 14px; border-radius: 20px; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; }
+
+    .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 14px; }
+    @media(max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 16px; margin-bottom: 14px; position: relative; }
+    .card-title { color: var(--primary-orange); font-size: 1.05rem; font-weight: 800; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+    .sub-tab { background: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; color: var(--text-main); display: inline-flex; align-items: center; gap: 4px; }
+    .sub-tab.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+    .car-list-item { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; cursor: pointer; background: var(--input-bg); }
+    .car-list-item:hover { border-color: var(--primary-orange); }
+    .car-list-item.active { border: 2px solid var(--primary-orange); background: rgba(234, 88, 12, 0.04); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .form-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+    .form-field label { font-size: 0.82rem; font-weight: 700; opacity: 0.95; }
+    .form-field input, .form-field textarea, .form-field select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); background: var(--input-bg);
+      border-radius: 6px; font-size: 0.88rem; font-weight: 600; color: var(--text-main); outline: none; text-align: right;
+    }
+    .form-field input[readonly], .form-field textarea[readonly] { background-color: rgba(100, 116, 139, 0.08); opacity: 0.9; cursor: not-allowed; }
+
+    .services-checkbox-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;
+      background: rgba(234, 88, 12, 0.03); border: 1px solid var(--primary-orange); padding: 12px; border-radius: 10px; margin-bottom: 12px;
+    }
+    .service-checkbox-item { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+    .service-checkbox-item input { width: 18px; height: 18px; accent-color: var(--primary-orange); cursor: pointer; }
+
+    .btn-action { padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn-primary { background: var(--primary-orange); color: white; }
+    .btn-green { background: var(--btn-green); color: white; }
+    .btn-blue { background: var(--btn-blue); color: white; }
+    .btn-yellow { background: var(--btn-yellow); color: white; }
+    .btn-whatsapp { background: #25d366; color: white; }
+    .btn-dark { background: #334155; color: white; }
+
+    .display-toggle-container {
+      background: rgba(234, 88, 12, 0.08); border: 2px solid var(--primary-orange); padding: 12px;
+      border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    .switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--btn-green); }
+    input:checked + .slider:before { transform: translateX(30px); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.8rem; }
+    th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 8px; text-align: right; }
+    td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body id="pageBody">
+
+  <div class="header-top-bar">
+    <div class="brand-logo">
+      <i class="fa-solid fa-water-ladder"></i>
+      <span>مركز أوتو نون (NON) - قسم المغسلة والخدمات</span>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <button class="btn-nav btn-dark" onclick="toggleDarkMode()"><i class="fa-solid fa-moon" id="darkModeIcon"></i> الوضع الليلي</button>
+      <a href="accounting.html" class="btn-nav"><i class="fa-solid fa-cash-register"></i> الحسابات</a>
+      <a href="diagnosis.html" class="btn-nav"><i class="fa-solid fa-stethoscope"></i> التشخيص</a>
+      <a href="mechanics_4.html" class="btn-nav"><i class="fa-solid fa-gears"></i> الميكانيكا</a>
+      <a href="index.html" class="btn-nav"><i class="fa-solid fa-house"></i> الاستقبال</a>
+    </div>
+  </div>
+
+  <div class="sub-tabs" id="subTabsContainer">
+    <div class="sub-tab active" onclick="filterCategory('ALL', this)"><i class="fa-solid fa-layer-group"></i> الكل</div>
+    <div class="sub-tab" onclick="filterCategory('غسيل خارجي', this)"><i class="fa-solid fa-car"></i> غسيل خارجي</div>
+    <div class="sub-tab" onclick="filterCategory('غسيل داخلي', this)"><i class="fa-solid fa-chair"></i> غسيل داخلي</div>
+    <div class="sub-tab" onclick="filterCategory('غسيل موتور', this)"><i class="fa-solid fa-engine"></i> غسيل موتور</div>
+    <div class="sub-tab" onclick="filterCategory('تشحيم', this)"><i class="fa-solid fa-oil-can"></i> تشحيم</div>
+    <div class="sub-tab" onclick="filterCategory('غسيل كلي', this)"><i class="fa-solid fa-spray-can-sparkles"></i> غسيل كلي</div>
+    <div class="sub-tab" onclick="filterCategory('قبل الصيانة', this)"><i class="fa-solid fa-clock-rotate-left"></i> قبل الصيانة</div>
+    <div class="sub-tab" onclick="filterCategory('بعد الصيانة', this)"><i class="fa-solid fa-square-check"></i> بعد الصيانة</div>
+  </div>
+
+  <div class="main-grid">
+    <div>
+      <div class="card-box">
+        <div class="card-title">
+          <span><i class="fa-solid fa-car-side"></i> السيارات الواردة للمغسلة</span>
+          <span id="carCountBadge" style="background:var(--primary-orange); color:white; padding:2px 8px; border-radius:6px; font-size:0.75rem;">0</span>
+        </div>
+        <div id="carsListContainer" style="max-height: 550px; overflow-y: auto;">
+          <small style="color:#64748b;">جاري تحميل السيارات...</small>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-box">
+        <div class="card-title">
+          <span><i class="fa-solid fa-soap"></i> تفاصيل خدمات الغسيل والتشحيم</span>
+          <span id="activeCarTitle" style="font-size:0.85rem; font-weight: 700; color:var(--btn-blue);">اختر سيارة للبدء</span>
+        </div>
+
+        <div class="display-toggle-container">
+          <div>
+            <strong style="display: block; font-size: 0.95rem; color: var(--primary-orange); font-weight: 800;"><i class="fa-solid fa-display"></i> عرض حالة المغسلة على شاشة العرض العامة</strong>
+            <small style="color: #64748b;">تظهر حالة العمل مباشرة على شاشة العرض الخاصة بالمركز.</small>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="displayStatusLabel" style="font-weight: 800; font-size: 0.85rem;">OFF</span>
+            <label class="switch">
+              <input type="checkbox" id="displayToggleCheckbox" onchange="toggleCarDisplayStatus()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field"><label>اسم العميل:</label><input type="text" id="detailClientName" readonly></div>
+          <div class="form-field"><label>رقم الهاتف:</label><input type="text" id="detailClientPhone" readonly></div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field"><label>السيارة:</label><input type="text" id="detailCarInfo" readonly></div>
+          <div class="form-field"><label>رقم لوحة السيارة:</label><input type="text" id="carPlate" readonly></div>
+        </div>
+
+        <!-- خيارات خدمات المغسلة والتشحيم المحددة -->
+        <div style="font-weight: 800; color: var(--primary-orange); margin-bottom: 8px; font-size: 0.9rem;">
+          <i class="fa-solid fa-list-check"></i> حدد الخدمات المطلوبة للسيارة:
+        </div>
+        <div class="services-checkbox-grid">
+          <label class="service-checkbox-item"><input type="checkbox" value="غسيل خارجي" class="wash-service-chk"> غسيل سيارة من الخارج</label>
+          <label class="service-checkbox-item"><input type="checkbox" value="غسيل داخلي" class="wash-service-chk"> غسيل سيارة من الداخل</label>
+          <label class="service-checkbox-item"><input type="checkbox" value="غسيل موتور" class="wash-service-chk"> غسيل موتور</label>
+          <label class="service-checkbox-item"><input type="checkbox" value="تشحيم" class="wash-service-chk"> تشحيم</label>
+          <label class="service-checkbox-item"><input type="checkbox" value="غسيل كلي" class="wash-service-chk"> غسيل كلي شامل</label>
+          <label class="service-checkbox-item"><input type="checkbox" value="قبل الصيانة" class="wash-service-chk"> غسيل قبل الصيانة</label>
+          <label class="service-checkbox-item"><input type="checkbox" value="بعد الصيانة" class="wash-service-chk"> غسيل بعد الصيانة</label>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>التكلفة المالية للخدمة (تُرحّل للحسابات):</label>
+            <input type="number" id="washServiceCost" placeholder="اكتب التكلفة بالجنيه..." value="0">
+          </div>
+          <div class="form-field">
+            <label>حالة خدمة المغسلة:</label>
+            <select id="washItemStatus">
+              <option value="قيد العمل">🟡 قيد التنفيذ بالمغسلة</option>
+              <option value="بانتظار الصيانة">🟠 بانتظار مرحلة الصيانة</option>
+              <option value="تم الانتهاء">🟢 تم الانتهاء بنجاح</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>ملاحظات عامل المغسلة / الفني:</label>
+          <textarea id="washTechNotes" rows="2" placeholder="اكتب أي ملاحظات خاصة بالنظافة أو التشحيم..."></textarea>
+        </div>
+
+        <!-- أزرار الإجراءات والربط -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; margin-bottom:12px;">
+          <button class="btn-action btn-primary" onclick="saveWashWorkData()"><i class="fa-solid fa-floppy-disk"></i> حفظ التحديثات</button>
+          <button class="btn-action btn-yellow" onclick="sendToDiagnosisPage()"><i class="fa-solid fa-stethoscope"></i> إرسال تنبيه لصفحة التشخيص</button>
+          <button class="btn-action btn-blue" onclick="sendToAccountingPage()"><i class="fa-solid fa-cash-register"></i> ترحيل التكلفة لصفحة الحسابات</button>
+          <button class="btn-action btn-whatsapp" onclick="sendWashWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> إرسال فاتورة الخدمات واتساب</button>
+          <button class="btn-action btn-green" onclick="completeWashJob()"><i class="fa-solid fa-check-double"></i> إنهاء وتسليم العمل</button>
+        </div>
+
+        <!-- قسم المخزن وطلب المواد والصناف (متوفر + إدراج صنف غير موجود) -->
+        <div class="card-box" style="margin-top: 16px; background: rgba(2, 132, 199, 0.02); border: 1px solid var(--btn-blue);">
+          <div class="card-title" style="color: var(--btn-blue); font-size: 0.95rem;">
+            <span><i class="fa-solid fa-warehouse"></i> المخزن وطلب المواد والمستلزمات</span>
+          </div>
+
+          <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-main);">
+            1. طلب صنف متوفر من المخزن:
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>اختر الصنف المتوفر:</label>
+              <select id="inventoryItemSelect">
+                <option value="">جاري تحميل المخزن...</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>الكمية المطلوبة:</label>
+              <input type="number" id="inventoryItemQty" value="1" min="1">
+            </div>
+          </div>
+          <button class="btn-action btn-blue" style="margin-bottom: 12px; font-size:0.8rem;" onclick="requestExistingItemFromWarehouse()"><i class="fa-solid fa-cart-plus"></i> إرسال طلب الصنف المتوفر</button>
+
+          <hr style="border:0; border-top:1px dashed var(--border-color); margin:10px 0;">
+
+          <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 6px; color: var(--primary-orange);">
+            2. إدراج صنف غير موجود (طلب استحداث وتوفير للمخزن):
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>اسم الصنف الجديد / غير الموجود:</label>
+              <input type="text" id="missingItemName" placeholder="مثال: شامبو خاص، فوائد تنظيف...">
+            </div>
+            <div class="form-field">
+              <label>الكمية المقترحة:</label>
+              <input type="number" id="missingItemQty" value="1" min="1">
+            </div>
+          </div>
+          <div class="form-field">
+            <label>ملاحظات إضافية للصنف الجديد:</label>
+            <input type="text" id="missingItemNotes" placeholder="سبب الطلب أو المواصفات المطلوبة...">
+          </div>
+          <button class="btn-action btn-primary" style="margin-bottom: 12px; font-size:0.8rem;" onclick="requestNewMissingItem()"><i class="fa-solid fa-circle-plus"></i> إرسال طلب صنف جديد للمخزن</button>
+
+          <div style="font-weight: 800; font-size: 0.85rem; margin-top: 10px; margin-bottom: 6px; color: var(--text-main);">
+            <i class="fa-solid fa-list-check"></i> سجل طلبات المخزن الخاصة بالمغسلة:
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>اسم الصنف</th>
+                  <th>الكمية</th>
+                  <th>نوع الطلب</th>
+                  <th>ملاحظات</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="washWarehouseRequestsTbody">
+                <tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد طلبات مسجلة.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <hr style="border:0; border-top:1px solid var(--border-color); margin:14px 0;">
+
+        <div style="font-weight:800; color:var(--primary-orange); font-size:0.9rem; margin-bottom:6px;">
+          <i class="fa-solid fa-clock-rotate-left"></i> سجل عمليات المغسلة السابقة:
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>الخدمات المقدمة</th>
+                <th>التكلفة</th>
+                <th>ملاحظات</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="washHistoryTbody">
+              <tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد سجلات مسجلة بعد.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allWashCars = [];
+    let warehouseItems = [];
+    let currentSelectedCarId = null;
+    let currentFilter = 'ALL';
+
+    // الاستماع للسيارات
+    db.collection('cars').onSnapshot(snapshot => {
+      allWashCars = [];
+      snapshot.forEach(doc => {
+        const carData = { id: doc.id, ...doc.data() };
+        const targetDept = carData.targetDepartment || '';
+        const targetDepts = carData.targetDepartments || [];
+        const serviceType = carData.serviceType || '';
+
+        const isForWash = 
+          targetDept.includes('مغسلة') || 
+          targetDepts.some(d => d.includes('مغسلة')) || 
+          serviceType.includes('غسيل') || 
+          serviceType.includes('تشحيم') ||
+          carData.washServices;
+
+        if (isForWash || targetDept === 'مغسلة' || true) {
+          allWashCars.push(carData);
+        }
+      });
+      renderCarsList();
+      if (currentSelectedCarId) selectCar(currentSelectedCarId);
+    });
+
+    // الاستماع للمخزن
+    db.collection('inventory').onSnapshot(snapshot => {
+      warehouseItems = [];
+      snapshot.forEach(doc => {
+        warehouseItems.push({ id: doc.id, ...doc.data() });
+      });
+      renderInventorySelect();
+    });
+
+    function renderInventorySelect() {
+      const select = document.getElementById('inventoryItemSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- اختر صنفاً متوفراً من المخزن --</option>';
+      warehouseItems.forEach(item => {
+        select.innerHTML += `<option value="${item.name}">${item.name} (المتاح: ${item.quantity || 0})</option>`;
+      });
+    }
+
+    function filterCategory(cat, element) {
+      currentFilter = cat;
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+      if(element) element.classList.add('active');
+      renderCarsList();
+    }
+
+    function toggleDarkMode() {
+      const body = document.getElementById('pageBody');
+      body.classList.toggle('dark-mode');
+      const isDark = body.classList.contains('dark-mode');
+      document.getElementById('darkModeIcon').className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+    }
+
+    function renderCarsList() {
+      const container = document.getElementById('carsListContainer');
+      container.innerHTML = '';
+      let filtered = allWashCars.filter(car => {
+        if (car.status === 'WASH_DONE') return false;
+        if (currentFilter === 'ALL') return true;
+        const services = car.washServices || [];
+        return services.includes(currentFilter) || car.serviceType?.includes(currentFilter);
+      });
+      document.getElementById('carCountBadge').textContent = filtered.length;
+      if (filtered.length === 0) {
+        container.innerHTML = `<small style="color:#64748b; display:block; text-align:center; padding:15px;">لا توجد سيارات مطابقة في المغسلة حالياً.</small>`;
+        return;
+      }
+      filtered.forEach(car => {
+        const isSelected = car.id === currentSelectedCarId;
+        container.innerHTML += `
+          <div class="car-list-item ${isSelected ? 'active' : ''}" onclick="selectCar('${car.id}')">
+            <div style="display:flex; justify-content:space-between; font-weight:800;">
+              <span>${car.name}</span>
+              <span style="color:var(--primary-orange); font-size:0.78rem;">${car.queueNo || '-'}</span>
+            </div>
+            <div style="font-size:0.8rem; color:#64748b; margin-top:2px; font-weight:600;">
+              ${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || 'بدون'})
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function selectCar(carId) {
+      currentSelectedCarId = carId;
+      const car = allWashCars.find(c => c.id === carId);
+      if (!car) return;
+
+      document.getElementById('detailClientName').value = car.name || '';
+      document.getElementById('detailClientPhone').value = car.phone || car.clientPhone || '';
+      document.getElementById('detailCarInfo').value = `${car.brand || ''} ${car.model || ''}`.trim();
+      document.getElementById('carPlate').value = car.plate || '';
+      document.getElementById('activeCarTitle').textContent = `العميل: ${car.name}`;
+      document.getElementById('washServiceCost').value = car.washCost || 0;
+      document.getElementById('washItemStatus').value = car.washItemStatus || 'قيد العمل';
+      document.getElementById('washTechNotes').value = car.washTechNotes || '';
+
+      const savedServices = car.washServices || [];
+      document.querySelectorAll('.wash-service-chk').forEach(chk => {
+        chk.checked = savedServices.includes(chk.value);
+      });
+
+      const isDisplayed = car.showOnWashDisplay === true;
+      document.getElementById('displayToggleCheckbox').checked = isDisplayed;
+      document.getElementById('displayStatusLabel').textContent = isDisplayed ? 'ON (معروضة)' : 'OFF (مخفية)';
+      document.getElementById('displayStatusLabel').style.color = isDisplayed ? 'var(--btn-green)' : 'var(--danger-red)';
+
+      renderCarsList();
+      loadWashHistory(carId);
+      loadWashWarehouseRequests();
+    }
+
+    async function toggleCarDisplayStatus() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); document.getElementById('displayToggleCheckbox').checked = false; return; }
+      const isChecked = document.getElementById('displayToggleCheckbox').checked;
+      const label = document.getElementById('displayStatusLabel');
+      label.textContent = isChecked ? 'ON (معروضة)' : 'OFF (مخفية)';
+      label.style.color = isChecked ? 'var(--btn-green)' : 'var(--danger-red)';
+
+      try {
+        await db.collection('cars').doc(currentSelectedCarId).set({ showOnWashDisplay: isChecked }, { merge: true });
+      } catch (err) { console.error(err); }
+    }
+
+    async function saveWashWorkData() {
+      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
+
+      let selectedServices = [];
+      document.querySelectorAll('.wash-service-chk:checked').forEach(chk => {
+        selectedServices.push(chk.value);
+      });
+
+      const cost = parseFloat(document.getElementById('washServiceCost').value) || 0;
+      const itemStatus = document.getElementById('washItemStatus').value;
+      const techNotes = document.getElementById('washTechNotes').value;
+
+      try {
+        await db.collection('cars').doc(currentSelectedCarId).set({
+          washServices: selectedServices,
+          washCost: cost,
+          washItemStatus: itemStatus,
+          washTechNotes: techNotes
+        }, { merge: true });
+
+        await db.collection('cars').doc(currentSelectedCarId).collection('wash_history').add({
+          date: new Date().toISOString().split('T')[0],
+          services: selectedServices.join(', '),
+          cost: cost,
+          status: itemStatus,
+          notes: techNotes,
+          timestamp: new Date().toISOString()
+        });
+
+        alert("✅ تم حفظ بيانات المغسلة بنجاح!");
+        loadWashHistory(currentSelectedCarId);
+      } catch (err) { alert("خطأ أثناء الحفظ: " + err.message); }
+    }
+
+    // الربط مع صفحة التشخيص
+    async function sendToDiagnosisPage() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
+      const car = allWashCars.find(c => c.id === currentSelectedCarId);
+      const clientName = document.getElementById('detailClientName').value || (car ? car.name : '');
+      const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
+
+      let selectedServices = [];
+      document.querySelectorAll('.wash-service-chk:checked').forEach(chk => selectedServices.push(chk.value));
+
+      try {
+        await db.collection('diagnosisMessages').add({
+          type: 'WASH_STATUS_UPDATE',
+          carId: currentSelectedCarId,
+          clientName: clientName,
+          carPlate: carPlate,
+          messageText: `تنبيه من المغسلة للسيارة (${clientName}) لوحة: (${carPlate}). الخدمات المنجزة/المطلوبة: ${selectedServices.join(', ') || 'خدمات عامة'}.`,
+          timestamp: new Date().toISOString(),
+          read: false
+        });
+        alert("🔔 تم إرسال تنبيه المغسلة لصفحة التشخيص بنجاح!");
+      } catch (err) { alert("خطأ: " + err.message); }
+    }
+
+    // الربط مع صفحة الحسابات
+    async function sendToAccountingPage() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
+      const car = allWashCars.find(c => c.id === currentSelectedCarId);
+      const clientName = document.getElementById('detailClientName').value || (car ? car.name : '');
+      const clientPhone = document.getElementById('detailClientPhone').value || (car ? (car.phone || car.clientPhone) : '');
+      const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
+      const cost = parseFloat(document.getElementById('washServiceCost').value) || 0;
+
+      if (cost <= 0) { alert("⚠️ يرجى إدخال تكلفة مالية صحيحة قبل الترحيل للحسابات."); return; }
+
+      let selectedServices = [];
+      document.querySelectorAll('.wash-service-chk:checked').forEach(chk => selectedServices.push(chk.value));
+
+      try {
+        await db.collection('accountingInvoices').add({
+          carId: currentSelectedCarId,
+          clientName: clientName,
+          clientPhone: clientPhone,
+          carPlate: carPlate,
+          serviceType: 'خدمات مغسلة وتشكيل: ' + (selectedServices.join(', ') || 'غسيل عام'),
+          amount: cost,
+          department: 'المغسلة',
+          status: 'PENDING_PAYMENT',
+          createdAt: new Date().toISOString()
+        });
+
+        alert("💵 تم ترحيل تكلفة المغسلة (" + cost + " ج.م) إلى صفحة الحسابات بنجاح!");
+      } catch (err) { alert("خطأ في الترحيل للحسابات: " + err.message); }
+    }
+
+    // طلب صنف متوفر من المخزن
+    async function requestExistingItemFromWarehouse() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً لتحديد ارتباط الطلب!"); return; }
+      const itemName = document.getElementById('inventoryItemSelect').value;
+      const qty = parseInt(document.getElementById('inventoryItemQty').value) || 1;
+      if (!itemName) { alert("يرجى اختيار صنف متوفر من المخزن."); return; }
+
+      const car = allWashCars.find(c => c.id === currentSelectedCarId);
+      const clientName = car ? car.name : 'مغسلة';
+
+      try {
+        await db.collection('warehouse_requests').add({
+          carId: currentSelectedCarId,
+          clientName: clientName,
+          itemName: itemName,
+          quantity: qty,
+          requestType: 'صنف متوفر',
+          department: 'المغسلة والخدمات',
+          status: 'PENDING',
+          createdAt: new Date().toISOString()
+        });
+        alert(`📦 تم إرسال طلب الصنف (${itemName}) إلى المخزن بنجاح!`);
+        loadWashWarehouseRequests();
+      } catch (err) { alert("خطأ: " + err.message); }
+    }
+
+    // إدراج صنف غير موجود وطلب استحداثه وتوفيره بالمخزن
+    async function requestNewMissingItem() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
+      const missingName = document.getElementById('missingItemName').value.trim();
+      const qty = parseInt(document.getElementById('missingItemQty').value) || 1;
+      const notes = document.getElementById('missingItemNotes').value.trim();
+
+      if (!missingName) { alert("يرجى كتابة اسم الصنف غير الموجود."); return; }
+
+      const car = allWashCars.find(c => c.id === currentSelectedCarId);
+      const clientName = car ? car.name : 'مغسلة';
+
+      try {
+        await db.collection('warehouse_requests').add({
+          carId: currentSelectedCarId,
+          clientName: clientName,
+          itemName: missingName,
+          quantity: qty,
+          requestType: 'صنف غير موجود (طلب استحداث وتوفير)',
+          department: 'المغسلة والخدمات',
+          notes: notes,
+          status: 'PENDING_NEW_ITEM',
+          createdAt: new Date().toISOString()
+        });
+        alert(`➕ تم إرسال طلب إدراج الصنف الجديد (${missingName}) للمخزن بنجاح!`);
+        document.getElementById('missingItemName').value = '';
+        document.getElementById('missingItemQty').value = '1';
+        document.getElementById('missingItemNotes').value = '';
+        loadWashWarehouseRequests();
+      } catch (err) { alert("خطأ: " + err.message); }
+    }
+
+    async function loadWashWarehouseRequests() {
+      const tbody = document.getElementById('washWarehouseRequestsTbody');
+      if (!tbody) return;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">جاري تحميل الطلبات...</td></tr>`;
+      try {
+        const snap = await db.collection('warehouse_requests').get();
+        tbody.innerHTML = '';
+        let found = false;
+        snap.forEach(doc => {
+          const req = doc.data();
+          if (req.department === 'المغسلة والخدمات') {
+            found = true;
+            let statusText = 'قيد الانتظار';
+            let statusColor = '#f59e0b';
+            if (req.status === 'APPROVED' || req.status === 'COMPLETED') {
+              statusText = 'تم الصرف/التوفير';
+              statusColor = '#10b981';
+            }
+            tbody.innerHTML += `
+              <tr>
+                <td><b>${req.itemName || '-'}</b></td>
+                <td>${req.quantity || 1}</td>
+                <td><span style="font-size:0.75rem; background:rgba(234,88,12,0.1); color:var(--primary-orange); padding:2px 6px; border-radius:4px;">${req.requestType || 'طلب'}</span></td>
+                <td>${req.notes || '-'}</td>
+                <td><span style="font-weight:800; color:${statusColor};">${statusText}</span></td>
+              </tr>
+            `;
+          }
+        });
+        if (!found) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد طلبات للمخزن مسجلة حالياً.</td></tr>`;
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ في تحميل الطلبات</td></tr>`;
+      }
+    }
+
+    function sendWashWhatsAppReport() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
+      const car = allWashCars.find(c => c.id === currentSelectedCarId);
+      if (!car) return;
+
+      const clientName = car.name || 'العميل';
+      const phone = car.phone || car.clientPhone || '';
+      const carInfo = `${car.brand || ''} ${car.model || ''} (${car.plate || ''})`;
+      const cost = document.getElementById('washServiceCost').value || '0';
+
+      let selectedServices = [];
+      document.querySelectorAll('.wash-service-chk:checked').forEach(chk => selectedServices.push(chk.value));
+
+      const message = `*مركز أوتو نون (NON) - فاتورة المغسلة والخدمات*\n\n` +
+                      `👤 العميل: ${clientName}\n🚗 السيارة: ${carInfo}\n\n` +
+                      `🧼 *الخدمات المقدمة:*\n${selectedServices.map(s => `- ` + s).join('\n') || '- خدمات عامة'}\n\n` +
+                      `💰 *إجمالي التكلفة:* ${cost} جنيه مصري\n\n` +
+                      `شكراً لثقتكم بمركز أوتو نون.`;
+
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    async function loadWashHistory(carId) {
+      const tbody = document.getElementById('washHistoryTbody');
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">جاري تحميل السجل...</td></tr>`;
+      try {
+        const snap = await db.collection('cars').doc(carId).collection('wash_history').orderBy('timestamp', 'desc').get();
+        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد سجلات سابقة للمغسلة.</td></tr>`; return; }
+        tbody.innerHTML = '';
+        snap.forEach(doc => {
+          const h = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td>${h.date || '-'}</td>
+              <td><b>${h.services || '-'}</b></td>
+              <td>${h.cost || 0} ج.م</td>
+              <td>${h.notes || '-'}</td>
+              <td><span style="font-weight:800; color:${h.status === 'تم الانتهاء' ? '#10b981' : '#f59e0b'};">${h.status}</span></td>
+            </tr>
+          `;
+        });
+      } catch (e) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ في تحميل السجل</td></tr>`; }
+    }
+
+    async function completeWashJob() {
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
+      if (confirm("هل أنت متأكد من إنهاء كافة أعمال المغسلة والخدمات لهذه السيارة؟")) {
+        try {
+          await db.collection('cars').doc(currentSelectedCarId).update({
+            washItemStatus: 'تم الانتهاء',
+            status: 'WASH_DONE',
+            statusLabel: 'تم إنهاء أعمال المغسلة',
+            showOnWashDisplay: false
+          });
+          alert("🎉 تم إتمام وتسجيل خدمات المغسلة بنجاح!");
+          renderCarsList();
+        } catch (err) { alert("خطأ: " + err.message); }
+      }
+    }
+  </script>
+</body>
+</html>
