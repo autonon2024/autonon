@@ -17,6 +17,7 @@
       --btn-green: #10b981;
       --danger-red: #dc2626;
       --btn-yellow: #f59e0b;
+      --treasury-purple: #9333ea;
     }
     body.dark-mode {
       --bg-color: #0f172a;
@@ -32,7 +33,8 @@
       display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px;
       background: var(--card-bg); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border-color); flex-wrap: wrap;
     }
-    .brand-logo { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: bold; color: var(--primary-orange); }
+    .brand-logo-container { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: bold; color: var(--primary-orange); }
+    .brand-logo-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-orange); }
     .btn-nav { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 7px 14px; border-radius: 20px; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; }
 
     .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 14px; }
@@ -41,37 +43,22 @@
     .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 14px; margin-bottom: 14px; position: relative; }
     .card-title { color: var(--primary-orange); font-size: 0.95rem; font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 
-    /* أنماط حالة التعليق والختم */
     .card-box.suspended-card {
       background: rgba(245, 158, 11, 0.08) !important;
       border: 2px dashed var(--btn-yellow) !important;
     }
+    .card-box.treasury-card {
+      background: rgba(147, 51, 234, 0.08) !important;
+      border: 2px solid var(--treasury-purple) !important;
+    }
     .suspended-stamp {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-15deg);
-      border: 4px solid var(--btn-yellow);
-      color: var(--btn-yellow);
-      font-size: 2.2rem;
-      font-weight: 900;
-      padding: 10px 30px;
-      border-radius: 12px;
-      letter-spacing: 2px;
-      pointer-events: none;
-      opacity: 0.85;
-      z-index: 50;
-      display: none;
-      text-transform: uppercase;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-      background: rgba(255, 255, 255, 0.85);
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
+      border: 4px solid var(--btn-yellow); color: var(--btn-yellow); font-size: 2.2rem; font-weight: 900;
+      padding: 10px 30px; border-radius: 12px; letter-spacing: 2px; pointer-events: none; opacity: 0.85; z-index: 50;
+      display: none; text-transform: uppercase; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); background: rgba(255, 255, 255, 0.85);
     }
-    body.dark-mode .suspended-stamp {
-      background: rgba(30, 41, 59, 0.85);
-    }
-    .card-box.suspended-card .suspended-stamp {
-      display: block;
-    }
+    body.dark-mode .suspended-stamp { background: rgba(30, 41, 59, 0.85); }
+    .card-box.suspended-card .suspended-stamp { display: block; }
 
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
     .sub-tab { background: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; color: var(--text-main); display: inline-flex; align-items: center; gap: 4px; }
@@ -81,6 +68,7 @@
     .car-list-item:hover { border-color: var(--primary-orange); }
     .car-list-item.active { border: 2px solid var(--primary-orange); background: rgba(234, 88, 12, 0.04); }
     .car-list-item.suspended { border-left: 5px solid var(--btn-yellow); background: rgba(245, 158, 11, 0.05); }
+    .car-list-item.treasury { border-left: 5px solid var(--treasury-purple); background: rgba(147, 51, 234, 0.05); }
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
     .form-field { display: flex; flex-direction: column; gap: 3px; }
@@ -89,12 +77,10 @@
       width: 100%; padding: 7px 10px; border: 1px solid var(--border-color); background: var(--input-bg);
       border-radius: 6px; font-size: 0.83rem; color: var(--text-main); outline: none; text-align: right;
     }
-    
-    .form-field input[readonly], .form-field textarea[readonly] {
-      background-color: rgba(100, 116, 139, 0.08);
-      opacity: 0.9;
-      cursor: not-allowed;
-    }
+    .form-field input[readonly], .form-field textarea[readonly] { background-color: rgba(100, 116, 139, 0.08); opacity: 0.9; cursor: not-allowed; }
+
+    .reports-frame { background: rgba(255, 255, 255, 0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    body.dark-mode .reports-frame { background: rgba(30, 41, 59, 0.4); }
 
     .btn-action { padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .btn-primary { background: var(--primary-orange); color: white; }
@@ -104,42 +90,24 @@
     .btn-whatsapp { background: #25d366; color: white; }
     .btn-dark { background: #334155; color: white; }
     .btn-danger { background: var(--danger-red); color: white; }
+    .btn-treasury { background: var(--treasury-purple); color: white; }
 
     .display-toggle-container {
-      background: rgba(234, 88, 12, 0.08);
-      border: 2px solid var(--primary-orange);
-      padding: 12px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
+      background: rgba(234, 88, 12, 0.08); border: 2px solid var(--primary-orange); padding: 12px;
+      border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
     }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 30px;
-    }
+    .switch { position: relative; display: inline-block; width: 60px; height: 30px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: var(--btn-green); }
     input:checked + .slider:before { transform: translateX(30px); }
 
     table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.8rem; }
     th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 8px; text-align: right; }
     td { padding: 8px; border-bottom: 1px solid var(--border-color); }
-
     .attachment-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
     .attachment-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); }
-
     .inventory-dropdown-container { position: relative; }
     .inventory-list-box {
       position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg);
@@ -155,17 +123,25 @@
 </head>
 <body id="pageBody">
 
+  <script>
+    // التحقق من تسجيل الدخول وجلسة المستخدم تلقائياً عند فتح الصفحة
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+      window.location.href = 'login.html';
+    }
+  </script>
+
   <div class="header-top-bar">
-    <div class="brand-logo">
-      <i class="fa-solid fa-gears"></i>
+    <div class="brand-logo-container">
+      <img src="NON.png" alt="NON Logo" class="brand-logo-img" onerror="this.src='https://via.placeholder.com/40?text=NON'">
       <span>مركز أوتو نون (NON) - قسم الميكانيكا والريداتير</span>
     </div>
     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <span style="font-size: 0.85rem; font-weight: bold; color: var(--primary-orange);">
+        <i class="fa-solid fa-user-check"></i> الفني/المستخدم: <span id="displayLoggedUser">-</span>
+      </span>
+      <button class="btn-nav btn-danger" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</button>
       <button class="btn-nav btn-dark" onclick="toggleDarkMode()"><i class="fa-solid fa-moon" id="darkModeIcon"></i> الوضع الليلي</button>
-      <a href="inventory.html" class="btn-nav"><i class="fa-solid fa-warehouse"></i> المخزن (Inventory)</a>
-      <a href="diagnosis.html" class="btn-nav"><i class="fa-solid fa-stethoscope"></i> صفحة التشخيص</a>
-      <a href="tech_dashboard.html" class="btn-nav"><i class="fa-solid fa-gauge-high"></i> لوحة الفنيين</a>
-      <a href="index.html" class="btn-nav"><i class="fa-solid fa-house"></i> الاستقبال</a>
     </div>
   </div>
 
@@ -177,9 +153,9 @@
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
       <span style="font-size: 0.85rem; font-weight: bold; color: var(--primary-orange);"><i class="fa-solid fa-sliders"></i> إدارة وتخصيص أقسام الفرع:</span>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button class="btn-action btn-primary" style="padding: 5px 10px; font-size: 0.78rem;" onclick="addNewSubCategory()"><i class="fa-solid fa-plus"></i> إضافة قسم فرعي جديد</button>
-        <button class="btn-action btn-yellow" style="padding: 5px 10px; font-size: 0.78rem;" onclick="editCurrentSubCategory()"><i class="fa-solid fa-pen"></i> تعديل القسم الحالي</button>
-        <button class="btn-action btn-danger" style="padding: 5px 10px; font-size: 0.78rem;" onclick="deleteCurrentSubCategory()"><i class="fa-solid fa-trash"></i> حذف القسم المختار</button>
+        <button class="btn-action btn-primary" style="padding: 5px 10px; font-size: 0.78rem;" onclick="addNewSubCategory()"><i class="fa-solid fa-plus"></i> إضافة قسم فرعي</button>
+        <button class="btn-action btn-yellow" style="padding: 5px 10px; font-size: 0.78rem;" onclick="editCurrentSubCategory()"><i class="fa-solid fa-pen"></i> تعديل القسم</button>
+        <button class="btn-action btn-danger" style="padding: 5px 10px; font-size: 0.78rem;" onclick="deleteCurrentSubCategory()"><i class="fa-solid fa-trash"></i> حذف القسم</button>
       </div>
     </div>
   </div>
@@ -199,7 +175,6 @@
 
     <div>
       <div class="card-box" id="mainDetailCardBox">
-        <!-- ختم معلق يظهر في المنتصف عند التعليق -->
         <div class="suspended-stamp">معلق</div>
 
         <div class="card-title">
@@ -236,11 +211,6 @@
           <div class="form-field"><label>بيانات السيارة الإضافية:</label><input type="text" id="carDetails" readonly></div>
         </div>
 
-        <div class="form-field" style="margin-bottom: 8px;">
-          <label style="color:var(--danger-red); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> شكوى العميل (كما وصفها عند الاستقبال):</label>
-          <textarea id="detailCustomerComplaint" rows="2" readonly style="background: rgba(220, 38, 38, 0.05); border-color: var(--danger-red); font-weight: bold; color: var(--danger-red);" placeholder="لا توجد شكوى مسجلة من الاستقبال..."></textarea>
-        </div>
-
         <div class="form-grid">
           <div class="form-field">
             <label>التصنيف الفرعي:</label>
@@ -251,35 +221,39 @@
             <select id="detailItemStatus">
               <option value="قيد العمل">🟡 قيد العمل والفحص</option>
               <option value="بانتظار قطع غيار">🟠 بانتظار قطع الغيار</option>
+              <option value="متوجه للحسابات للدفع">🟣 متوجه للحسابات للدفع</option>
               <option value="تم الانتهاء">🟢 تم الانتهاء بنجاح</option>
             </select>
           </div>
         </div>
 
-        <div class="form-grid">
-          <div class="form-field">
-            <label style="color:var(--primary-orange);"><i class="fa-solid fa-stethoscope"></i> تقرير المهندس (من التشخيص):</label>
-            <textarea id="detailDiagnosisNotes" rows="3" readonly placeholder="لا يوجد تقرير مهندس مسجل..."></textarea>
+        <div class="reports-frame">
+          <div class="form-field" style="margin-bottom: 10px;">
+            <label style="color:var(--danger-red); font-weight:800; font-size: 0.9rem;"><i class="fa-solid fa-triangle-exclamation"></i> شكوى العميل (كما وصفها عند الاستقبال):</label>
+            <textarea id="detailCustomerComplaint" rows="2" readonly style="background: rgba(220, 38, 38, 0.06); border-color: var(--danger-red); font-weight: 700; color: var(--danger-red);" placeholder="لا توجد شكوى مسجلة من الاستقبال..."></textarea>
           </div>
-          <div class="form-field">
-            <label style="color:var(--btn-blue);"><i class="fa-solid fa-user-gear"></i> تقرير الفني:</label>
-            <textarea id="detailTechNotes" rows="3" placeholder="اكتب تقرير وملاحظات الفني المنفذ..."></textarea>
+
+          <div class="form-field" style="margin-bottom: 10px;">
+            <label style="color:var(--primary-orange); font-weight:800; font-size: 0.9rem;"><i class="fa-solid fa-stethoscope"></i> تقرير المهندس (من التشخيص):</label>
+            <textarea id="detailDiagnosisNotes" rows="3" readonly style="font-weight: 700;" placeholder="لا يوجد تقرير مهندس مسجل..."></textarea>
+          </div>
+
+          <div class="form-field" style="margin-bottom: 0;">
+            <label style="color:var(--btn-blue); font-weight:800; font-size: 0.9rem;"><i class="fa-solid fa-user-gear"></i> تقرير الفني (مرتبط بالحساب الحالي):</label>
+            <textarea id="detailTechNotes" rows="3" style="font-weight: 700;" placeholder="اكتب تقرير وملاحظات الفني المنفذ..."></textarea>
           </div>
         </div>
 
-        <!-- قسم قطع الغيار وطلب صنف غير موجود -->
         <div class="card-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; margin-bottom:8px;">
           <div style="font-weight: bold; color: var(--primary-orange); margin-bottom: 8px; font-size: 0.85rem;">
             <i class="fa-solid fa-boxes-stacked"></i> قطع الغيار المطلوبة:
           </div>
-          
           <div class="form-grid">
             <div class="form-field inventory-dropdown-container">
               <label>ابحث واختر من أصناف المخزن:</label>
               <input type="text" id="inventorySearchInput" placeholder="اكتب اسم الصنف للبحث المباشر..." oninput="filterInventoryList()" onfocus="openInventoryDropdown()">
               <div id="inventoryDropdownList" class="inventory-list-box"></div>
             </div>
-            
             <div class="form-field">
               <label>صنف غير موجود بالمخزن؟ أدرجه هنا للإرسال:</label>
               <div style="display: flex; gap: 4px;">
@@ -291,7 +265,6 @@
           <div id="selectedPartsContainer" style="margin-top:8px; display:flex; flex-direction:column; gap:4px;"></div>
         </div>
 
-        <!-- قسم اختبار السيارة بعد التصليح الجديد -->
         <div class="card-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid var(--btn-green); padding: 10px; margin-bottom: 8px;">
           <div class="card-title" style="color: var(--btn-green); margin-bottom: 8px;">
             <span><i class="fa-solid fa-car-on"></i> قسم اختبار السيارة بعد التصليح (Test Drive & Quality Check)</span>
@@ -307,11 +280,11 @@
             </div>
             <div class="form-field">
               <label>اسم الفني / المسؤول عن الاختبار:</label>
-              <input type="text" id="testDriveTester" placeholder="اكتب اسم فحص الجودة أو الفني المسؤول...">
+              <input type="text" id="testDriveTester" placeholder="اسم الفحص...">
             </div>
           </div>
           <div class="form-field" style="margin-top: 6px;">
-            <label>بنود وبنود فحص الجودة وملاحظات الطريق:</label>
+            <label>بنود فحص الجودة وملاحظات الطريق:</label>
             <textarea id="testDriveNotes" rows="2" placeholder="سجل هنا نتائج اختبار المحرك، الحرارة، الفرامل، والأصوات بعد الإصلاح..."></textarea>
           </div>
         </div>
@@ -326,8 +299,9 @@
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; margin-bottom:12px;">
           <button class="btn-action btn-primary" onclick="saveMechanicWorkData()"><i class="fa-solid fa-floppy-disk"></i> حفظ التحديثات</button>
           <button class="btn-action btn-yellow" id="approvalActionButton" onclick="handleApprovalOrResumeAction()"><i class="fa-solid fa-file-circle-check"></i> إرسال للتشخيص للحصول على موافقة وصرف القطع</button>
+          <button class="btn-action btn-blue" onclick="sendInspectionCallMessage()"><i class="fa-solid fa-bell"></i> رسالة للتشخيص ليجي ويشوف التصليح</button>
           <button class="btn-action btn-whatsapp" onclick="sendDetailedWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> إرسال التقرير والقطع واتساب</button>
-          <button class="btn-action btn-green" onclick="completeMechanicJob()"><i class="fa-solid fa-check-double"></i> إنهاء وتسليم العمل</button>
+          <button class="btn-action btn-treasury" onclick="completeAndSendToTreasury()"><i class="fa-solid fa-cash-register"></i> إنهاء العمل وتوجيه العميل للحسابات 🟣</button>
         </div>
 
         <hr style="border:0; border-top:1px solid var(--border-color); margin:12px 0;">
@@ -341,13 +315,14 @@
               <tr>
                 <th>التاريخ</th>
                 <th>التصنيف</th>
+                <th>الفني المسؤول</th>
                 <th>تقرير المهندس</th>
                 <th>تقرير الفني</th>
                 <th>الحالة</th>
               </tr>
             </thead>
             <tbody id="mechanicHistoryTbody">
-              <tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد سجلات مسجلة بعد.</td></tr>
+              <tr><td colspan="6" style="text-align:center; color:#64748b;">لا توجد سجلات مسجلة بعد.</td></tr>
             </tbody>
           </table>
         </div>
@@ -368,6 +343,15 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // عرض اسم المستخدم الحالي المرتبط من صفحة تسجيل الدخول وإدارة المستخدمين (users_manager.html)
+    document.getElementById('displayLoggedUser').textContent = currentUser || 'مسؤول النظام';
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentRolePage');
+      window.location.href = 'login.html';
+    }
 
     let allMechanicCars = [];
     let inventoryProducts = [];
@@ -392,7 +376,6 @@
     function renderSubTabs() {
       const container = document.getElementById('subTabsContainer');
       let html = `<div class="sub-tab ${currentFilter === 'ALL' ? 'active' : ''}" onclick="filterCategory('ALL', this)"><i class="fa-solid fa-layer-group"></i> الكل</div>`;
-      
       mechanicSubCategories.forEach(cat => {
         const isActive = currentFilter === cat.name ? 'active' : '';
         html += `<div class="sub-tab ${isActive}" onclick="filterCategory('${cat.name}', this)"><i class="fa-solid ${cat.icon || 'fa-folder'}"></i> ${cat.name}</div>`;
@@ -412,45 +395,28 @@
     function addNewSubCategory() {
       const newName = prompt("أدخل اسم القسم الفرعي الجديد:");
       if (!newName || !newName.trim()) return;
-      
       const trimmed = newName.trim();
-      if (mechanicSubCategories.some(c => c.name === trimmed)) {
-        alert("هذا القسم موجود مسبقاً!");
-        return;
-      }
-
+      if (mechanicSubCategories.some(c => c.name === trimmed)) { alert("هذا القسم موجود مسبقاً!"); return; }
       mechanicSubCategories.push({ name: trimmed, icon: "fa-folder-open" });
       saveSubCategoriesToStorage();
       alert("✅ تمت إضافة القسم بنجاح.");
     }
 
     function editCurrentSubCategory() {
-      if (currentFilter === 'ALL') {
-        alert("الرجاء اختيار قسم فرعي محدد لتعديله.");
-        return;
-      }
-
+      if (currentFilter === 'ALL') { alert("الرجاء اختيار قسم فرعي محدد لتعديله."); return; }
       const catObj = mechanicSubCategories.find(c => c.name === currentFilter);
       if (!catObj) return;
-
       const newName = prompt("أدخل التعديل الجديد لاسم القسم:", catObj.name);
       if (!newName || !newName.trim()) return;
-
-      const trimmed = newName.trim();
-      catObj.name = trimmed;
-      currentFilter = trimmed;
-
+      catObj.name = newName.trim();
+      currentFilter = newName.trim();
       saveSubCategoriesToStorage();
       renderCarsList();
       alert("✏️ تم تعديل اسم القسم بنجاح.");
     }
 
     function deleteCurrentSubCategory() {
-      if (currentFilter === 'ALL') {
-        alert("الرجاء اختيار قسم فرعي محدد لحذفه.");
-        return;
-      }
-
+      if (currentFilter === 'ALL') { alert("الرجاء اختيار قسم فرعي محدد لحذفه."); return; }
       if (confirm(`هل أنت متأكد من حذف القسم "${currentFilter}"؟`)) {
         mechanicSubCategories = mechanicSubCategories.filter(c => c.name !== currentFilter);
         currentFilter = 'ALL';
@@ -462,13 +428,7 @@
 
     db.collection('inventory').onSnapshot(snapshot => {
       inventoryProducts = [];
-      snapshot.forEach(doc => {
-        inventoryProducts.push({ id: doc.id, ...doc.data() });
-      });
-      const dropdownBox = document.getElementById('inventoryDropdownList');
-      if (dropdownBox && dropdownBox.style.display === 'block') {
-        filterInventoryList();
-      }
+      snapshot.forEach(doc => { inventoryProducts.push({ id: doc.id, ...doc.data() }); });
     });
 
     db.collection('cars').onSnapshot(snapshot => {
@@ -486,17 +446,15 @@
           serviceType.includes('ريداتير') ||
           carData.mechanicDiagnosisNotes || 
           carData.status === 'PENDING_APPROVAL' ||
-          carData.status === 'WAITING_FOR_PARTS';
+          carData.status === 'WAITING_FOR_PARTS' ||
+          carData.status === 'SENT_TO_TREASURY';
 
         if (isForMechanics || targetDept === 'ميكانيكا') {
           allMechanicCars.push(carData);
         }
       });
-      
       renderCarsList();
-      if (currentSelectedCarId) {
-        selectCar(currentSelectedCarId);
-      }
+      if (currentSelectedCarId) selectCar(currentSelectedCarId);
     });
 
     renderSubTabs();
@@ -526,34 +484,46 @@
     function renderCarsList() {
       const container = document.getElementById('carsListContainer');
       container.innerHTML = '';
-
       let filtered = allMechanicCars.filter(car => {
-        if (car.status === 'DONE') return false;
+        if (car.status === 'DONE' || car.status === 'COMPLETED') return false;
         if (currentFilter === 'ALL') return true;
         return car.mechanicSubCategory === currentFilter || car.serviceType?.includes(currentFilter);
       });
-
       document.getElementById('carCountBadge').textContent = filtered.length;
-
       if (filtered.length === 0) {
         container.innerHTML = `<small style="color:#64748b; display:block; text-align:center; padding:15px;">لا توجد سيارات مطابقة في هذا القسم حالياً.</small>`;
         return;
       }
-
       filtered.forEach(car => {
         const isSelected = car.id === currentSelectedCarId;
-        const isSuspended = car.status === 'PENDING_APPROVAL' || car.status === 'WAITING_FOR_PARTS';
+        const isTreasury = car.status === 'SENT_TO_TREASURY';
+        const isSuspended = car.status === 'PENDING_APPROVAL' || car.status === 'WAITING_FOR_PARTS' || car.status === 'SUSPENDED';
+        
+        let itemClass = '';
+        let statusBadgeText = car.queueNo || '-';
+        let badgeColor = 'var(--primary-orange)';
+
+        if (isTreasury) {
+          itemClass = 'treasury';
+          statusBadgeText = 'الحسابات 🟣';
+          badgeColor = 'var(--treasury-purple)';
+        } else if (isSuspended) {
+          itemClass = 'suspended';
+          statusBadgeText = 'معلق ⏳';
+          badgeColor = 'var(--btn-yellow)';
+        }
+
         container.innerHTML += `
-          <div class="car-list-item ${isSelected ? 'active' : ''} ${isSuspended ? 'suspended' : ''}" onclick="selectCar('${car.id}')">
+          <div class="car-list-item ${isSelected ? 'active' : ''} ${itemClass}" onclick="selectCar('${car.id}')">
             <div style="display:flex; justify-content:space-between; font-weight:bold;">
               <span>${car.name}</span>
-              <span style="color:${isSuspended ? 'var(--btn-yellow)' : 'var(--primary-orange)'}; font-size:0.75rem;">${isSuspended ? 'معلق ⏳' : (car.queueNo || '-')}</span>
+              <span style="color:${badgeColor}; font-size:0.75rem;">${statusBadgeText}</span>
             </div>
             <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
               ${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || 'بدون'})
             </div>
             <div style="margin-top:4px; font-size:0.75rem; color:var(--btn-blue);">
-              التصنيف: ${car.mechanicSubCategory || (mechanicSubCategories[0] ? mechanicSubCategories[0].name : 'عام')}
+              التصنيف: ${car.mechanicSubCategory || (mechanicSubCategories[0] ? mechanicSubCategories[0].name : 'عام')} | الفني: ${car.assignedTechnician || 'غير محدد'}
             </div>
           </div>
         `;
@@ -564,16 +534,20 @@
       const btn = document.getElementById('approvalActionButton');
       const mainCardBox = document.getElementById('mainDetailCardBox');
       if (!btn) return;
-
       const status = car ? car.status : '';
-      if (status === 'PENDING_APPROVAL' || status === 'WAITING_FOR_PARTS') {
+      if (status === 'PENDING_APPROVAL' || status === 'WAITING_FOR_PARTS' || status === 'SUSPENDED') {
         btn.innerHTML = `<i class="fa-solid fa-play"></i> استكمال التعليق (تم وصول القطع)`;
         btn.className = "btn-action btn-green";
         if (mainCardBox) mainCardBox.classList.add('suspended-card');
+      } else if (status === 'SENT_TO_TREASURY') {
+        if (mainCardBox) mainCardBox.classList.add('treasury-card');
       } else {
         btn.innerHTML = `<i class="fa-solid fa-file-circle-check"></i> إرسال للتشخيص للحصول على موافقة وصرف القطع`;
         btn.className = "btn-action btn-yellow";
-        if (mainCardBox) mainCardBox.classList.remove('suspended-card');
+        if (mainCardBox) {
+          mainCardBox.classList.remove('suspended-card');
+          mainCardBox.classList.remove('treasury-card');
+        }
       }
     }
 
@@ -601,7 +575,7 @@
       document.getElementById('activeCarTitle').textContent = `العميل: ${car.name}`;
 
       document.getElementById('testDriveStatus').value = car.testDriveStatus || 'لم يتم الاختبار';
-      document.getElementById('testDriveTester').value = car.testDriveTester || '';
+      document.getElementById('testDriveTester').value = car.testDriveTester || currentUser;
       document.getElementById('testDriveNotes').value = car.testDriveNotes || '';
 
       const isDisplayed = car.showOnDisplay === true;
@@ -627,41 +601,20 @@
         document.getElementById('displayToggleCheckbox').checked = false;
         return;
       }
-
       const isChecked = document.getElementById('displayToggleCheckbox').checked;
       const label = document.getElementById('displayStatusLabel');
       label.textContent = isChecked ? 'ON (معروضة)' : 'OFF (مخفية)';
       label.style.color = isChecked ? 'var(--btn-green)' : 'var(--danger-red)';
 
-      const subCatName = document.getElementById('detailSubCategory').value;
-      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
-      const clientName = document.getElementById('detailClientName').value || (car ? car.name : '');
-      const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
-
       try {
         await db.collection('cars').doc(currentSelectedCarId).set({
-          showOnDisplay: isChecked,
-          mechanicSubCategory: subCatName
-        }, { merge: true });
-
-        await db.collection('technicians').doc('mechanic_dept').set({
-          name: 'قسم الميكانيكا',
-          department: 'mechanics',
-          currentCar: isChecked ? `${car ? car.brand : ''} ${car ? car.model : ''}`.trim() || 'سيارة صيانة' : 'لا يوجد',
-          clientName: clientName,
-          carPlate: carPlate,
-          status: isChecked ? 'BUSY' : 'AVAILABLE',
           showOnDisplay: isChecked
         }, { merge: true });
-
-      } catch (err) {
-        console.error("خطأ في تحديث حالة الشاشة:", err);
-      }
+      } catch (err) { console.error("خطأ:", err); }
     }
 
     function openInventoryDropdown() {
-      const dropdownBox = document.getElementById('inventoryDropdownList');
-      dropdownBox.style.display = 'block';
+      document.getElementById('inventoryDropdownList').style.display = 'block';
       filterInventoryList();
     }
 
@@ -671,48 +624,30 @@
       dropdownBox.style.display = 'block';
 
       const matches = inventoryProducts.filter(item => {
-        const nameMatch = item.name && item.name.toLowerCase().includes(keyword);
-        const partNoMatch = item.partNo && item.partNo.toLowerCase().includes(keyword);
-        const categoryMatch = item.category && item.category.toLowerCase().includes(keyword);
-        return nameMatch || partNoMatch || categoryMatch;
+        return (item.name && item.name.toLowerCase().includes(keyword)) || (item.partNo && item.partNo.toLowerCase().includes(keyword));
       });
 
       if (matches.length === 0) {
-        dropdownBox.innerHTML = `<div class="inventory-option-item" style="color:#64748b; justify-content:center;">لا توجد أصناف مطابقة في المخزن</div>`;
+        dropdownBox.innerHTML = `<div class="inventory-option-item" style="color:#64748b; justify-content:center;">لا توجد أصناف مطابقة</div>`;
         return;
       }
 
       dropdownBox.innerHTML = '';
       matches.forEach(item => {
-        const qty = item.qty !== undefined ? item.qty : (item.quantity !== undefined ? item.quantity : 0);
-        const qtyColor = qty > 0 ? 'var(--btn-green)' : 'var(--danger-red)';
-        const itemName = item.name || item.partName || item.title || item.section || 'قطعة غير مسماة';
+        const qty = item.qty !== undefined ? item.qty : 0;
+        const itemName = item.name || 'قطعة';
         dropdownBox.innerHTML += `
           <div class="inventory-option-item" onclick='selectInventoryProduct(${JSON.stringify(itemName)}, ${qty})'>
-            <div>
-              <b>${itemName}</b> 
-              <div style="font-size:0.75rem; color:#64748b;">رقم القطعة: ${item.partNo || 'غير متوفر'} | القسم: ${item.category || item.section || 'عام'}</div>
-            </div>
-            <span style="color:${qtyColor}; font-weight:bold; font-size:0.78rem;">المتوفر: ${qty}</span>
+            <div><b>${itemName}</b></div>
+            <span style="color:${qty > 0 ? 'var(--btn-green)' : 'var(--danger-red)'};">المتوفر: ${qty}</span>
           </div>
         `;
       });
     }
 
     function selectInventoryProduct(productName, availableQty) {
-      const existingIndex = currentRequiredParts.findIndex(p => p.name === productName);
-      if (existingIndex > -1) {
-        alert("⚠️ هذا الصنف مضاف مسبقاً لقائمة القطع المطلوبة.");
-        return;
-      }
-
-      currentRequiredParts.push({
-        name: productName,
-        source: 'مخزن المركز (Inventory)',
-        availableQty: availableQty,
-        quantityNeeded: 1
-      });
-
+      if (currentRequiredParts.some(p => p.name === productName)) { alert("⚠️ مضاف مسبقاً."); return; }
+      currentRequiredParts.push({ name: productName, availableQty: availableQty, quantityNeeded: 1 });
       document.getElementById('inventorySearchInput').value = '';
       document.getElementById('inventoryDropdownList').style.display = 'none';
       renderRequiredPartsList();
@@ -721,66 +656,35 @@
     async function sendMissingPartToInventory() {
       const missingInput = document.getElementById('missingPartInput');
       const partName = missingInput.value.trim();
-      if (!partName) {
-        alert("الرجاء كتابة اسم الصنف غير الموجود أولاً.");
-        return;
-      }
-
-      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
-      const carInfo = car ? `${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || 'بدون'})` : 'سيارة ورشة';
-
+      if (!partName) return;
       try {
         await db.collection('missingPartsRequests').add({
           partName: partName,
-          requestedByDepartment: 'قسم الميكانيكا',
-          carInfo: carInfo,
-          carId: currentSelectedCarId || '',
+          requestedByDepartment: 'قسم الميكانيكا والريداتير',
+          requestedByTechnician: currentUser,
           status: 'pending',
           createdAt: new Date().toISOString()
         });
-
-        currentRequiredParts.push({
-          name: partName + ' (غير موجود بالمخزن - طلب توريد)',
-          source: 'طلب خارجي للمخزن',
-          availableQty: 0,
-          quantityNeeded: 1
-        });
-
+        currentRequiredParts.push({ name: partName + ' (طلب توريد)', availableQty: 0, quantityNeeded: 1 });
         missingInput.value = '';
         renderRequiredPartsList();
-        alert("✅ تم إرسال طلب الصنف غير الموجود إلى المخزن بنجاح!");
-      } catch (err) {
-        alert("خطأ أثناء إرسال الصنف: " + err.message);
-      }
+        alert("✅ تم إرسال طلب الصنف للمخزن بنجاح!");
+      } catch (err) { alert("خطأ: " + err.message); }
     }
 
-    function removeRequiredPart(index) {
-      currentRequiredParts.splice(index, 1);
-      renderRequiredPartsList();
-    }
-
-    function updatePartQuantity(index, val) {
-      currentRequiredParts[index].quantityNeeded = parseInt(val) || 1;
-    }
+    function removeRequiredPart(index) { currentRequiredParts.splice(index, 1); renderRequiredPartsList(); }
+    function updatePartQuantity(index, val) { currentRequiredParts[index].quantityNeeded = parseInt(val) || 1; }
 
     function renderRequiredPartsList() {
       const container = document.getElementById('selectedPartsContainer');
       container.innerHTML = '';
-
-      if (currentRequiredParts.length === 0) {
-        container.innerHTML = `<small style="color:#64748b;">لم يتم اختيار قطع غيار بعد.</small>`;
-        return;
-      }
-
+      if (currentRequiredParts.length === 0) { container.innerHTML = `<small style="color:#64748b;">لم يتم اختيار قطع غيار بعد.</small>`; return; }
       currentRequiredParts.forEach((p, idx) => {
         container.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:var(--input-bg); padding:6px 10px; border-radius:6px; border:1px solid var(--border-color); font-size:0.80rem; gap:10px;">
-            <div style="flex:1;">
-              <b>${p.name}</b>
-            </div>
+            <div><b>${p.name}</b></div>
             <div style="display:flex; align-items:center; gap:6px;">
-              <label style="font-size:0.75rem;">الكمية المطلوبة:</label>
-              <input type="number" min="1" value="${p.quantityNeeded || 1}" style="width: 60px; padding: 3px 6px; font-size: 0.8rem; text-align: center;" onchange="updatePartQuantity(${idx}, this.value)">
+              <input type="number" min="1" value="${p.quantityNeeded || 1}" style="width: 50px; text-align:center;" onchange="updatePartQuantity(${idx}, this.value)">
               <button type="button" onclick="removeRequiredPart(${idx})" style="background:none; border:none; color:red; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
@@ -790,17 +694,12 @@
 
     function triggerCameraCapture() {
       const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment';
+      input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
       input.onchange = e => {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(uploadEvent) {
-            currentCarAttachments.push(uploadEvent.target.result);
-            renderAttachmentsPreview();
-          };
+          reader.onload = function(uploadEvent) { currentCarAttachments.push(uploadEvent.target.result); renderAttachmentsPreview(); };
           reader.readAsDataURL(file);
         }
       };
@@ -811,10 +710,7 @@
       if (input.files) {
         Array.from(input.files).forEach(file => {
           const reader = new FileReader();
-          reader.onload = function(e) {
-            currentCarAttachments.push(e.target.result);
-            renderAttachmentsPreview();
-          };
+          reader.onload = function(e) { currentCarAttachments.push(e.target.result); renderAttachmentsPreview(); };
           reader.readAsDataURL(file);
         });
       }
@@ -824,246 +720,167 @@
       const container = document.getElementById('attachmentsPreviewContainer');
       container.innerHTML = '';
       currentCarAttachments.forEach((att, index) => {
-        container.innerHTML += `
-          <div style="position:relative;">
-            <img src="${att}" class="attachment-thumb">
-            <button type="button" onclick="removeAttachment(${index})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer;">×</button>
-          </div>
-        `;
+        container.innerHTML += `<div style="position:relative;"><img src="${att}" class="attachment-thumb"><button type="button" onclick="removeAttachment(${index})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer;">×</button></div>`;
       });
     }
 
-    function removeAttachment(index) {
-      currentCarAttachments.splice(index, 1);
-      renderAttachmentsPreview();
-    }
+    function removeAttachment(index) { currentCarAttachments.splice(index, 1); renderAttachmentsPreview(); }
 
     async function saveMechanicWorkData() {
-      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
       const subCat = document.getElementById('detailSubCategory').value;
       const itemStatus = document.getElementById('detailItemStatus').value;
       const techNotes = document.getElementById('detailTechNotes').value;
-      const diagNotes = document.getElementById('detailDiagnosisNotes').value;
       const isDisplayed = document.getElementById('displayToggleCheckbox').checked;
+      const testerName = document.getElementById('testDriveTester').value || currentUser;
 
-      const testDriveStatus = document.getElementById('testDriveStatus').value;
-      const testDriveTester = document.getElementById('testDriveTester').value;
-      const testDriveNotes = document.getElementById('testDriveNotes').value;
+      const historyEntry = {
+        date: new Date().toLocaleString('ar-EG'),
+        subCategory: subCat,
+        technician: currentUser,
+        diagnosisNotes: document.getElementById('detailDiagnosisNotes').value,
+        techNotes: techNotes,
+        status: itemStatus
+      };
 
       try {
         await db.collection('cars').doc(currentSelectedCarId).set({
           mechanicSubCategory: subCat,
           mechanicItemStatus: itemStatus,
           mechanicTechNotes: techNotes,
+          assignedTechnician: currentUser,
           requiredPartsList: currentRequiredParts,
           attachments: currentCarAttachments,
           showOnDisplay: isDisplayed,
-          testDriveStatus: testDriveStatus,
-          testDriveTester: testDriveTester,
-          testDriveNotes: testDriveNotes
+          testDriveStatus: document.getElementById('testDriveStatus').value,
+          testDriveTester: testerName,
+          testDriveNotes: document.getElementById('testDriveNotes').value
         }, { merge: true });
 
+        // حفظ في السجل الفرعي للسيارة
         await db.collection('cars').doc(currentSelectedCarId).collection('mechanic_history').add({
-          date: new Date().toISOString().split('T')[0],
-          subCategory: subCat,
-          status: itemStatus,
-          diagnosisNotes: diagNotes,
-          techNotes: techNotes,
-          testDriveStatus: testDriveStatus,
+          ...historyEntry,
           timestamp: new Date().toISOString()
         });
 
-        alert("✅ تم حفظ تحديثات قسم الميكانيكا واختبار السيارة بنجاح!");
+        alert("✅ تم حفظ التحديثات وتسجيل الفني بنجاح!");
         loadMechanicHistory(currentSelectedCarId);
-      } catch (err) {
-        alert("خطأ أثناء الحفظ: " + err.message);
-      }
+      } catch (err) { alert("خطأ: " + err.message); }
     }
 
-    // دالة مرنة تتولى الإرسال للتشخيص أو الاستكمال بناءً على حالة السيارة وحالة التعليق
     async function handleApprovalOrResumeAction() {
-      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
       const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
       const currentStatus = car ? car.status : '';
 
-      // إذا كانت السيارة معلقة، فإن الضغط على "استكمال التعليق" يلغي التعليق ويعيد الحالة للعمل العادي
-      if (currentStatus === 'PENDING_APPROVAL' || currentStatus === 'WAITING_FOR_PARTS') {
-        if (confirm("هل تريد استكمال التعليق (تم وصول القطع) وإعادة تفعيل السيارة للعمل؟")) {
-          try {
-            await db.collection('cars').doc(currentSelectedCarId).set({
-              status: 'IN_PROGRESS',
-              statusLabel: 'قيد العمل (بعد استكمال التعليق)',
-              mechanicItemStatus: 'قيد العمل',
-              showOnDisplay: true 
-            }, { merge: true });
-
-            document.getElementById('displayToggleCheckbox').checked = true;
-            document.getElementById('displayStatusLabel').textContent = 'ON (معروضة)';
-            document.getElementById('displayStatusLabel').style.color = 'var(--btn-green)';
-            document.getElementById('detailItemStatus').value = 'قيد العمل';
-
-            updateApprovalButtonState({ status: 'IN_PROGRESS' });
-            alert("🚀 تم استكمال العمل وإلغاء التعليق وتفعيل عرض السيارة على الشاشة بنجاح.");
-            renderCarsList();
-          } catch (err) {
-            alert("خطأ أثناء استكمال التعليق: " + err.message);
-          }
+      if (currentStatus === 'PENDING_APPROVAL' || currentStatus === 'WAITING_FOR_PARTS' || currentStatus === 'SUSPENDED') {
+        if (confirm("استكمال التعليق (تم وصول القطع) وإعادة التفعيل؟")) {
+          await db.collection('cars').doc(currentSelectedCarId).set({
+            status: 'IN_PROGRESS',
+            statusLabel: 'قيد العمل',
+            mechanicItemStatus: 'قيد العمل',
+            showOnDisplay: true
+          }, { merge: true });
+          document.getElementById('displayToggleCheckbox').checked = true;
+          document.getElementById('displayStatusLabel').textContent = 'ON (معروضة)';
+          document.getElementById('displayStatusLabel').style.color = 'var(--btn-green)';
+          alert("🚀 تم استكمال العمل وإلغاء التعليق.");
         }
         return;
       }
 
-      // وإلا، يتم إرسال طلب الموافقة وصرف القطع وتحويل الكارت إلى اللون البرتقالي مع ظهور ختم معلق
-      if (currentRequiredParts.length === 0) {
-        if (!confirm("⚠️ لم يتم اختيار قطع غيار. هل تريد إرسال تقرير التشخيص للموافقة على أي حال؟")) {
-          return;
-        }
-      }
-
-      const note = prompt("أدخل ملاحظات إضافية لطلب اعتماد الموافقة وصرف القطع (اختياري):") || "طلب موافقة صرف قطع غيار ميكانيكا";
-      
-      const clientName = document.getElementById('detailClientName').value || (car ? car.name : '');
-      const clientPhone = document.getElementById('detailClientPhone').value || (car ? (car.phone || car.clientPhone) : '');
-      const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
-      const carDetails = document.getElementById('detailCarInfo').value || (car ? `${car.brand || ''} ${car.model || ''}`.trim() : '');
-      const serialNo = document.getElementById('detailSerialNo').value || (car ? (car.serialNo || car.serialNumber) : '');
-      const departmentName = document.getElementById('detailSubCategory').value;
-      
-      const customerComplaint = document.getElementById('detailCustomerComplaint').value || '';
-      const technicianReport = document.getElementById('detailTechNotes').value || 'لا توجد ملاحظات للفني';
-      const engineerReport = document.getElementById('detailDiagnosisNotes').value || 'لا يوجد تقرير مهندس مسجل';
-
-      let partsString = currentRequiredParts.map(p => `- ${p.name} (الكمية المطلوبة: ${p.quantityNeeded || 1})`).join('\n');
-
+      const note = prompt("ملاحظات طلب الاعتماد وصرف القطع:") || "طلب موافقة صرف قطع";
       try {
         await db.collection('cars').doc(currentSelectedCarId).set({
           status: 'PENDING_APPROVAL',
           statusLabel: 'حصول على موافقة صرف',
           suspendReason: note,
           mechanicItemStatus: 'بانتظار قطع غيار',
-          mechanicSubCategory: departmentName,
-          mechanicTechNotes: technicianReport,
-          requiredPartsList: currentRequiredParts,
-          showOnDisplay: false, 
-          approvalRequestedAt: new Date().toISOString()
+          showOnDisplay: false
         }, { merge: true });
-
-        await db.collection('partsRequests').add({
-          carId: currentSelectedCarId,
-          clientName: clientName,
-          clientPhone: clientPhone,
-          carPlate: carPlate,
-          carDetails: carDetails,
-          serialNo: serialNo,
-          departmentName: departmentName,
-          customerComplaint: customerComplaint,
-          technicianReport: technicianReport,
-          engineerReport: engineerReport,
-          requestedParts: partsString || note,
-          requiredPartsList: currentRequiredParts,
-          status: 'pending_diagnosis',
-          createdAt: new Date().toISOString()
-        });
 
         document.getElementById('detailItemStatus').value = 'بانتظار قطع غيار';
         document.getElementById('displayToggleCheckbox').checked = false;
-        document.getElementById('displayStatusLabel').textContent = 'OFF (مخفية)';
-        document.getElementById('displayStatusLabel').style.color = 'var(--danger-red)';
-
-        updateApprovalButtonState({ status: 'PENDING_APPROVAL' });
-
-        alert("⏳ تم إرسال طلب اعتماد وصرف قطع الغيار بنجاح، وتفعيل حالة التعليق على الكارت.");
+        alert("⏳ تم إرسال طلب اعتماد القطع وتفعيل التعليق.");
         renderCarsList();
-      } catch (err) {
-        alert("خطأ أثناء إرسال طلب الموافقة: " + err.message);
-      }
+      } catch (err) { alert("خطأ: " + err.message); }
+    }
+
+    async function sendInspectionCallMessage() {
+      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
+      const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
+      const clientName = document.getElementById('detailClientName').value || (car ? car.name : 'العميل');
+      const carPlate = document.getElementById('carPlate').value || (car ? car.plate : '');
+      const departmentName = document.getElementById('detailSubCategory').value;
+
+      try {
+        await db.collection('diagnosisMessages').add({
+          type: 'INSPECTION_CALL',
+          carId: currentSelectedCarId,
+          clientName: clientName,
+          carPlate: carPlate,
+          departmentName: departmentName,
+          technicianName: currentUser,
+          messageText: `نداء من الفني (${currentUser}): يرجى حضور المهندس/التشخيص لقسم (${departmentName}) لمعاينة الفحص والتصليح للسيارة ${clientName} (${carPlate}).`,
+          timestamp: new Date().toISOString(),
+          read: false
+        });
+        alert("🔔 تم إرسال تنبيه نداء التشخيص لمراجعة التصليح بنجاح!");
+      } catch (err) { alert("خطأ في إرسال النداء: " + err.message); }
     }
 
     function sendDetailedWhatsAppReport() {
-      if (!currentSelectedCarId) { alert("يرجى اختيار سيارة أولاً!"); return; }
-
+      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
       const car = allMechanicCars.find(c => c.id === currentSelectedCarId);
       if (!car) return;
-
-      const clientName = car.name || 'العميل';
-      const phone = car.phone || car.clientPhone || '';
-      const serialNo = car.serialNo || car.serialNumber || 'غير متوفر';
-      const carInfo = `${car.brand || ''} ${car.model || ''} (${car.plate || ''})`;
-      const departmentName = document.getElementById('detailSubCategory').value || 'عام';
-      const complaintText = document.getElementById('detailCustomerComplaint').value || 'لا توجد شكوى';
-      const diagNotes = document.getElementById('detailDiagnosisNotes').value || 'لا توجد ملاحظات';
-      const techNotes = document.getElementById('detailTechNotes').value || 'لا توجد ملاحظات';
-      
-      const testStatus = document.getElementById('testDriveStatus').value;
-      const testNotes = document.getElementById('testDriveNotes').value;
-      
-      let partsText = 'لا توجد قطع مطلوبة';
-      if (currentRequiredParts.length > 0) {
-        partsText = currentRequiredParts.map(p => `- ${p.name} (الكمية: ${p.quantityNeeded || 1})`).join('\n');
-      }
-
-      const message = `*مركز أوتو نون (NON) - تقرير الميكانيكا واختبار السيارة*\n\n` +
-                      `👤 العميل: ${clientName}\n` +
-                      `📞 الهاتف: ${phone}\n` +
-                      `🔢 السيريال نمبر: ${serialNo}\n` +
-                      `🚗 السيارة: ${carInfo}\n` +
-                      `🏷️ القسم: ${departmentName}\n\n` +
-                      `⚠️ *شكوى العميل:*\n${complaintText}\n\n` +
-                      `🔍 *تقرير المهندس:*\n${diagNotes}\n\n` +
-                      `🛠️ *تقرير الفني:*\n${techNotes}\n\n` +
-                      `📦 *قطع الغيار المطلوبة:*\n${partsText}\n\n` +
-                      `🏁 *اختبار السيارة بعد التصليح:*\n- الحالة: ${testStatus}\n- ملاحظات الاختبار: ${testNotes || 'لا توجد'}\n\n` +
-                      `نشكر ثقتكم بمركز أوتو نون.`;
-
-      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
+      const msg = `*مركز أوتو نون (NON) - تقرير الميكانيكا*\n- العميل: ${car.name}\n- السيارة: ${car.brand} ${car.model}\n- الفني المسؤول: ${currentUser}\n- تقرير الفني: ${document.getElementById('detailTechNotes').value}`;
+      window.open(`https://wa.me/${car.phone || car.clientPhone || ''}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     async function loadMechanicHistory(carId) {
       const tbody = document.getElementById('mechanicHistoryTbody');
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">جاري تحميل السجل...</td></tr>`;
-
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>`;
       try {
         const snap = await db.collection('cars').doc(carId).collection('mechanic_history').orderBy('timestamp', 'desc').get();
-        if (snap.empty) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد سجلات سابقة.</td></tr>`;
-          return;
-        }
-
+        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد سجلات.</td></tr>`; return; }
         tbody.innerHTML = '';
         snap.forEach(doc => {
           const h = doc.data();
-          tbody.innerHTML += `
-            <tr>
-              <td>${h.date || '-'}</td>
-              <td><b>${h.subCategory || '-'}</b></td>
-              <td>${h.diagnosisNotes || '-'}</td>
-              <td>${h.techNotes || '-'}</td>
-              <td><span style="font-weight:bold; color:${h.status === 'تم الانتهاء' ? '#10b981' : '#f59e0b'};">${h.status}</span></td>
-            </tr>
-          `;
+          tbody.innerHTML += `<tr><td>${h.date || '-'}</td><td><b>${h.subCategory || '-'}</b></td><td>${h.technician || 'غير محدد'}</td><td>${h.diagnosisNotes || '-'}</td><td>${h.techNotes || '-'}</td><td>${h.status}</td></tr>`;
         });
-      } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ في تحميل السجل</td></tr>`;
-      }
+      } catch (e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">خطأ في التحميل</td></tr>`; }
     }
 
-    async function completeMechanicJob() {
-      if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
+    async function completeAndSendToTreasury() {
+      if (!currentSelectedCarId) { alert("الرجاء اختيار سيارة أولاً!"); return; }
 
-      if (confirm("هل أنت متأكد من إنهاء كافة أعمال الميكانيكا واختبار السيارة بنجاح؟")) {
+      const laborCostInput = prompt("أدخل إجمالي تكلفة المصنعية المطلوبة للحسابات (ج.م):", "0");
+      if (laborCostInput === null) return;
+      const laborCost = parseFloat(laborCostInput) || 0;
+
+      if (confirm("هل أنت متأكد من إنهاء الأعمال وتوجيه العميل إلى قسم الحسابات والخزنة للدفع؟")) {
         try {
-          await db.collection('cars').doc(currentSelectedCarId).update({
-            mechanicItemStatus: 'تم الانتهاء',
-            status: 'MECH_DONE',
-            statusLabel: 'تم إنهاء الميكانيكا والاختبار',
-            showOnDisplay: false
-          });
-          alert("🎉 تم إتمام العمل وتسجيل الحالة بنجاح!");
+          await db.collection('cars').doc(currentSelectedCarId).set({
+            status: 'SENT_TO_TREASURY',
+            statusLabel: 'متوجه للحسابات للدفع 🟣',
+            mechanicItemStatus: 'متوجه للحسابات للدفع',
+            laborCost: laborCost,
+            completedByTechnician: currentUser,
+            showOnDisplay: true,
+            isSuspended: true,
+            suspendReason: 'متوجه للحسابات للدفع',
+            treasurySentAt: new Date().toISOString()
+          }, { merge: true });
+
+          document.getElementById('detailItemStatus').value = 'متوجه للحسابات للدفع';
+          document.getElementById('displayToggleCheckbox').checked = true;
+          document.getElementById('displayStatusLabel').textContent = 'ON (معروضة - الحسابات)';
+          document.getElementById('displayStatusLabel').style.color = 'var(--treasury-purple)';
+
+          alert("🟣 تم توجيه العميل والسيارة إلى قسم الحسابات بنجاح بواسطة الفني (" + currentUser + ")!");
           renderCarsList();
         } catch (err) {
-          alert("خطأ: " + err.message);
+          alert("حدث خطأ أثناء التوجيه للحسابات: " + err.message);
         }
       }
     }
