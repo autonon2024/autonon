@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - الحسابات والخزنة وإدارة التسليم</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --text-main: #0f172a;
+      --border-color: #e2e8f0;
+      --input-bg: #ffffff;
+      --btn-green: #10b981;
+      --danger-red: #dc2626;
+      --btn-blue: #0284c7;
+      --btn-purple: #9333ea;
+      --gold-vip: #d97706;
+    }
+
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.2s ease; }
+    
+    html, body {
+      direction: rtl !important;
+      text-align: right !important;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 12px;
+      font-size: 0.92rem;
+    }
+
+    .header-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-orange);
+    }
+
+    .center-nav { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .btn-nav {
+      background: linear-gradient(135deg, #ea580c, #c2410c);
+      color: white; padding: 7px 12px; border-radius: 20px;
+      font-weight: bold; font-size: 0.8rem; text-decoration: none;
+      display: flex; align-items: center; gap: 5px; border:none; cursor:pointer;
+    }
+    .btn-nav-sec {
+      background: var(--btn-green); color: white;
+      padding: 7px 12px; border-radius: 20px;
+      font-weight: bold; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 5px; border:none; cursor:pointer;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
+    .stat-card.orange::after { background: var(--primary-orange); }
+    .stat-card.green::after { background: var(--btn-green); }
+    .stat-card.red::after { background: var(--danger-red); }
+    .stat-card.blue::after { background: var(--btn-blue); }
+
+    .stat-title { font-size: 0.75rem; opacity: 0.8; font-weight: bold; margin-bottom: 4px; }
+    .stat-value { font-size: 1rem; font-weight: bold; color: var(--text-main); }
+
+    .main-layout { display: grid; grid-template-columns: 380px 1fr; gap: 14px; }
+    @media (max-width: 1000px) { .main-layout { grid-template-columns: 1fr; } }
+
+    .card-box {
+      background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border-color);
+      padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); text-align: right;
+    }
+    .card-title {
+      color: var(--primary-orange); font-size: 1rem; font-weight: bold; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .form-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; text-align: right; }
+    .form-field label { font-size: 0.8rem; font-weight: bold; }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); background: var(--input-bg);
+      border-radius: 7px; font-size: 0.85rem; color: var(--text-main); outline: none; text-align: right;
+    }
+
+    .btn-action-sm { padding: 6px 10px; border-radius: 7px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
+    .btn-primary { background: var(--primary-orange); color: white; }
+    .btn-success { background: var(--btn-green); color: white; }
+    .btn-danger { background: var(--danger-red); color: white; }
+    .btn-blue { background: var(--btn-blue); color: white; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.82rem; direction: rtl; text-align: right; }
+    th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 8px; text-align: right; font-weight: bold; }
+    td { padding: 8px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: right; }
+
+    .badge-treasury { background: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; border: 1px solid #f59e0b; }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <div class="header-top-bar">
+    <div class="brand-logo">
+      <i class="fa-solid fa-cash-register"></i>
+      <span>مركز أوتو نون (NON) - قسم الخزنة والحسابات وتسليم السيارات</span>
+    </div>
+    <div class="center-nav">
+      <a href="index.html" class="btn-nav"><i class="fa-solid fa-house"></i> الاستقبال</a>
+      <a href="display.html" target="_blank" class="btn-nav-sec"><i class="fa-solid fa-desktop"></i> شاشة العرض</a>
+    </div>
+    <div>
+      <button style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main); padding:7px 12px; border-radius:7px; cursor:pointer; font-weight:bold; font-size:0.8rem;" onclick="document.body.classList.toggle('dark-mode')">
+        <i class="fa-solid fa-moon"></i> المظهر
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card orange">
+      <div class="stat-title">رصيد الخزنة الفعلي</div>
+      <div class="stat-value" id="statTreasuryBalance">0 ج.م</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-title">السيارات المنتظرة للحسابات والدفع</div>
+      <div class="stat-value" id="statPendingPayCount">0 سيارة</div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    
+    <div>
+      <!-- لوحة تسجيل حركة إيداع أو سحب بالخزنة -->
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-vault"></i> تسجيل حركة خزنة (إيداع/سحب)</span></div>
+        <form onsubmit="saveTreasuryTransaction(event)">
+          <div class="form-field">
+            <label>نوع الحركة:</label>
+            <select id="tresType" required>
+              <option value="إيداع">🟢 إيداع نقدي بالخزنة</option>
+              <option value="سحب">🔴 سحب نقدي من الخزنة</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>طريقة الدفع:</label>
+            <select id="tresPayMethod">
+              <option value="كاش">💵 كاش</option>
+              <option value="انستا باى">📱 إنستا باي</option>
+              <option value="فودافون كاش">💳 فودافون كاش</option>
+              <option value="تحويل بنكي / فيزا">🏦 تحويل بنكي / فيزا</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>المبلغ (ج.م):</label>
+            <input type="number" id="tresAmount" required step="any" placeholder="0.00">
+          </div>
+          <div class="form-field">
+            <label>البيان / السبب:</label>
+            <input type="text" id="tresNotes" required placeholder="سبب الإيداع أو السحب...">
+          </div>
+          <button type="submit" class="btn-action-sm btn-success" style="width:100%; padding:10px;">حفظ بالخزنة</button>
+        </form>
+      </div>
+    </div>
+
+    <div>
+      <!-- جدول السيارات المنتظرة للحسابات والمحاسبة وتسليم العميل -->
+      <div class="card-box" style="border: 2px solid var(--primary-orange);">
+        <div class="card-title">
+          <span><i class="fa-solid fa-car-on"></i> السيارات الواردة من الأقسام (تنتظر الحساب والدفع والتسليم)</span>
+          <span class="badge-treasury" id="treasuryQueueBadge">0 بانتظار المحاسبة</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>الدور</th>
+                <th>اسم العميل ورقم الهاتف</th>
+                <th>السيارة ورقم اللوحة</th>
+                <th>المصنعية / الحساب المطلوب</th>
+                <th>الإجراء (تسجيل الدفع وتسليم العميل)</th>
+              </tr>
+            </thead>
+            <tbody id="treasuryCarsTbody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">جاري تحميل السيارات الواردة للحسابات...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- جدول سجل الحركات المالية للخزنة -->
+      <div class="card-box" style="margin-top: 14px;">
+        <div class="card-title">
+          <span><i class="fa-solid fa-file-invoice-dollar"></i> سجل حركات الخزنة والواردات المالية</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>البيان / الوصف</th>
+                <th>التصنيف</th>
+                <th>المبلغ وطريقة الدفع</th>
+                <th>التاريخ والملاحظات</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTbody">
+              <tr><td colspan="5" style="text-align:center;">لا توجد حركات مالية مسجلة.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXcNnF3y6QYc9Zq19630SE1NuFbdeNloM",
+      authDomain: "auto-non.firebaseapp.com",
+      projectId: "auto-non",
+      storageBucket: "auto-non.firebasestorage.app",
+      messagingSenderId: "480852907486",
+      appId: "1:480852907486:web:b931d45fa2a9d6197c794f"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initTreasuryRealtimeListeners();
+    });
+
+    function initTreasuryRealtimeListeners() {
+      // الاستماع للسيارات التي تم إرسالها من الأقسام للحسابات (حالة SENT_TO_TREASURY أو IN_TREASURY)
+      db.collection("cars").onSnapshot((snapshot) => {
+        let treasuryTbody = document.getElementById('treasuryCarsTbody');
+        treasuryTbody.innerHTML = '';
+        let pendingCount = 0;
+        let carsHtml = '';
+
+        snapshot.forEach((doc) => {
+          const car = { id: doc.id, ...doc.data() };
+          
+          // التحقق مما إذا كانت السيارة محولة للخزنة والحسابات ولم تتم محصورتها بعد
+          if (car.status === 'SENT_TO_TREASURY' || car.status === 'IN_TREASURY' || car.statusLabel?.includes('الحسابات')) {
+            pendingCount++;
+            const clientName = car.clientName || car.name || 'عميل غير محدد';
+            const phone = car.phone || car.clientPhone || 'بدون';
+            const carInfo = `${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || car.carPlate || 'بدون'})`;
+            const laborCost = parseFloat(car.laborCost) || 0;
+
+            carsHtml += `
+              <tr>
+                <td><b>#${car.queueNo || '-'}</b></td>
+                <td><strong>${clientName}</strong><br><small style="color:#64748b;">${phone}</small></td>
+                <td>${carInfo}</td>
+                <td><strong style="color:var(--primary-orange); font-size:0.95rem;">${laborCost} ج.م</strong></td>
+                <td>
+                  <button class="btn-action-sm btn-success" onclick="payAndDeliverCar('${car.id}', '${clientName}', ${laborCost})">
+                    <i class="fa-solid fa-circle-check"></i> دفع وتسليم العميل (إزالة من الشاشة)
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+        });
+
+        if (pendingCount === 0) {
+          treasuryTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:15px;">لا توجد سيارات منتظرة للحسابات والدفع حالياً.</td></tr>`;
+        } else {
+          treasuryTbody.innerHTML = carsHtml;
+        }
+
+        document.getElementById('statPendingPayCount').innerText = `${pendingCount} سيارة`;
+        document.getElementById('treasuryQueueBadge').innerText = `${pendingCount} بانتظار المحاسبة`;
+      });
+
+      // الاستماع للحركات المالية والخزنة
+      db.collection("accounts_log").onSnapshot((snapshot) => {
+        let accountsTbody = document.getElementById('accountsTbody');
+        accountsTbody.innerHTML = '';
+        let tresBalance = 0;
+        let accountsHtml = '';
+
+        snapshot.forEach((doc) => {
+          const acc = { id: doc.id, ...doc.data() };
+          tresBalance += (acc.amount || 0);
+
+          accountsHtml += `
+            <tr>
+              <td style="font-weight:bold;">${acc.name}</td>
+              <td><span style="color:var(--primary-orange);">${acc.category || 'حركة خزنة'}</span></td>
+              <td style="font-weight:bold; color:${acc.amount >= 0 ? 'var(--btn-green)' : 'var(--danger-red)'};">${acc.amount} ج.م (${acc.payMethod || 'كاش'})</td>
+              <td>${acc.notes || '---'} (${acc.dateStr || ''})</td>
+              <td><button class="btn-action-sm btn-danger" style="padding:2px 5px;" onclick="deleteAccountLog('${acc.id}')"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+          `;
+        });
+
+        if (accountsHtml === '') {
+          accountsTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد حركات مالية مسجلة.</td></tr>`;
+        } else {
+          accountsTbody.innerHTML = accountsHtml;
+        }
+
+        document.getElementById('statTreasuryBalance').innerText = tresBalance.toLocaleString() + " ج.م";
+      });
+    }
+
+    // دالة الدفع وتسليم العميل: تسجل المبلغ بالخزنة، وتزيل السيارة من شاشة العرض (showOnDisplay: false) وتغلق الطلب (COMPLETED)
+    async function payAndDeliverCar(docId, clientName, amount) {
+      const payMethod = prompt("اختر طريقة السداد (كاش / انستا باى / فودافون كاش / فيزا):", "كاش");
+      if (!payMethod) return;
+
+      try {
+        // 1. تسجيل الإيراد بالخزنة والحسابات
+        await db.collection("accounts_log").add({
+          name: `إيراد صيانة وتسليم عميل (${clientName})`,
+          category: 'إيراد صيانة مركز',
+          amount: amount,
+          payMethod: payMethod,
+          notes: 'تم الدفع والاستلام نهائياً',
+          dateStr: new Date().toISOString().split('T')[0],
+          createdAt: Date.now()
+        });
+
+        // 2. تحديث حالة السيارة لإغلاقها نهائياً وإزالتها من شاشة العرض عبر تعيين showOnDisplay إلى false
+        await db.collection("cars").doc(docId).update({
+          status: 'COMPLETED',
+          statusLabel: 'تم الدفع والاستلام',
+          showOnDisplay: false,
+          clientStatus: 'OFF',
+          paidAmount: amount,
+          paymentMethod: payMethod,
+          deliveredAt: new Date().toISOString()
+        });
+
+        alert(`✅ تم إتمام عملية الدفع بنجاح وتحديث الخزنة، وإزالة السيارة نهائياً من شاشة العرض (Display)!`);
+      } catch (err) {
+        alert("حدث خطأ أثناء إتمام عملية الدفع: " + err.message);
+      }
+    }
+
+    async function saveTreasuryTransaction(e) {
+      e.preventDefault();
+      const type = document.getElementById('tresType').value;
+      const payMethod = document.getElementById('tresPayMethod').value;
+      const amount = parseFloat(document.getElementById('tresAmount').value) || 0;
+      const notes = document.getElementById('tresNotes').value.trim();
+
+      if (amount <= 0) {
+        alert("أدخل مبلغاً صحيحاً!");
+        return;
+      }
+
+      try {
+        await db.collection("accounts_log").add({
+          name: `حركة خزنة (${type})`,
+          category: type === 'إيداع' ? 'إيداع خزنة' : 'سحب خزنة',
+          amount: type === 'إيداع' ? amount : -amount,
+          payMethod,
+          notes,
+          dateStr: new Date().toISOString().split('T')[0],
+          createdAt: Date.now()
+        });
+        alert("تم حفظ حركة الخزنة بنجاح!");
+        e.target.reset();
+      } catch (err) {
+        alert("خطأ في حفظ الحركة: " + err.message);
+      }
+    }
+
+    async function deleteAccountLog(id) {
+      if (confirm("هل تريد حذف هذا السجل المالي نهائياً؟")) {
+        try {
+          await db.collection("accounts_log").doc(id).delete();
+          alert("تم الحذف بنجاح.");
+        } catch (err) {
+          alert("خطأ في الحذف: " + err.message);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
