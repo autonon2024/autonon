@@ -1,0 +1,3765 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - قسم الحسابات والخزينة</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --text-main: #0f172a;
+      --border-color: #e2e8f0;
+      --input-bg: #ffffff;
+      --btn-blue: #0284c7;
+      --btn-green: #10b981;
+      --danger-red: #dc2626;
+      --treasury-purple: #9333ea;
+    }
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { direction: rtl !important; text-align: right !important; background-color: var(--bg-color); color: var(--text-main); padding: 15px; font-size: 0.9rem; transition: background 0.3s, color 0.3s; }
+    
+    /* إزالة الأسهم من حقول الأرقام */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center; background: var(--card-bg);
+      padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 15px; flex-wrap: wrap; gap: 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: bold; color: var(--primary-orange); }
+    .brand img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-orange); }
+    
+    .main-grid { display: grid; grid-template-columns: 350px 1fr; gap: 15px; }
+    @media(max-width: 950px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card-box { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px; }
+    .card-title { color: var(--treasury-purple); font-size: 1rem; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    .financial-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+    .stat-mini-card { background: rgba(147, 51, 234, 0.04); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; text-align: center; cursor: pointer; }
+    .stat-mini-card span { display: block; font-size: 0.75rem; color: #64748b; font-weight: bold; }
+    .stat-mini-card strong { font-size: 0.95rem; color: var(--treasury-purple); }
+
+    .queue-item {
+      padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; cursor: pointer; background: var(--input-bg);
+      transition: all 0.2s;
+    }
+    .queue-item:hover { border-color: var(--treasury-purple); }
+    .queue-item.active { border: 2px solid var(--treasury-purple); background: rgba(147, 51, 234, 0.05); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .form-field label { font-size: 0.8rem; font-weight: bold; opacity: 0.85; }
+    .form-field input, .form-field select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); background: var(--input-bg);
+      border-radius: 6px; font-size: 0.85rem; color: var(--text-main); outline: none; text-align: right;
+    }
+    .form-field input[readonly] { background-color: rgba(100, 116, 139, 0.08); cursor: not-allowed; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.82rem; }
+    th { background: rgba(147, 51, 234, 0.1); color: var(--treasury-purple); padding: 8px; text-align: right; }
+    td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+
+    .btn-action { padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn-purple { background: var(--treasury-purple); color: white; }
+    .btn-green { background: var(--btn-green); color: white; }
+    .btn-blue { background: var(--btn-blue); color: white; }
+    .btn-danger { background: var(--danger-red); color: white; }
+    .btn-orange { background: var(--primary-orange); color: white; }
+
+    .invoice-summary-box {
+      background: rgba(147, 51, 234, 0.04);
+      border: 2px solid var(--treasury-purple);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+    .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-color); font-size: 0.9rem; }
+    .summary-row:last-child { border-bottom: none; font-weight: bold; font-size: 1.05rem; color: var(--treasury-purple); }
+
+    /* تحسينات واجهة الفاتورة */
+    #printableInvoiceArea > .card-box { margin-bottom: 5px; }
+    #printableInvoiceArea table td, #printableInvoiceArea table th { white-space: nowrap; }
+    @media (max-width: 700px) {
+      #printableInvoiceArea { padding: 8px !important; }
+      #printableInvoiceArea table { font-size: 0.68rem; }
+      #printableInvoiceArea th, #printableInvoiceArea td { padding: 4px 3px; }
+      .form-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    }
+
+    #printInvoiceHeader { display: none; }
+    .invoice-footer-notes { display: none; font-size: 0.78rem; line-height: 1.6; margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px; }
+
+    /* إعدادات الطباعة: فاتورة مضغوطة في صفحة واحدة */
+    .print-a4 #printableInvoiceArea, .print-a5 #printableInvoiceArea {
+      background:#fff !important; color:#000 !important;
+    }
+    @page { margin: 7mm; }
+    @page { size: A4 portrait; }
+    @media print {
+      body * { visibility: hidden !important; }
+      #printableInvoiceArea, #printableInvoiceArea * { visibility: visible !important; }
+      #printableInvoiceArea {
+        position: absolute; left: 0; top: 0; width: 100%; padding: 7mm; margin: 0;
+        background:#fff !important; color:#000 !important; font-size: 9px !important;
+        border: 1px solid #000 !important; box-shadow:none !important;
+      }
+      .no-print { display: none !important; }
+      #printInvoiceHeader { display: block !important; text-align:center; margin-bottom:6px; border-bottom:1px solid #000; padding-bottom:5px; }
+      #printInvoiceHeader h2 { font-size:15px !important; margin:0 0 2px !important; }
+      #printInvoiceHeader p { font-size:8px !important; margin:1px 0 !important; }
+      #printInvoiceHeader > div { font-size:8px !important; margin-top:3px !important; padding-top:3px !important; }
+      #printableInvoiceArea .card-box { margin:0 0 4px !important; padding:4px !important; border:1px solid #999 !important; background:#fff !important; }
+      #printableInvoiceArea .card-box > div:first-child { margin-bottom:2px !important; font-size:9px !important; }
+      table { width:100% !important; margin-top:2px !important; border:1px solid #000 !important; font-size:8px !important; }
+      th, td { padding:2px 3px !important; border:1px solid #000 !important; color:#000 !important; line-height:1.15 !important; }
+      th { background:#eee !important; }
+      .invoice-summary-box { border:1px solid #000 !important; padding:4px !important; margin-top:4px !important; }
+      .summary-row { padding:2px 0 !important; font-size:8px !important; }
+      .summary-row:last-child { font-size:10px !important; }
+      .invoice-footer-notes { display:block !important; font-size:7px !important; line-height:1.25 !important; margin-top:5px !important; padding-top:4px !important; }
+      .invoice-footer-notes div { margin-top:8px !important; }
+    }
+  
+/* ===== تصميم الفاتورة A4 الاحترافي ===== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 7mm 8mm 8mm;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
+  body.print-a4 {
+    background: #fff !important;
+    color: #18263d !important;
+    font-family: Arial, Tahoma, sans-serif !important;
+  }
+
+  body.print-a4 #printableInvoiceArea {
+    width: 100% !important;
+    min-height: calc(297mm - 15mm) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #18263d !important;
+    display: flex !important;
+    flex-direction: column !important;
+    direction: rtl !important;
+    font-family: Arial, Tahoma, sans-serif !important;
+  }
+
+  /* رأس الفاتورة */
+  body.print-a4 #printInvoiceHeader {
+    position: relative !important;
+    margin: 0 0 8mm !important;
+    padding: 0 0 5mm !important;
+    border: 0 !important;
+    text-align: right !important;
+  }
+
+  body.print-a4 #printInvoiceHeader::before {
+    content: "فاتورة" !important;
+    display: block !important;
+    width: 58% !important;
+    margin-right: auto !important;
+    margin-left: 0 !important;
+    padding: 6mm 8mm !important;
+    background: #243653 !important;
+    color: #fff !important;
+    font-size: 28pt !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+    border-radius: 0 0 0 3px !important;
+  }
+
+  body.print-a4 #printInvoiceHeader h2 {
+    margin: -12mm 0 5mm !important;
+    padding: 0 8mm !important;
+    color: #243653 !important;
+    font-size: 19pt !important;
+    font-weight: 900 !important;
+    text-align: right !important;
+  }
+
+  body.print-a4 #printInvoiceHeader p {
+    color: #34445c !important;
+    margin: 1.5mm 0 !important;
+    font-size: 9pt !important;
+    font-weight: 500 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader p:first-of-type {
+    font-weight: 800 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader > div:first-of-type {
+    border-top: 1.5px solid #243653 !important;
+    padding-top: 3mm !important;
+    margin-top: 4mm !important;
+    color: #243653 !important;
+    font-size: 12pt !important;
+    font-weight: 900 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader > div:last-of-type {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 3mm !important;
+    margin-top: 4mm !important;
+    padding: 3mm 0 !important;
+    border-top: 1px solid #b7c1ce !important;
+    border-bottom: 1px solid #b7c1ce !important;
+    font-size: 8.5pt !important;
+    color: #243653 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader > div:last-of-type span {
+    padding: 1mm 2mm !important;
+    text-align: center !important;
+  }
+
+  /* بيانات العميل */
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 3mm !important;
+    margin: 0 0 3mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) .form-field {
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    align-items: center !important;
+    border-bottom: 1px dashed #aab5c4 !important;
+    padding: 1.5mm 0 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) label {
+    color: #243653 !important;
+    font-weight: 900 !important;
+    font-size: 8.5pt !important;
+    margin-left: 2mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) input {
+    border: 0 !important;
+    background: transparent !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    font-size: 9pt !important;
+    font-weight: 700 !important;
+    text-align: right !important;
+  }
+
+  /* العناوين الداخلية */
+  body.print-a4 #printableInvoiceArea .card-box {
+    background: #fff !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 3mm 0 !important;
+    border-radius: 0 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .card-box > div:first-child {
+    color: #243653 !important;
+    font-size: 9pt !important;
+    font-weight: 900 !important;
+    border-bottom: 1px solid #243653 !important;
+    padding: 2mm 0 !important;
+    margin-bottom: 2mm !important;
+  }
+
+  /* الجداول */
+  body.print-a4 #printableInvoiceArea table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    font-size: 8pt !important;
+    color: #111827 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea th {
+    background: #243653 !important;
+    color: #fff !important;
+    border: 1px solid #243653 !important;
+    padding: 2.5mm 1.5mm !important;
+    font-size: 8pt !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+  }
+
+  body.print-a4 #printableInvoiceArea td {
+    background: #fff !important;
+    color: #111827 !important;
+    border: 1px solid #9fb0c4 !important;
+    padding: 2.2mm 1.5mm !important;
+    font-size: 8pt !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+
+  body.print-a4 #printableInvoiceArea tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  /* جدول قطع الغيار: توزيع قريب من النموذج المرفق */
+  body.print-a4 #printableInvoiceArea #partsTableBody {
+    font-weight: 600 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea #partsTableBody tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* صندوق الملخص */
+  body.print-a4 #printableInvoiceArea .invoice-summary-box {
+    width: 62% !important;
+    margin: 4mm 0 0 auto !important;
+    padding: 3mm 4mm !important;
+    border: 1px solid #9fb0c4 !important;
+    background: #fff !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    min-height: 7mm !important;
+    padding: 1.5mm 0 !important;
+    border-bottom: 1px solid #d6dee8 !important;
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row:last-child {
+    border-bottom: 0 !important;
+    color: #243653 !important;
+    font-size: 11pt !important;
+    font-weight: 900 !important;
+  }
+
+  /* الملاحظات والتوقيعات */
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes {
+    margin-top: auto !important;
+    padding: 6mm 0 0 !important;
+    color: #243653 !important;
+    border-top: 1.5px solid #243653 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes p {
+    margin: 0 0 8mm !important;
+    font-size: 8.5pt !important;
+    line-height: 1.7 !important;
+    font-weight: 600 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes > div {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 5mm !important;
+    font-size: 9pt !important;
+    font-weight: 800 !important;
+  }
+
+  /* شريط سفلي شبيه بالنموذج */
+  body.print-a4 #printableInvoiceArea::after {
+    content: "مركز أوتو نون لصيانة السيارات   |   خدمة الصيانة وقطع الغيار   |   شكراً لتعاملكم معنا" !important;
+    display: block !important;
+    margin-top: 7mm !important;
+    padding: 4mm 5mm !important;
+    background: #243653 !important;
+    color: #fff !important;
+    text-align: center !important;
+    font-size: 8pt !important;
+    font-weight: 800 !important;
+    letter-spacing: .2px !important;
+  }
+
+  /* إخفاء كل ما هو خاص بالتشغيل فقط */
+  body.print-a4 #printableInvoiceArea .no-print,
+  body.print-a4 #originalDepartmentBox,
+  body.print-a4 #advancePaymentAlertBox {
+    display: none !important;
+  }
+}
+
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style id="print-professional-v5">
+@media print{
+  @page{size:A4 portrait;margin:7mm}
+  html,body{background:#fff!important;color:#111!important}
+  body.print-a4{font-size:9px!important}
+  body.print-a4 #printableInvoiceArea{
+    width:100%!important;
+    max-width:none!important;
+    min-height:calc(297mm - 14mm)!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    box-shadow:none!important;
+    border:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    box-sizing:border-box!important;
+  }
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes{margin-top:auto!important;}
+  body.print-a4 #printableInvoiceArea .invoice-header{padding:6px!important;margin-bottom:5px!important}
+  body.print-a4 #printableInvoiceArea .card-box{padding:5px!important;margin:3px 0!important;border-radius:5px!important}
+  body.print-a4 #printableInvoiceArea table{font-size:8px!important;border-collapse:collapse!important}
+  body.print-a4 #printableInvoiceArea th,body.print-a4 #printableInvoiceArea td{padding:3px 4px!important}
+  body.print-a4 #printableInvoiceArea .invoice-summary-box{padding:5px!important;margin-top:4px!important}
+  body.print-a4 #printableInvoiceArea .summary-row{padding:2px 0!important;min-height:0!important}
+  body.print-a4 #printableInvoiceArea .no-print{display:none!important}
+  body.print-a4 #printableInvoiceArea .print-only-empty-hide{display:none!important}
+  .professional-print{background:#fff!important;color:#111!important;font-family:Arial,sans-serif!important;direction:rtl!important}
+  .professional-print *{box-sizing:border-box}
+  .professional-print h2,.professional-print h3{margin:0 0 7px!important}
+  .professional-print .print-title{border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:8px;font-weight:900}
+  .professional-print table{width:100%;border-collapse:collapse;font-size:9px}
+  .professional-print th{background:#f1f5f9!important;font-weight:900}
+  .professional-print th,.professional-print td{border:1px solid #cbd5e1;padding:4px 5px;text-align:right}
+  .professional-print .print-total{font-weight:900;font-size:11px;border-top:2px solid #111;padding-top:6px;margin-top:7px}
+  .professional-print .print-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+  .professional-print .print-meta>div{border:1px solid #cbd5e1;padding:4px;border-radius:3px}
+}
+</style>
+
+<style id="invoice-a4-25px-final">
+@media print {
+  @page {
+    size: 210mm 297mm;
+    margin: 8mm;
+  }
+
+  body.print-a4 {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    font-size: 25px !important;
+  }
+
+  body.print-a4 #printableInvoiceArea {
+    width: 194mm !important;
+    min-height: 281mm !important;
+    max-width: 194mm !important;
+    margin: 0 auto !important;
+    padding: 10mm !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    color: #0004fc !important;
+    border: 3px solid #000 !important;
+    box-shadow: none !important;
+    font-size: 35px !important;
+    overflow: hidden !important;
+  }
+
+  body.print-a4 #printableInvoiceArea,
+  body.print-a4 #printableInvoiceArea * {
+    box-sizing: border-box !important;
+  }
+
+  body.print-a4 #printInvoiceHeader {
+    margin-bottom: 6mm !important;
+    padding-bottom: 4mm !important;
+  }
+
+  body.print-a4 #printInvoiceHeader h2 {
+    font-size: 24px !important;
+    margin-bottom: 3mm !important;
+  }
+
+  body.print-a4 #printInvoiceHeader p,
+  body.print-a4 #printInvoiceHeader > div {
+    font-size: 25px !important;
+    line-height: 1.45 !important;
+    margin: 2mm 0 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .card-box {
+    padding: 4mm !important;
+    margin: 0 0 4mm !important;
+    border: 1px solid #777 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .card-box > div:first-child {
+    font-size: 25px !important;
+    margin-bottom: 3mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea table {
+    width: 100% !important;
+    margin-top: 2mm !important;
+    font-size: 25px !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+  }
+
+  body.print-a4 #printableInvoiceArea th,
+  body.print-a4 #printableInvoiceArea td {
+    padding: 2.5mm 2mm !important;
+    font-size: 25px !important;
+    line-height: 1.25 !important;
+    border: 1px solid #000 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-summary-box {
+    padding: 4mm !important;
+    margin-top: 4mm !important;
+    border: 1.5px solid #000 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row {
+    padding: 2.5mm 0 !important;
+    font-size: 25px !important;
+    line-height: 1.35 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row:last-child {
+    font-size: 21px !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes {
+    display: block !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    margin-top: 5mm !important;
+    padding-top: 3mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes div {
+    margin-top: 8mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .no-print {
+    display: none !important;
+  }
+}
+</style>
+
+
+<style id="invoice-print-30px-final">
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 7mm;
+  }
+
+  body.print-a4 {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #df0000 !important;
+    font-size: 50px !important;
+  }
+
+  body.print-a4 #printableInvoiceArea {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: auto !important;
+    margin: 0 auto !important;
+    padding: 10mm !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    color: #000 !important;
+    border: 35px solid #000 !important;
+    box-shadow: none !important;
+    font-size: 35px !important;
+    overflow: visible !important;
+  }
+
+  body.print-a4 #printableInvoiceArea * {
+    box-sizing: border-box !important;
+  }
+
+  body.print-a4 #printInvoiceHeader {
+    display: block !important;
+    margin-bottom: 6mm !important;
+    padding-bottom: 4mm !important;
+  }
+
+  body.print-a4 #printInvoiceHeader h2 {
+    font-size: 32px !important;
+    margin: 0 0 3mm !important;
+  }
+
+  body.print-a4 #printInvoiceHeader p,
+  body.print-a4 #printInvoiceHeader > div {
+    font-size: 30px !important;
+    line-height: 1.35 !important;
+    margin: 2mm 0 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .card-box {
+    padding: 5mm !important;
+    margin: 0 0 5mm !important;
+    border: 1px solid #777 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .card-box > div:first-child {
+    font-size: 30px !important;
+    margin-bottom: 4mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea table {
+    width: 100% !important;
+    margin-top: 2mm !important;
+    font-size: 30px !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+  }
+
+  body.print-a4 #printableInvoiceArea th,
+  body.print-a4 #printableInvoiceArea td {
+    padding: 4mm 3mm !important;
+    font-size: 30px !important;
+    line-height: 1.25 !important;
+    border: 1px solid #000 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    min-height: 16mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-summary-box {
+    padding: 5mm !important;
+    margin-top: 5mm !important;
+    border: 1.5px solid #000 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row {
+    padding: 3mm 0 !important;
+    font-size: 30px !important;
+    line-height: 1.3 !important;
+    min-height: 12mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row:last-child {
+    font-size: 32px !important;
+    font-weight: 900 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea input,
+  body.print-a4 #printableInvoiceArea select {
+    font-size: 30px !important;
+    padding: 4mm 3mm !important;
+    min-height: 15mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea label {
+    font-size: 30px !important;
+    margin-bottom: 2mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes {
+    display: block !important;
+    font-size: 22px !important;
+    line-height: 1.5 !important;
+    margin-top: 6mm !important;
+    padding-top: 4mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .no-print {
+    display: none !important;
+  }
+}
+</style>
+
+
+  <style id="invoice-print-settings-style">
+    #invoicePrintSettingsModal input[type=range]{width:100%;accent-color:var(--treasury-purple);}
+    #ipsColumnControls .ips-col-row{display:grid;grid-template-columns:1fr 95px;gap:7px;align-items:center;margin-bottom:7px}
+    #ipsColumnControls .ips-col-row label{font-size:.76rem;font-weight:800}
+    #ipsColumnControls .ips-col-row input{width:95px;padding:5px;border:1px solid var(--border-color);border-radius:6px;background:var(--input-bg);color:var(--text-main);text-align:center}
+    #invoicePrintSettingsModal select{width:100%;padding:7px;border:1px solid var(--border-color);border-radius:7px;background:var(--input-bg);color:var(--text-main);font-weight:700}
+    #invoicePrintPreviewPaper .preview-invoice table{border-collapse:collapse;table-layout:fixed;width:100%}
+    #invoicePrintPreviewPaper .preview-invoice th,#invoicePrintPreviewPaper .preview-invoice td{border-style:solid;text-align:right;word-break:break-word;white-space:normal}
+    @media(max-width:900px){
+      #invoicePrintSettingsModal>div>div{grid-template-columns:1fr!important}
+      #invoicePrintSettingsModal aside{max-height:43%;border-left:0;border-bottom:1px solid var(--border-color)}
+    }
+  </style>
+</head>
+<body id="pageBody">
+
+  <div class="header-bar no-print">
+    <div class="brand">
+      <img src="NON.png" alt="Logo" onerror="this.src='non.jpg'">
+      <span>مركز أوتو نون (NON) - قسم الحسابات والخزينة</span>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <button class="btn-action btn-orange" onclick="openQuickMaintenanceModal()"><i class="fa-solid fa-bolt"></i> الصيانة السريعة</button>
+      <button class="btn-action btn-blue" onclick="openTreasuryManagementModal()"><i class="fa-solid fa-vault"></i> إدارة الخزن</button>
+      <button class="btn-action btn-green" onclick="openExpensesModal()"><i class="fa-solid fa-money-bill-wave"></i> المصاريف</button>
+      <button class="btn-action btn-purple" onclick="openWorkersModal()"><i class="fa-solid fa-users-gear"></i> العمال والأقسام</button>
+      <button class="btn-action btn-green" onclick="openClientAccountsModal()"><i class="fa-solid fa-address-book"></i> كشف العملاء</button>
+      <button class="btn-action btn-blue" onclick="openArchiveModal()"><i class="fa-solid fa-box-archive"></i> الأرشيف</button>
+      <button class="btn-action btn-purple" onclick="closeDailyRoutine()"><i class="fa-solid fa-calendar-check"></i> تقفيل اليومية</button>
+      <button class="btn-action btn-purple" onclick="toggleDarkMode()"><i class="fa-solid fa-moon" id="darkModeIcon"></i></button>
+      <span id="userBadge" style="font-weight:bold; color:var(--treasury-purple); background:rgba(147,51,234,0.1); padding:6px 12px; border-radius:8px;">
+        <i class="fa-solid fa-cash-register"></i> المحاسب: جاري التحقق...
+      </span>
+      <button class="btn-action btn-danger" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="no-print">
+      <div class="card-box">
+        <div class="card-title"><span><i class="fa-solid fa-chart-pie"></i> الملخص المالي للخزينة</span></div>
+        <div class="financial-stats-grid">
+          <div class="stat-mini-card" onclick="showStatDetails('drawer')">
+            <span>إجمالي الدرج (كاش)</span>
+            <strong id="statDrawerTotal">0</strong>
+          </div>
+          <div class="stat-mini-card" onclick="showStatDetails('transfers')">
+            <span>إجمالي التحويلات</span>
+            <strong id="statTransfersTotal">0</strong>
+          </div>
+          <div class="stat-mini-card" onclick="showStatDetails('treasury')">
+            <span>إجمالي الخزينة العام</span>
+            <strong id="statTreasuryTotal" style="color:var(--btn-green);">0</strong>
+          </div>
+          <div class="stat-mini-card" onclick="showStatDetails('deferred')">
+            <span>إجمالي الآجل (مديونيات)</span>
+            <strong id="statDeferredTotal" style="color:var(--danger-red);">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title">
+          <span><i class="fa-solid fa-file-invoice-dollar"></i> قائمة الانتظار الحسابية</span>
+          <span id="queueCountBadge" style="background:var(--treasury-purple); color:white; padding:2px 8px; border-radius:6px; font-size:0.75rem;">0</span>
+        </div>
+        <div id="accountingQueueList" style="max-height: 400px; overflow-y: auto;">
+          <small style="color:#64748b;">جاري تحميل السيارات الواردة للحسابات...</small>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div id="printableInvoiceArea" class="card-box" style="border: 2px solid var(--treasury-purple);">
+        
+        <div id="printInvoiceHeader">
+          <h2 style="margin-bottom:4px;">مركز أوتو نون لصيانة السيارات</h2>
+          <p style="font-size:0.85rem; margin-bottom:4px; font-weight:bold;">نحن نقدم خدمات صيانة متكاملة لجميع أنواع السيارات</p>
+          <p style="font-size:0.78rem; margin-bottom:6px;">العنوان: الإسكندرية - المعمورة البلد - طريق أبو قير - بجوار مسجد السادات</p>
+          <p style="font-size:0.78rem; margin-bottom:10px;">أرضي: 035685586 | تليفون: 01500288828 | للشكاوى والمقترحات 📱: 01004042250</p>
+          <div style="border-top: 1px solid #000; padding-top: 6px; font-weight: bold; font-size: 0.95rem;">
+            فاتورة حسابية من مركز أوتو نون لصيانة السيارات
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; font-size: 0.85rem;">
+            <span>رقم الفاتورة: <span id="printInvoiceSerial">---</span></span>
+            <span>تاريخ الإصدار: <span id="printInvoiceDate">---</span></span>
+            <span>مسئول الحسابات: <span id="printCashierName">---</span></span>
+          </div>
+        </div>
+
+        <div class="card-title no-print">
+          <span><i class="fa-solid fa-calculator"></i> تفاصيل الحساب والفاتورة الشاملة</span>
+          <span id="activeClientTitle" style="font-size:0.85rem; color:var(--btn-blue);">اختر عميلاً من القائمة أو صيانة سريعة</span>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field"><label>اسم العميل:</label><input type="text" id="clientName" readonly></div>
+          <div class="form-field"><label>رقم الهاتف:</label><input type="text" id="clientPhone" readonly></div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field"><label>السيارة:</label><input type="text" id="carInfo" readonly></div>
+          <div class="form-field"><label>رقم اللوحة:</label><input type="text" id="carPlate" readonly></div>
+        </div>
+
+        <!-- القسم الأصلي الذي حُولت منه السيارة إلى الحسابات -->
+        <div id="originalDepartmentBox" class="card-box no-print" style="background:rgba(2,132,199,0.06); border:2px solid var(--btn-blue); padding:10px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.8rem; color:#64748b; margin-bottom:3px;">
+                <i class="fa-solid fa-building-circle-arrow-right"></i> القسم المحول منه
+              </div>
+              <div id="originalDepartmentDisplay" style="font-size:1rem; font-weight:bold; color:var(--btn-blue);">
+                غير محدد
+              </div>
+            </div>
+            <div id="returnDepartmentHint" style="font-size:0.78rem; color:#64748b;">
+              سيتم إرجاع السيارة إلى هذا القسم عند الضغط على زر الإرجاع.
+            </div>
+          </div>
+        </div>
+
+        <div id="advancePaymentAlertBox" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--btn-green); padding: 10px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; color: var(--btn-green);">
+          <i class="fa-solid fa-circle-check"></i> <span id="advancePaymentText">تم دفع مقدم تأكيد حجز وتم إضافته لحساب العميل وخصمه من الإجمالي.</span>
+        </div>
+
+        <div class="card-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px;">
+          <div style="font-weight: bold; color: var(--primary-orange); margin-bottom: 6px; font-size: 0.85rem;">
+            <i class="fa-solid fa-boxes-stacked"></i> قطع الغيار المطلوبة وتكلفتها:
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>مسلسل</th>
+                <th>الصنف / القطعة</th>
+                <th>الكمية</th>
+                <th>سعر الوحدة</th>
+                <th>إجمالي سعر الوحدة</th>
+                <th>مُصنعية التركيب</th>
+                <th>إجمالي المصنعية</th>
+              </tr>
+            </thead>
+            <tbody id="partsTableBody">
+              <tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد قطع غيار مسجلة.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px;">
+          <div style="font-weight: bold; color: var(--primary-orange); margin-bottom: 6px; font-size: 0.85rem;">
+            <i class="fa-solid fa-bolt"></i> خدمات الصيانة السريعة المختارة:
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>اسم الخدمة</th>
+                <th>الكمية</th>
+                <th>السعر الفردي</th>
+                <th>الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody id="invoiceQuickServicesTableBody">
+              <tr><td colspan="4" style="text-align:center; color:#64748b;">لا توجد خدمات سريعة مسجلة.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px;">
+          <div style="font-weight: bold; color: var(--btn-blue); margin-bottom: 6px; font-size: 0.85rem;">
+            <i class="fa-solid fa-wrench"></i> خدمات التركيب والمصنعية الإضافية:
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>خدمة التركيب / المصنعية</th>
+                <th>التكلفة / السعر</th>
+              </tr>
+            </thead>
+            <tbody id="servicesTableBody">
+              <tr><td colspan="2" style="text-align:center; color:#64748b;">لا توجد خدمات تركيب مسجلة.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-box no-print" style="background: rgba(234, 88, 12, 0.03); border: 1px dashed var(--primary-orange); padding: 10px; margin-bottom: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+            <span style="font-weight: bold; color: var(--primary-orange); font-size: 0.85rem;">
+              <i class="fa-solid fa-percent"></i> بند الخصم المباشر (بإذن المدير):
+            </span>
+            <button class="btn-action btn-danger" style="padding: 3px 8px; font-size: 0.75rem;" onclick="applyManagerDiscount()">تطبيق الخصم</button>
+          </div>
+          <div class="form-grid" style="margin-bottom:0;">
+            <div class="form-field">
+              <label>قيمة الخصم:</label>
+              <input type="number" id="managerDiscountInput" value="" placeholder="أدخل قيمة الخصم..." min="0" oninput="calculateFinalTotals()">
+            </div>
+            <div class="form-field">
+              <label>سبب الخصم / إذن المدير:</label>
+              <input type="text" id="managerDiscountReason" placeholder="أدخل اسم المدير أو سبب الخصم...">
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-summary-box">
+          <div class="summary-row">
+            <span>إجمالي سعر قطع الغيار (بدون مصنعية):</span>
+            <span id="partsOnlyTotalSum">0</span>
+          </div>
+          <div class="summary-row">
+            <span>إجمالي مصنعيات قطع الغيار:</span>
+            <span id="partsLaborTotalSum">0</span>
+          </div>
+          <div class="summary-row">
+            <span>إجمالي الخدمات السريعة:</span>
+            <span id="quickServicesTotalSum">0</span>
+          </div>
+          <div class="summary-row">
+            <span>إجمالي المصنعية والخدمات الإضافية:</span>
+            <span id="servicesTotalSum">0</span>
+          </div>
+          <div class="summary-row" style="color: var(--btn-green);">
+            <span>الدفعة المقدمة (المخصومة):</span>
+            <span id="advanceDeductionSum">0</span>
+          </div>
+          <div class="summary-row" style="color: var(--danger-red);">
+            <span>الخصم المباشر (بإذن المدير):</span>
+            <span id="managerDiscountSum">0</span>
+          </div>
+          <div class="summary-row">
+            <span>الصافي المطلوب سداده نهائياً:</span>
+            <span id="grandTotalSum">0</span>
+          </div>
+          <div class="summary-row" style="color: var(--btn-green);">
+            <span>المبلغ المدفوع فعلياً من العميل:</span>
+            <span id="printAmountPaidSum">0</span>
+          </div>
+          <div class="summary-row" style="color: var(--primary-orange); margin-top: 4px; display: none;" id="remainingBalanceRow">
+            <span>المبلغ المتبقي (يُرحل كأجل / مديونية):</span>
+            <span id="remainingBalanceSum">0</span>
+          </div>
+        </div>
+
+        <div class="form-grid no-print">
+          <div class="form-field">
+            <label>طريقة الدفع:</label>
+            <select id="paymentMethod" onchange="onPaymentMethodChange()">
+              <option value="نقدي (كاش)">💵 نقدي (كاش - درج)</option>
+              <option value="انستا باي / تحويل">📱 انستا باي / تحويل</option>
+              <option value="بطاقة ائتمان">💳 بطاقة ائتمان</option>
+              <option value="آجل (على الحساب)">🤝 آجل (حساب عميل / مديونية)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>تحديد الخزينة للإيداع:</label>
+            <select id="targetTreasurySelect">
+              <option value="">اختر الخزينة...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid no-print">
+          <div class="form-field" style="grid-column: span 2;">
+            <label>المبلغ المدفوع فعلياً من العميل:</label>
+            <input type="number" id="amountPaidInput" placeholder="أدخل المبلغ المدفوع..." oninput="onAmountPaidInput()">
+          </div>
+        </div>
+
+        <div class="invoice-footer-notes">
+          <p><b>ملاحظات هامة:</b> تم معاينة السيارة بنجاح من قبل العميل بعد الفحص وحالة السيارة سليمة ولا يوجد بها عيوب.</p>
+          <div style="display: flex; justify-content: space-between; margin-top: 25px;">
+            <span>توقيع مسئول الحسابات: ........................</span>
+            <span>توقيع العميل: ........................</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;" class="no-print">
+          <button class="btn-action btn-purple" onclick="finalizePaymentAndPrint()"><i class="fa-solid fa-print"></i> تحصيل المبلغ وطباعة الفاتورة وترحيلها للأرشيف</button>
+          <button class="btn-action btn-blue" onclick="sendInvoiceWhatsApp()"><i class="fa-brands fa-whatsapp"></i> إرسال الفاتورة واتساب</button>
+          <button id="returnToDepartmentBtn" class="btn-action btn-danger" onclick="openReturnCustomerReview('department')"><i class="fa-solid fa-arrow-rotate-left"></i> إرجاع للقسم</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- إعدادات الطباعة ومعاينة الفاتورة -->
+  <div id="invoicePrintSettingsModal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,.82); backdrop-filter:blur(7px); z-index:30000; align-items:center; justify-content:center; padding:16px;">
+    <div style="width:min(1400px,98vw); height:min(94vh,900px); background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); border-radius:18px; box-shadow:0 25px 90px rgba(0,0,0,.45); display:flex; flex-direction:column; overflow:hidden;">
+      <div style="padding:14px 18px; background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div>
+          <div style="font-size:1.1rem;font-weight:900"><i class="fa-solid fa-print"></i> إعدادات حجم وجدول الفاتورة</div>
+          <div style="font-size:.75rem;opacity:.8;margin-top:3px">تحكم في عرض الأعمدة، حجم الخط، المسافات، حدود الجدول وهوامش ورقة A4 قبل الطباعة.</div>
+        </div>
+        <button class="btn-action btn-danger" onclick="closeInvoicePrintSettings()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:330px 1fr; gap:0; flex:1; min-height:0;">
+        <aside style="padding:14px; border-left:1px solid var(--border-color); overflow:auto; background:var(--bg-color);">
+          <div class="card-box" style="margin:0 0 10px;">
+            <div class="card-title"><span><i class="fa-solid fa-table-columns"></i> حجم الجدول</span></div>
+            <div class="form-field" style="margin-bottom:9px">
+              <label>عرض الجدول: <b id="ipsTableWidthVal">100%</b></label>
+              <input id="ipsTableWidth" type="range" min="70" max="100" step="1" value="100" oninput="updateInvoicePrintPreview()">
+            </div>
+            <div class="form-field" style="margin-bottom:9px">
+              <label>حجم خط الجدول: <b id="ipsFontSizeVal">9px</b></label>
+              <input id="ipsFontSize" type="range" min="7" max="18" step="1" value="9" oninput="updateInvoicePrintPreview()">
+            </div>
+            <div class="form-field" style="margin-bottom:9px">
+              <label>ارتفاع/مسافة الصف: <b id="ipsRowPadVal">3px</b></label>
+              <input id="ipsRowPad" type="range" min="1" max="12" step="1" value="3" oninput="updateInvoicePrintPreview()">
+            </div>
+            <div class="form-field" style="margin-bottom:9px">
+              <label>سمك حدود الجدول: <b id="ipsBorderVal">1px</b></label>
+              <input id="ipsBorder" type="range" min="0" max="3" step="1" value="1" oninput="updateInvoicePrintPreview()">
+            </div>
+            <div class="form-field" style="margin-bottom:9px">
+              <label>نوع الخط:</label>
+              <select id="ipsFontFamily" onchange="updateInvoicePrintPreview()">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Tahoma, sans-serif">Tahoma</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+              </select>
+            </div>
+            <div class="form-field" style="margin-bottom:9px">
+              <label>سمك الخط:</label>
+              <select id="ipsFontWeight" onchange="updateInvoicePrintPreview()">
+                <option value="400">خفيف / عادي</option>
+                <option value="500">متوسط</option>
+                <option value="600">نصف عريض</option>
+                <option value="700">عريض</option>
+                <option value="800">عريض جداً</option>
+                <option value="900">ثقيل جداً</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>هامش الصفحة: <b id="ipsMarginVal">7mm</b></label>
+              <input id="ipsMargin" type="range" min="3" max="15" step="1" value="7" oninput="updateInvoicePrintPreview()">
+            </div>
+          </div>
+
+          <div class="card-box" style="margin:0 0 10px;">
+            <div class="card-title"><span><i class="fa-solid fa-arrows-left-right"></i> عرض أعمدة قطع الغيار</span></div>
+            <div id="ipsColumnControls"></div>
+          </div>
+
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <button class="btn-action btn-blue" onclick="resetInvoicePrintSettings()"><i class="fa-solid fa-rotate-left"></i> افتراضي</button>
+            <button class="btn-action btn-purple" onclick="saveInvoicePrintSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+          </div>
+        </aside>
+
+        <section style="padding:14px; min-width:0; display:flex; flex-direction:column; background:#64748b;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;background:#0f172a;padding:8px 10px;border-radius:10px;color:#fff;">
+            <span><i class="fa-solid fa-eye"></i> معاينة الطباعة A4</span>
+            <div style="display:flex;gap:7px">
+              <button class="btn-action btn-green" onclick="printInvoiceFromPreview()"><i class="fa-solid fa-print"></i> طباعة بالإعدادات الحالية</button>
+            </div>
+          </div>
+          <div id="invoicePrintPreviewPage" style="flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:20px;">
+            <div id="invoicePrintPreviewPaper" style="width:794px; min-height:1123px; background:#fff; color:#000; box-shadow:0 8px 30px rgba(0,0,0,.35); padding:28px; direction:rtl;"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة مراجعة إرجاع العميل للقسم الأصلي -->
+  <div id="returnCustomerReviewModal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,.78); backdrop-filter:blur(8px); z-index:20000; align-items:center; justify-content:center; padding:18px;">
+    <div style="width:min(1100px,96vw); max-height:92vh; overflow:auto; background:var(--card-bg,#fff); color:var(--text-color,#111827); border:1px solid rgba(148,163,184,.35); border-radius:20px; box-shadow:0 25px 80px rgba(0,0,0,.35);">
+      <div style="position:sticky;top:0;z-index:2;padding:18px 20px;background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(30,41,59,.96));color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:20px 20px 0 0;">
+        <div><div style="font-size:1.15rem;font-weight:900"><i class="fa-solid fa-rotate-left"></i> مراجعة بيانات العميل قبل إرجاعه للحسابات</div><div style="font-size:.78rem;opacity:.8;margin-top:4px">راجع بيانات العميل والأصناف والخدمات وكل التكاليف والقسم السابق قبل فتحه في الحسابات.</div></div>
+        <button class="btn-action btn-danger" onclick="closeReturnCustomerReview()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+      <div style="padding:18px">
+        <div id="returnReviewCustomerGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px"></div>
+        <div id="returnReviewDepartment" style="padding:12px 14px;border-radius:14px;background:rgba(2,132,199,.09);border:1px solid rgba(2,132,199,.3);margin-bottom:14px;font-weight:800"></div>
+        <div id="returnReviewExtraInfo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px"></div>
+        <div class="card-box" style="margin:0 0 14px;border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.06)">
+          <h4 style="margin:0 0 10px;color:#b45309"><i class="fa-solid fa-money-check-dollar"></i> كشف كل المصاريف والتكاليف</h4>
+          <div id="returnReviewExpenseDetails"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px">
+          <div class="card-box" style="margin:0;overflow:auto"><h4 style="margin:0 0 10px;color:var(--primary-orange)"><i class="fa-solid fa-boxes-stacked"></i> الأصناف / قطع الغيار</h4><table style="width:100%"><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th>مصنعية</th></tr></thead><tbody id="returnReviewPartsBody"></tbody></table></div>
+          <div class="card-box" style="margin:0;overflow:auto"><h4 style="margin:0 0 10px;color:#0284c7"><i class="fa-solid fa-bolt"></i> الخدمات السريعة</h4><table style="width:100%"><thead><tr><th>الخدمة</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody id="returnReviewQuickBody"></tbody></table></div>
+          <div class="card-box" style="margin:0;overflow:auto"><h4 style="margin:0 0 10px;color:#7c3aed"><i class="fa-solid fa-wrench"></i> الخدمات والمصنعيات</h4><table style="width:100%"><thead><tr><th>الخدمة</th><th>التكلفة</th></tr></thead><tbody id="returnReviewServicesBody"></tbody></table></div>
+          <div class="card-box" style="margin:0"><h4 style="margin:0 0 10px;color:#16a34a"><i class="fa-solid fa-receipt"></i> كشف المصاريف والإجمالي</h4><div id="returnReviewTotals"></div></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid rgba(148,163,184,.25)">
+          <button class="btn-action" style="background:#64748b;color:#fff" onclick="closeReturnCustomerReview()"><i class="fa-solid fa-ban"></i> إلغاء</button>
+          <button class="btn-action btn-danger" onclick="executeReturnAfterReview()"><i class="fa-solid fa-arrow-right-to-bracket"></i> فتح العميل في الحسابات</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة الصيانة السريعة وعميل خارجي -->
+  <div id="quickMaintenanceModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:90%; max-width:850px; max-height:88vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--primary-orange);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--primary-orange);"><i class="fa-solid fa-bolt"></i> الصيانة السريعة وخدمة عميل خارجي</h3>
+        <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="closeQuickMaintenanceModal()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+      <div style="overflow-y:auto; flex:1; padding-right:5px;">
+        <div class="card-box" style="background:var(--bg-color);">
+          <div style="font-weight:bold; margin-bottom:8px; color:var(--primary-orange);"><i class="fa-solid fa-user-plus"></i> بيانات العميل الخارجي:</div>
+          <div class="form-grid">
+            <div class="form-field"><label>اسم العميل:</label><input type="text" id="qmClientName" placeholder="أدخل اسم العميل..."></div>
+            <div class="form-field"><label>رقم الهاتف:</label><input type="text" id="qmClientPhone" placeholder="رقم الهاتف..."></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field"><label>نوع السيارة:</label><input type="text" id="qmCarInfo" placeholder="موديل السيارة..."></div>
+            <div class="form-field"><label>رقم اللوحة:</label><input type="text" id="qmCarPlate" placeholder="رقم اللوحة..."></div>
+          </div>
+        </div>
+
+        <div class="card-box" style="background:var(--bg-color); text-align: center; padding: 12px;">
+          <button class="btn-action btn-purple" style="width: 100%; justify-content: center; font-size: 1rem; padding: 10px;" onclick="openExternalQuickServicesModal()">
+            <i class="fa-solid fa-list-check"></i> اختر خدمات الصيانة السريعة 
+          </button>
+          <div id="selectedQuickServicesSummary" style="margin-top: 8px; font-size: 0.85rem; color: var(--treasury-purple); font-weight: bold;">
+            لم يتم اختيار خدمات بعد
+          </div>
+        </div>
+
+        <div class="card-box" style="background:rgba(234, 88, 12, 0.04); border:1px solid var(--primary-orange);">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-weight:bold; font-size:1rem; margin-bottom:10px;">
+            <span>إجمالي الخدمات المختارة:</span>
+            <span id="qmTotalSum" style="color:var(--primary-orange);">0</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>طريقة الدفع:</label>
+              <select id="qmPaymentMethod">
+                <option value="نقدي (كاش)">💵 نقدي (كاش - درج)</option>
+                <option value="انستا باي / تحويل">📱 انستا باي / تحويل</option>
+                <option value="بطاقة ائتمان">💳 بطاقة ائتمان</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>تحديد الخزينة للإيداع:</label>
+              <select id="qmTargetTreasurySelect">
+                <option value="">اختر الخزينة...</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field" style="grid-column: span 2;">
+              <label>المبلغ المدفوع:</label>
+              <input type="number" id="qmAmountPaid" placeholder="المبلغ...">
+            </div>
+          </div>
+          <button class="btn-action btn-orange" style="width:100%; justify-content:center; margin-top:10px;" onclick="executeQuickMaintenanceCheckout()">
+            <i class="fa-solid fa-cash-register"></i> تنفيذ وتحصيل صيانة سريعة وطباعة الفاتورة
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- القائمة المنبثقة الخارجية لاختيار أو إضافة الخدمات السريعة -->
+  <div id="externalQuickServicesModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10010; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:90%; max-width:650px; max-height:85vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--treasury-purple);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="color:var(--treasury-purple);"><i class="fa-solid fa-magnifying-glass"></i> اختيار وإدارة خدمات الصيانة السريعة</h3>
+        <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="closeExternalQuickServicesModal()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+
+      <!-- زر وفورم إضافة خدمة جديدة للقائمة -->
+      <div class="card-box" style="background:var(--bg-color); padding:10px; margin-bottom:10px;">
+        <div style="font-weight:bold; color:var(--treasury-purple); margin-bottom:6px; font-size:0.85rem;"><i class="fa-solid fa-plus-circle"></i> إضافة خدمة سريعة جديدة للقائمة:</div>
+        <div class="form-grid" style="margin-bottom:6px;">
+          <div class="form-field"><input type="text" id="newQuickServiceName" placeholder="اسم الخدمة الجديدة..."></div>
+          <div class="form-field"><input type="number" id="newQuickServicePrice" placeholder="السعر..."></div>
+        </div>
+        <button class="btn-action btn-purple" style="width:100%; justify-content:center; padding:6px; font-size:0.8rem;" onclick="addNewQuickServiceDefinition()">
+          <i class="fa-solid fa-save"></i> حفظ وإضافة الخدمة للقائمة
+        </button>
+      </div>
+
+      <div class="form-field" style="margin-bottom: 12px;">
+        <input type="text" id="quickServiceSearchInput" placeholder="ابحث عن اسم الخدمة..." oninput="filterExternalQuickServices()">
+      </div>
+
+      <div style="overflow-y:auto; flex:1; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; background: var(--bg-color);" id="externalQuickServicesContainer">
+        <small style="color:#64748b;">جاري التحميل...</small>
+      </div>
+
+      <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+        <button class="btn-action btn-green" onclick="closeExternalQuickServicesModal()">
+          <i class="fa-solid fa-check"></i> تأكيد الاختيار والإغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة إدارة الخزن والأرصدة والتحويلات -->
+  <div id="treasuryManagementModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:950px; max-height:90vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--btn-blue);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--btn-blue);"><i class="fa-solid fa-vault"></i> إدارة الخزن وأرصدتها والتحويلات المالية</h3>
+        <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="closeTreasuryManagementModal()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+        <button class="btn-action btn-blue" onclick="openTransferModal()"><i class="fa-solid fa-right-left"></i> تحويل أرصده بين الخزن</button>
+        <button class="btn-action btn-purple" onclick="openTreasuryMovementsModal()"><i class="fa-solid fa-list-timeline"></i> سجل وحركة التحويلات المالية</button>
+      </div>
+
+      <div class="card-box" style="background:var(--bg-color);">
+        <div style="font-weight:bold; color:var(--btn-blue); margin-bottom:8px;"><i class="fa-solid fa-plus-circle"></i> إضافة خزينة جديدة:</div>
+        <div class="form-grid">
+          <div class="form-field"><label>اسم الخزينة:</label><input type="text" id="treasuryNameInput" placeholder="اسم الخزينة..."></div>
+          <div class="form-field"><label>الرصيد الافتتاحي:</label><input type="number" id="treasuryBalanceInput" placeholder="0"></div>
+        </div>
+        <button class="btn-action btn-blue" style="margin-top:6px;" onclick="addNewTreasury()"><i class="fa-solid fa-save"></i> حفظ الخزينة</button>
+      </div>
+      <div style="overflow-y:auto; flex:1;">
+        <table>
+          <thead>
+            <tr>
+              <th>اسم الخزينة</th>
+              <th>الرصيد الحالي</th>
+              <th>تاريخ التحديث</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="treasuryTableBody">
+            <tr><td colspan="4" style="text-align:center; color:#64748b;">جاري تحميل الخزن...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة التحويل بين الخزن -->
+  <div id="transferModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10005; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:90%; max-width:600px; border-radius:12px; padding:20px; border:2px solid var(--treasury-purple);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--treasury-purple);"><i class="fa-solid fa-right-left"></i> تحويل أرصدة بين الخزن</h3>
+        <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="document.getElementById('transferModal').style.display='none'"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+      <div class="form-field" style="margin-bottom:10px;">
+        <label>من خزينة (المصدر):</label>
+        <select id="transferFromSelect"></select>
+      </div>
+      <div class="form-field" style="margin-bottom:10px;">
+        <label>إلى خزينة (المستقبل):</label>
+        <select id="transferToSelect"></select>
+      </div>
+      <div class="form-field" style="margin-bottom:10px;">
+        <label>المبلغ المراد تحويله:</label>
+        <input type="number" id="transferAmountInput" placeholder="المبلغ...">
+      </div>
+      <div class="form-field" style="margin-bottom:15px;">
+        <label>بيان / سبب التحويل:</label>
+        <input type="text" id="transferReasonInput" placeholder="سبب التحويل...">
+      </div>
+      <button class="btn-action btn-purple" style="width:100%; justify-content:center;" onclick="executeTreasuryTransfer()">
+        <i class="fa-solid fa-check"></i> تنفيذ التحويل وتحديث الأرصدة
+      </button>
+    </div>
+  </div>
+
+  <!-- نافذة سجل وحركة التحويلات المالية بين الخزن (مع زر طباعة) -->
+  <div id="treasuryMovementsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10005; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:850px; max-height:85vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--btn-blue);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--btn-blue);"><i class="fa-solid fa-list-timeline"></i> سجل وحركة التحويلات المالية بين الخزن</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action btn-green" style="padding:4px 10px;" onclick="printElement('treasuryMovementsPrintArea')"><i class="fa-solid fa-print"></i> طباعة السجل</button>
+          <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="document.getElementById('treasuryMovementsModal').style.display='none'"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto; flex:1;" id="treasuryMovementsPrintArea">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ والوقت</th>
+              <th>من خزينة</th>
+              <th>إلى خزينة</th>
+              <th>المبلغ</th>
+              <th>السبب / البيان</th>
+              <th>المسئول</th>
+            </tr>
+          </thead>
+          <tbody id="treasuryMovementsTableBody">
+            <tr><td colspan="6" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة المصاريف (إضافة مصروف وكشف تفصيلي للمصاريف) -->
+  <div id="expensesModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:900px; max-height:90vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--btn-green);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--btn-green);"><i class="fa-solid fa-money-bill-wave"></i> إدارة المصاريف والكشف التفصيلي</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action btn-green" style="padding:4px 10px;" onclick="printElement('expensesPrintArea')"><i class="fa-solid fa-print"></i> طباعة الكشف</button>
+          <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="document.getElementById('expensesModal').style.display='none'"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+        </div>
+      </div>
+
+      <div class="card-box" style="background:var(--bg-color);">
+        <div style="font-weight:bold; color:var(--btn-green); margin-bottom:8px;"><i class="fa-solid fa-plus-circle"></i> تسجيل مصروف جديد:</div>
+        <div class="form-grid">
+          <div class="form-field"><label>بند المصروف:</label><input type="text" id="expenseTitleInput" placeholder="مثال: أدوات نظافة، كهرباء..."></div>
+          <div class="form-field"><label>المبلغ:</label><input type="number" id="expenseAmountInput" placeholder="المبلغ..."></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>الخزينة المنصرف منها:</label><select id="expenseTreasurySelect"></select></div>
+          <div class="form-field"><label>ملاحظات:</label><input type="text" id="expenseNotesInput" placeholder="ملاحظات..."></div>
+        </div>
+        <button class="btn-action btn-green" style="margin-top:6px;" onclick="addExpenseRecord()"><i class="fa-solid fa-save"></i> حفظ وصرف المصروف</button>
+      </div>
+
+      <div style="overflow-y:auto; flex:1;" id="expensesPrintArea">
+        <div style="font-weight:bold; margin-bottom:8px; color:var(--btn-green);">كشف تفصيلي بكل المصاريف:</div>
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ والوقت</th>
+              <th>البند</th>
+              <th>المبلغ</th>
+              <th>من خزينة</th>
+              <th>الملاحظات</th>
+              <th>المسئول</th>
+            </tr>
+          </thead>
+          <tbody id="expensesTableBody">
+            <tr><td colspan="6" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة العمال والأقسام (إضافة عمال وتحديد أقسامهم) -->
+  <div id="workersModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:900px; max-height:90vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--treasury-purple);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--treasury-purple);"><i class="fa-solid fa-users-gear"></i> إدارة العمال وتحديد أقسامهم</h3>
+        <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="document.getElementById('workersModal').style.display='none'"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+
+      <div class="card-box" style="background:var(--bg-color);">
+        <div style="font-weight:bold; color:var(--treasury-purple); margin-bottom:8px;"><i class="fa-solid fa-user-plus"></i> إضافة عامل جديد وتحديد قسمه:</div>
+        <div class="form-grid">
+          <div class="form-field"><label>اسم العامل:</label><input type="text" id="workerNameInput" placeholder="اسم العامل..."></div>
+          <div class="form-field">
+            <label>القسم:</label>
+            <select id="workerDepartmentSelect">
+              <option value="ميكانيكا">قسم الميكانيكا</option>
+              <option value="عفشة وسمكرة">قسم العفشة والسمكرة</option>
+              <option value="كهرباء">قسم الكهرباء</option>
+              <option value="صيانة سريعة وتغيير زيت">قسم الصيانة السريعة وتغيير الزيت</option>
+              <option value="غسيل وتفصيل">قسم الغسيل والتفصيل</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>رقم الهاتف:</label><input type="text" id="workerPhoneInput" placeholder="رقم الهاتف..."></div>
+          <div class="form-field"><label>ملاحظات:</label><input type="text" id="workerNotesInput" placeholder="ملاحظات..."></div>
+        </div>
+        <button class="btn-action btn-purple" style="margin-top:6px;" onclick="addWorkerRecord()"><i class="fa-solid fa-save"></i> حفظ العامل</button>
+      </div>
+
+      <div style="overflow-y:auto; flex:1;" id="workersPrintArea">
+        <div style="font-weight:bold; margin-bottom:8px; color:var(--treasury-purple);">كشف تفصيلي بالعمال وأقسامهم:</div>
+        <table>
+          <thead>
+            <tr>
+              <th>اسم العامل</th>
+              <th>القسم</th>
+              <th>رقم الهاتف</th>
+              <th>الملاحظات</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="workersTableBody">
+            <tr><td colspan="5" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة كشف تفصيلي بكل الحركات (الحركات والمصاريف) -->
+  <div id="detailedMovementsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10005; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:950px; max-height:85vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--treasury-purple);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 id="detailedModalTitle" style="color:var(--treasury-purple);">كشف تفصيلي بكل الحركات والمصاريف</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action btn-green" style="padding:4px 10px;" onclick="printElement('detailedPrintArea')"><i class="fa-solid fa-print"></i> طباعة الكشف</button>
+          <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="document.getElementById('detailedMovementsModal').style.display='none'"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto; flex:1;" id="detailedPrintArea">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ والوقت</th>
+              <th>نوع الحركة</th>
+              <th>البيان / التفاصيل</th>
+              <th>المبلغ</th>
+              <th>المسئول</th>
+            </tr>
+          </thead>
+          <tbody id="detailedTableBody">
+            <tr><td colspan="5" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة كشف حساب خزينة معينة -->
+  <div id="treasuryStatementModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10005; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:850px; max-height:85vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--treasury-purple);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 id="treasuryStatementTitle" style="color:var(--treasury-purple);">كشف حساب وتحركات الخزينة</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action btn-green" style="padding:4px 10px;" onclick="printElement('treasuryStatementPrintArea')"><i class="fa-solid fa-print"></i> طباعة</button>
+          <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="document.getElementById('treasuryStatementModal').style.display='none'"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto; flex:1;" id="treasuryStatementPrintArea">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>نوع العملية / البيان</th>
+              <th>المبلغ</th>
+              <th>رقم الفاتورة / التفاصيل</th>
+            </tr>
+          </thead>
+          <tbody id="treasuryStatementTableBody">
+            <tr><td colspan="4" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة الأرشيف -->
+  <div id="archiveModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:90%; max-width:900px; max-height:85vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--treasury-purple);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--treasury-purple);"><i class="fa-solid fa-box-archive"></i> أرشيف الفواتير والمستندات</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action btn-green" style="padding:4px 10px;" onclick="printElement('archivePrintArea')"><i class="fa-solid fa-print"></i> طباعة الأرشيف</button>
+          <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="closeArchiveModal()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+        </div>
+      </div>
+      <div class="form-field" style="margin-bottom:10px;">
+        <input type="text" id="archiveSearchInput" placeholder="ابحث برقم الفاتورة، اسم العميل أو رقم اللوحة..." oninput="filterArchive()">
+      </div>
+      <div style="overflow-y:auto; flex:1;" id="archivePrintArea">
+        <table>
+          <thead>
+            <tr>
+              <th>رقم الفاتورة</th>
+              <th>العميل</th>
+              <th>السيارة / اللوحة</th>
+              <th>الإجمالي</th>
+              <th>المدفوع / الأجل</th>
+              <th>التاريخ</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="archiveTableBody">
+            <tr><td colspan="7" style="text-align:center; color:#64748b;">جاري تحميل الأرشيف...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة كشف حساب العملاء -->
+  <div id="clientAccountsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--card-bg); width:92%; max-width:1000px; max-height:85vh; border-radius:12px; padding:20px; display:flex; flex-direction:column; border:2px solid var(--btn-green);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:var(--btn-green);"><i class="fa-solid fa-address-book"></i> كشف حساب العملاء والزيارات والمديونيات</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action btn-green" style="padding:4px 10px;" onclick="printElement('clientAccountsPrintArea')"><i class="fa-solid fa-print"></i> طباعة الكشف</button>
+          <button class="btn-action btn-danger" style="padding:4px 10px;" onclick="closeClientAccountsModal()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-bottom:10px;" class="no-print">
+        <div class="form-field">
+          <input type="text" id="clientSearchAccountInput" placeholder="ابحث باسم العميل أو رقم الهاتف..." oninput="filterClientAccounts()">
+        </div>
+        <div style="text-align: left;">
+          <button class="btn-action btn-blue" onclick="loadClientAccountsData()"><i class="fa-solid fa-rotate"></i> تحديث البيانات</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto; flex:1;" id="clientAccountsPrintArea">
+        <table>
+          <thead>
+            <tr>
+              <th>اسم العميل</th>
+              <th>رقم الهاتف</th>
+              <th>إجمالي الزيارات</th>
+              <th>إجمالي المسحوبات</th>
+              <th>إجمالي المدفوع</th>
+              <th>المديونية (الأجل المتبقي)</th>
+              <th class="no-print">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="clientAccountsTableBody">
+            <tr><td colspan="7" style="text-align:center; color:#64748b;">جاري تحميل حسابات العملاء...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loggedUser = localStorage.getItem('currentUser') || 'المحاسب';
+    document.getElementById('userBadge').innerHTML = `<i class="fa-solid fa-cash-register"></i> المحاسب: ${loggedUser}`;
+
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('darkModeIcon').className = 'fa-solid fa-sun';
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+      document.getElementById('darkModeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentRolePage');
+      window.location.href = 'login.html';
+    }
+
+    const firebaseConfig = {apiKey:"AIzaSyAo4cdiLNInZoVPA6kFkDUl1tWaxcLVtKk",authDomain:"auto-non-b841f.firebaseapp.com",projectId:"auto-non-b841f",storageBucket:"auto-non-b841f.firebasestorage.app",messagingSenderId:"512423300329",appId:"1:512423300329:web:190310e1c4b80c9921b478",measurementId:"G-ZG5RQBB3GL"};
+
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.firestore();
+
+    let accountingQueue = [];
+    let currentSelectedQueueItem = null;
+    let currentPartsOnlySum = 0;
+    let currentPartsLaborSum = 0;
+    let currentQuickServicesSum = 0;
+    let currentServicesSum = 0;
+    let currentAdvancePayment = 0;
+    let archiveInvoicesList = [];
+    let quickServicesList = [];
+    let selectedQuickServicesMap = {};
+    let treasuriesList = [];
+    let currentOriginalDepartment = '';
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadFinancialStats();
+      loadQuickServicesData();
+      loadTreasuriesData();
+      loadExpensesData();
+      loadWorkersData();
+    });
+
+    db.collection('accounting_queue').onSnapshot(snapshot => {
+      const rawQueue = [];
+      snapshot.forEach(doc => { rawQueue.push({ id: doc.id, ...doc.data() }); });
+      const uniqueMap = new Map();
+      rawQueue.forEach(item => {
+        const uniqueKey = item.carId || item.carPlate || item.clientName;
+        if (uniqueKey && !uniqueMap.has(uniqueKey)) { uniqueMap.set(uniqueKey, item); }
+      });
+      accountingQueue = Array.from(uniqueMap.values());
+      renderQueueList();
+    });
+
+    function renderQueueList() {
+      const container = document.getElementById('accountingQueueList');
+      container.innerHTML = '';
+      document.getElementById('queueCountBadge').textContent = accountingQueue.length;
+
+      if (accountingQueue.length === 0) {
+        container.innerHTML = `<small style="color:#64748b; display:block; text-align:center; padding:15px;">لا توجد سيارات في قائمة الانتظار الحسابية حالياً.</small>`;
+        return;
+      }
+
+      accountingQueue.forEach(item => {
+        const isSelected = currentSelectedQueueItem && currentSelectedQueueItem.id === item.id;
+        container.innerHTML += `
+          <div class="queue-item ${isSelected ? 'active' : ''}" onclick='selectQueueItem(${JSON.stringify(item.id)})'>
+            <div style="display:flex; justify-content:space-between; font-weight:bold;">
+              <span>${item.clientName || 'عميل'}</span>
+              <span style="color:var(--treasury-purple);">حسابات 🟣</span>
+            </div>
+            <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+              ${item.carInfo || ''} (لوحة: ${item.carPlate || 'بدون'})
+            </div>
+          </div>
+        `;
+      });
+    }
+
+
+    // استخراج القسم الأصلي الذي حُولت منه السيارة للحسابات.
+    // يدعم أكثر من اسم للحقل حتى يظل متوافقاً مع البيانات القديمة والجديدة.
+    function getOriginalDepartment(item, carDocData = {}) {
+      const candidates = [
+        item.originalDepartment,
+        item.sourceDepartment,
+        item.fromDepartment,
+        item.previousDepartment,
+        item.departmentBeforeAccounting,
+        item.returnDepartment,
+        carDocData.originalDepartment,
+        carDocData.sourceDepartment,
+        carDocData.fromDepartment,
+        carDocData.previousDepartment,
+        carDocData.departmentBeforeAccounting,
+        carDocData.returnDepartment,
+        item.currentDepartment,
+        carDocData.currentDepartment,
+        item.department,
+        carDocData.department,
+        item.assignedDepartment,
+        carDocData.assignedDepartment
+      ];
+
+      const value = candidates.find(v => v !== undefined && v !== null && String(v).trim() !== '');
+      return value ? String(value).trim() : '';
+    }
+
+    function formatDepartmentName(department) {
+      if (!department) return 'غير محدد';
+      const map = {
+        'ميكانيكا': 'قسم الميكانيكا',
+        'عفشة وسمكرة': 'قسم العفشة والسمكرة',
+        'كهرباء': 'قسم الكهرباء',
+        'صيانة سريعة وتغيير زيت': 'قسم الصيانة السريعة وتغيير الزيت',
+        'غسيل وتفصيل': 'قسم الغسيل والتفصيل'
+      };
+      return map[department] || department;
+    }
+
+    function updateOriginalDepartmentUI(department) {
+      currentOriginalDepartment = department || '';
+
+      const display = document.getElementById('originalDepartmentDisplay');
+      const hint = document.getElementById('returnDepartmentHint');
+      const btn = document.getElementById('returnToDepartmentBtn');
+      const box = document.getElementById('originalDepartmentBox');
+
+      if (display) {
+        display.textContent = formatDepartmentName(currentOriginalDepartment);
+      }
+
+      if (currentOriginalDepartment) {
+        if (hint) {
+          hint.textContent = `سيتم إرجاع السيارة تلقائياً إلى ${formatDepartmentName(currentOriginalDepartment)}.`;
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left"></i> إرجاع للقسم: ${formatDepartmentName(currentOriginalDepartment)}`;
+        }
+        if (box) box.style.borderColor = 'var(--btn-blue)';
+      } else {
+        if (hint) {
+          hint.textContent = 'لم يتم تسجيل القسم الأصلي لهذه السيارة.';
+        }
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.55';
+          btn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left"></i> إرجاع للقسم`;
+        }
+        if (box) box.style.borderColor = 'var(--border-color)';
+      }
+    }
+
+    async function selectQueueItem(queueId) {
+      const item = accountingQueue.find(q => q.id === queueId);
+      if (!item) return;
+      currentSelectedQueueItem = item;
+      renderQueueList();
+
+      document.getElementById('clientName').value = item.clientName || '';
+      document.getElementById('clientPhone').value = item.phone || '';
+      document.getElementById('carInfo').value = item.carInfo || '';
+      document.getElementById('carPlate').value = item.carPlate || '';
+      document.getElementById('managerDiscountInput').value = '';
+      document.getElementById('managerDiscountReason').value = '';
+      document.getElementById('paymentMethod').value = 'نقدي (كاش)';
+
+      let carDocData = {};
+      if (item.carId) {
+        try {
+          const carSnap = await db.collection('cars').doc(item.carId).get();
+          if (carSnap.exists) { carDocData = carSnap.data(); }
+        } catch (e) { console.log(e); }
+      }
+
+      // تحديد القسم الأصلي وعرضه للمحاسب.
+      const originalDepartment = getOriginalDepartment(item, carDocData);
+      updateOriginalDepartmentUI(originalDepartment);
+
+      currentAdvancePayment = parseFloat(carDocData.downPayment || carDocData.advancePayment || carDocData.bookingDeposit || item.downPayment || 0);
+
+      const alertBox = document.getElementById('advancePaymentAlertBox');
+      const alertText = document.getElementById('advancePaymentText');
+      if (currentAdvancePayment > 0) {
+        alertBox.style.display = 'block';
+        alertText.textContent = `تم دفع مقدم تأكيد حجز بقيمة: ${currentAdvancePayment} وتم إضافته لحساب العميل وخصمه من الإجمالي.`;
+      } else {
+        alertBox.style.display = 'none';
+      }
+
+      const parts = item.requiredParts || carDocData.requiredPartsList || [];
+      const partsTbody = document.getElementById('partsTableBody');
+      partsTbody.innerHTML = '';
+      currentPartsOnlySum = 0;
+      currentPartsLaborSum = 0;
+
+      if (parts.length === 0) {
+        partsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد قطع غيار مسجلة.</td></tr>`;
+      } else {
+        parts.filter(p => {
+          const price = parseFloat(p.price) || 0;
+          const qty = parseInt(p.quantityNeeded || p.qty) || 1;
+          const labor = parseFloat(p.installationFee || p.laborFee || 0);
+          return price * qty !== 0 || labor !== 0;
+        }).forEach((p, index) => {
+          const price = parseFloat(p.price) || 0;
+          const qty = parseInt(p.quantityNeeded || p.qty) || 1;
+          const installationFee = parseFloat(p.installationFee || p.laborFee || 0);
+          
+          const totalPartsOnly = price * qty;
+          const totalLabor = installationFee;
+
+          currentPartsOnlySum += totalPartsOnly;
+          currentPartsLaborSum += totalLabor;
+
+          partsTbody.innerHTML += `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${p.name || 'قطعة'}</td>
+              <td>${qty}</td>
+              <td>${price}</td>
+              <td><b>${totalPartsOnly}</b></td>
+              <td>${installationFee}</td>
+              <td><b>${totalLabor}</b></td>
+            </tr>
+          `;
+        });
+      }
+
+      const quickServices = item.quickServicesList || carDocData.quickServicesList || [];
+      const qsTbody = document.getElementById('invoiceQuickServicesTableBody');
+      qsTbody.innerHTML = '';
+      currentQuickServicesSum = 0;
+
+      if (quickServices.length === 0) {
+        qsTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b;">لا توجد خدمات سريعة مسجلة.</td></tr>`;
+      } else {
+        quickServices.filter(qs => ((parseFloat(qs.price) || 0) * (parseInt(qs.qty) || 1)) !== 0).forEach(qs => {
+          const price = parseFloat(qs.price) || 0;
+          const qty = parseInt(qs.qty) || 1;
+          const total = price * qty;
+          currentQuickServicesSum += total;
+          qsTbody.innerHTML += `
+            <tr>
+              <td>${qs.name}</td>
+              <td>${qty}</td>
+              <td>${price}</td>
+              <td><b>${total}</b></td>
+            </tr>
+          `;
+        });
+      }
+
+      const services = item.installationServices || carDocData.installationServicesList || [];
+      const servicesTbody = document.getElementById('servicesTableBody');
+      servicesTbody.innerHTML = '';
+      currentServicesSum = 0;
+
+      if (services.length === 0) {
+        servicesTbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#64748b;">لا توجد خدمات تركيب مسجلة.</td></tr>`;
+      } else {
+        services.filter(s => (parseFloat(s.price) || 0) !== 0).forEach(s => {
+          const sPrice = parseFloat(s.price) || 0;
+          currentServicesSum += sPrice;
+          servicesTbody.innerHTML += `
+            <tr>
+              <td>${s.name || 'خدمة إضافية'}</td>
+              <td><b>${sPrice}</b></td>
+            </tr>
+          `;
+        });
+      }
+
+      calculateFinalTotals();
+    }
+
+    function applyManagerDiscount() {
+      const pin = prompt("أدخل كلمة مرور المدير لتطبيق الخصم المباشر:");
+      if (pin === "123" || pin === "1234" || pin === "admin") {
+        alert("✅ تمت الموافقة على الخصم بنجاح.");
+        calculateFinalTotals();
+      } else {
+        alert("❌ كلمة المرور غير صحيحة.");
+        document.getElementById('managerDiscountInput').value = '';
+        calculateFinalTotals();
+      }
+    }
+
+    function calculateFinalTotals() {
+      const discount = parseFloat(document.getElementById('managerDiscountInput').value) || 0;
+      const grandTotalBefore = currentPartsOnlySum + currentPartsLaborSum + currentQuickServicesSum + currentServicesSum;
+      const netFinalTotal = Math.max(0, grandTotalBefore - currentAdvancePayment - discount);
+
+      document.getElementById('partsOnlyTotalSum').textContent = currentPartsOnlySum;
+      document.getElementById('partsLaborTotalSum').textContent = currentPartsLaborSum;
+      document.getElementById('quickServicesTotalSum').textContent = currentQuickServicesSum;
+      document.getElementById('servicesTotalSum').textContent = currentServicesSum;
+      document.getElementById('advanceDeductionSum').textContent = currentAdvancePayment;
+      document.getElementById('managerDiscountSum').textContent = discount;
+      document.getElementById('grandTotalSum').textContent = netFinalTotal;
+      
+      const paidInput = document.getElementById('amountPaidInput');
+      if (!paidInput.dataset.manualEdited) {
+        paidInput.value = netFinalTotal;
+      }
+      onAmountPaidInput();
+    }
+
+    function onPaymentMethodChange() {
+      const method = document.getElementById('paymentMethod').value;
+      if (method.includes('آجل')) {
+        document.getElementById('amountPaidInput').value = '';
+      } else {
+        calculateFinalTotals();
+      }
+      onAmountPaidInput();
+    }
+
+    function onAmountPaidInput() {
+      const paidField = document.getElementById('amountPaidInput');
+      paidField.dataset.manualEdited = "true";
+      const paid = parseFloat(paidField.value) || 0;
+      const total = parseFloat(document.getElementById('grandTotalSum').textContent) || 0;
+      const remaining = Math.max(0, total - paid);
+
+      document.getElementById('printAmountPaidSum').textContent = paid;
+
+      const remRow = document.getElementById('remainingBalanceRow');
+      const remSum = document.getElementById('remainingBalanceSum');
+      
+      if (remaining > 0) {
+        remRow.style.display = 'flex';
+        remSum.textContent = remaining;
+      } else {
+        remRow.style.display = 'none';
+        remSum.textContent = 0;
+      }
+    }
+
+    async function getNextInvoiceSerial() {
+      const counterRef = db.collection('settings').doc('invoice_counter');
+      try {
+        const res = await db.runTransaction(async transaction => {
+          const doc = await transaction.get(counterRef);
+          let newSerial = 1001;
+          if (doc.exists) {
+            newSerial = (doc.data().lastSerial || 1000) + 1;
+          }
+          transaction.set(counterRef, { lastSerial: newSerial }, { merge: true });
+          return newSerial;
+        });
+        return res;
+      } catch (e) {
+        return Math.floor(100000 + Math.random() * 900000);
+      }
+    }
+
+
+    function returnReviewMoney(v){ return (parseFloat(v)||0).toLocaleString('ar-EG',{maximumFractionDigits:2}); }
+    function returnReviewSafe(v){ return String(v ?? '---').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+    function returnReviewRowEmpty(cols,msg){ return `<tr><td colspan="${cols}" style="text-align:center;color:#64748b;padding:14px">${msg}</td></tr>`; }
+
+    let returnReviewMode = 'department'; // department أو archive
+
+    async function openReturnCustomerReview(mode){
+      if (mode) returnReviewMode = mode;
+      if(!currentSelectedQueueItem){ alert('الرجاء اختيار سيارة/عميل أولاً.'); return; }
+
+      let item = {...currentSelectedQueueItem};
+      let carDocData = {};
+      let archivedInvoice = {};
+      const carId = item.carId || item.sourceCarId || '';
+
+      if(carId){
+        try{
+          const snap = await db.collection('cars').doc(carId).get();
+          if(snap.exists) carDocData = snap.data() || {};
+        }catch(e){ console.warn(e); }
+
+        if(!Object.keys(carDocData).length){
+          try{
+            const snap = await db.collection('workshop_archive').doc(carId).get();
+            if(snap.exists) carDocData = snap.data() || {};
+          }catch(e){ console.warn(e); }
+        }
+      }
+
+      if(item.invoiceSerial){
+        try{
+          const snap = await db.collection('invoices_archive')
+            .where('invoiceSerial','==',item.invoiceSerial).limit(1).get();
+          if(!snap.empty) archivedInvoice = snap.docs[0].data() || {};
+        }catch(e){ console.warn(e); }
+      }
+
+      const merged = {...archivedInvoice, ...carDocData, ...item};
+      const parts = Array.isArray(merged.requiredParts) ? merged.requiredParts : [];
+      const quick = Array.isArray(merged.quickServicesList) ? merged.quickServicesList : [];
+      const services = Array.isArray(merged.installationServices) ? merged.installationServices : [];
+
+      const dept =
+        merged.originalDepartment ||
+        merged.departmentBeforeAccounting ||
+        merged.sourceDepartment ||
+        merged.currentDepartment ||
+        merged.department ||
+        merged.targetDepartment || '';
+
+      currentSelectedQueueItem = {
+        ...item, ...merged,
+        carId: carId || merged.sourceCarId || merged.carId || '',
+        requiredParts: parts,
+        quickServicesList: quick,
+        installationServices: services,
+        originalDepartment: dept,
+        clientName: merged.clientName || merged.name || '',
+        phone: merged.clientPhone || merged.phone || '',
+        carInfo: merged.carInfo || `${merged.brand||''} ${merged.model||''}`.trim(),
+        carPlate: merged.carPlate || merged.plate || '',
+        invoiceSerial: merged.invoiceSerial || item.invoiceSerial || ''
+      };
+      item = currentSelectedQueueItem;
+      currentOriginalDepartment = dept;
+
+      document.getElementById('returnReviewCustomerGrid').innerHTML=`
+        <div class="card-box" style="margin:0"><small>العميل</small><div style="font-weight:900">${returnReviewSafe(item.clientName||'غير مسجل')}</div></div>
+        <div class="card-box" style="margin:0"><small>الهاتف</small><div style="font-weight:900;direction:ltr;text-align:right">${returnReviewSafe(item.phone||'---')}</div></div>
+        <div class="card-box" style="margin:0"><small>السيارة</small><div style="font-weight:900">${returnReviewSafe(item.carInfo||'---')}</div></div>
+        <div class="card-box" style="margin:0"><small>رقم اللوحة</small><div style="font-weight:900">${returnReviewSafe(item.carPlate||'---')}</div></div>
+        <div class="card-box" style="margin:0"><small>رقم الفاتورة</small><div style="font-weight:900">${returnReviewSafe(item.invoiceSerial||'---')}</div></div>`;
+
+      document.getElementById('returnReviewDepartment').innerHTML =
+        `<i class="fa-solid fa-building-circle-arrow-left"></i> القسم الذي سيتم إرجاع السيارة إليه:
+        <span style="color:#0284c7">${returnReviewSafe(formatDepartmentName(dept)||'غير محدد')}</span>`;
+
+      const extra = document.getElementById('returnReviewExtraInfo');
+      if(extra){
+        extra.innerHTML = `
+          <div class="card-box" style="margin:0"><small>القسم السابق</small><div style="font-weight:900">${returnReviewSafe(formatDepartmentName(merged.department||merged.currentDepartment||dept)||'---')}</div></div>
+          <div class="card-box" style="margin:0"><small>الكوريك / الحامل</small><div style="font-weight:900">${returnReviewSafe(merged.assignedLift||'غير محدد')}</div></div>
+          <div class="card-box" style="margin:0"><small>الفني</small><div style="font-weight:900">${returnReviewSafe(merged.assignedTechnician||merged.technicianName||'غير محدد')}</div></div>
+          <div class="card-box" style="margin:0"><small>مهندس التشخيص</small><div style="font-weight:900">${returnReviewSafe(merged.diagnosisEngineer||'غير محدد')}</div></div>
+          <div class="card-box" style="margin:0"><small>نوع الخدمة</small><div style="font-weight:900">${returnReviewSafe(merged.serviceType||merged.targetDepartment||'---')}</div></div>`;
+      }
+
+      let partsTotal=0, laborTotal=0;
+      const pb=document.getElementById('returnReviewPartsBody'); pb.innerHTML='';
+      parts.forEach(p=>{
+        const qty=parseInt(p.quantityNeeded||p.qty)||1;
+        const price=parseFloat(p.price)||0;
+        const labor=parseFloat(p.installationFee||p.laborFee)||0;
+        const total=price*qty;
+        if(total===0&&labor===0)return;
+        partsTotal+=total; laborTotal+=labor;
+        pb.innerHTML+=`<tr><td>${returnReviewSafe(p.name||'قطعة')}</td><td>${qty}</td><td>${returnReviewMoney(price)}</td><td><b>${returnReviewMoney(total)}</b></td><td>${returnReviewMoney(labor)}</td></tr>`;
+      });
+      if(!pb.innerHTML) pb.innerHTML=returnReviewRowEmpty(5,'لا توجد أصناف أو قطع غيار مسجلة.');
+
+      let quickTotal=0;
+      const qb=document.getElementById('returnReviewQuickBody'); qb.innerHTML='';
+      quick.forEach(q=>{
+        const qty=parseInt(q.qty)||1, price=parseFloat(q.price)||0, total=price*qty;
+        if(!total)return;
+        quickTotal+=total;
+        qb.innerHTML+=`<tr><td>${returnReviewSafe(q.name||'خدمة')}</td><td>${qty}</td><td>${returnReviewMoney(price)}</td><td><b>${returnReviewMoney(total)}</b></td></tr>`;
+      });
+      if(!qb.innerHTML) qb.innerHTML=returnReviewRowEmpty(4,'لا توجد خدمات سريعة.');
+
+      let servicesTotal=0;
+      const sb=document.getElementById('returnReviewServicesBody'); sb.innerHTML='';
+      services.forEach(x=>{
+        const v=parseFloat(x.price)||0;
+        if(!v)return;
+        servicesTotal+=v;
+        sb.innerHTML+=`<tr><td>${returnReviewSafe(x.name||'خدمة إضافية')}</td><td><b>${returnReviewMoney(v)}</b></td></tr>`;
+      });
+      if(!sb.innerHTML) sb.innerHTML=returnReviewRowEmpty(2,'لا توجد خدمات تركيب أو مصنعيات إضافية.');
+
+      const advance=parseFloat(item.downPayment||item.advancePayment||item.bookingDeposit||currentAdvancePayment)||0;
+      const discount=parseFloat(item.managerDiscount)||0;
+      const displayedTotal=parseFloat(item.totalAmount)||parseFloat(document.getElementById('grandTotalSum')?.textContent)||0;
+      const paid=parseFloat(item.paidAmount)||parseFloat(document.getElementById('amountPaidInput')?.value)||0;
+      const remaining=Math.max(0, parseFloat(item.remainingAmount)||displayedTotal-paid);
+      const base=partsTotal+laborTotal+quickTotal+servicesTotal;
+      const final=displayedTotal||Math.max(0,base-advance-discount);
+
+      document.getElementById('returnReviewTotals').innerHTML=`
+        <div class="summary-row"><span>إجمالي قطع الغيار:</span><b>${returnReviewMoney(partsTotal)}</b></div>
+        <div class="summary-row"><span>إجمالي مصنعيات القطع:</span><b>${returnReviewMoney(laborTotal)}</b></div>
+        <div class="summary-row"><span>إجمالي الخدمات السريعة:</span><b>${returnReviewMoney(quickTotal)}</b></div>
+        <div class="summary-row"><span>إجمالي الخدمات والمصنعيات:</span><b>${returnReviewMoney(servicesTotal)}</b></div>
+        <div class="summary-row" style="color:#b45309"><span>المصاريف/التكاليف الإضافية:</span><b>${returnReviewMoney(parseFloat(item.extraExpensesTotal||item.expensesTotal||item.additionalExpenses||0)||0)}</b></div>
+        <div class="summary-row" style="color:#16a34a"><span>المقدم:</span><b>${returnReviewMoney(advance)}</b></div>
+        <div class="summary-row" style="color:#dc2626"><span>الخصم:</span><b>${returnReviewMoney(discount)}</b></div>
+        <div class="summary-row" style="font-size:1.05rem;border-top:1px solid #cbd5e1;padding-top:8px"><span>الإجمالي النهائي:</span><b>${returnReviewMoney(final)}</b></div>
+        <div class="summary-row" style="color:#16a34a"><span>المدفوع:</span><b>${returnReviewMoney(paid)}</b></div>
+        <div class="summary-row" style="color:#ea580c"><span>المتبقي:</span><b>${returnReviewMoney(remaining)}</b></div>
+        <div style="margin-top:10px;font-size:.76rem;color:#64748b">طريقة الدفع: ${returnReviewSafe(item.method||item.paymentMethod||'---')}</div>`;
+
+      const expenseBox=document.getElementById('returnReviewExpenseDetails');
+      if(expenseBox){
+        const rows=[
+          ['قطع الغيار',partsTotal],['مصنعيات القطع',laborTotal],
+          ['الخدمات السريعة',quickTotal],['الخدمات والمصنعيات',servicesTotal],
+          ['المصاريف/التكاليف الإضافية',parseFloat(item.extraExpensesTotal||item.expensesTotal||item.additionalExpenses||0)||0],
+          ['المقدم',-advance],['الخصم',-discount],
+          ['الإجمالي النهائي',final],['المدفوع',-paid],['المتبقي',remaining]
+        ];
+        expenseBox.innerHTML=rows.map(([label,val],i)=>`
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed rgba(148,163,184,.35);${i===6?'font-weight:900;font-size:1.05rem':''}">
+            <span>${label}</span><b>${returnReviewMoney(val)}</b>
+          </div>`).join('');
+      }
+
+      const reviewBtn = document.querySelector('#returnCustomerReviewModal button.btn-danger[onclick="executeReturnAfterReview()"]');
+      if (reviewBtn) {
+        reviewBtn.innerHTML = returnReviewMode === 'archive'
+          ? '<i class="fa-solid fa-arrow-right-to-bracket"></i> فتح العميل في الحسابات'
+          : '<i class="fa-solid fa-arrow-rotate-left"></i> تأكيد إرجاع العميل للقسم';
+      }
+      document.getElementById('returnCustomerReviewModal').style.display='flex';
+    }
+
+    function closeReturnCustomerReview(){ document.getElementById('returnCustomerReviewModal').style.display='none'; }
+    async function executeReturnAfterReview(){
+      if(!currentSelectedQueueItem) return;
+
+      if (returnReviewMode === 'archive') {
+        const item = currentSelectedQueueItem;
+        const now = new Date().toISOString();
+        const dept = currentOriginalDepartment || getOriginalDepartment(item,{}) || item.originalDepartment || '';
+        if (!item.clientName && !item.invoiceSerial) {
+          alert('❌ لم يتم العثور على بيانات كافية لهذه الفاتورة.');
+          return;
+        }
+        try {
+          const queueId = item.id && String(item.id).startsWith('archive_')
+            ? String(item.id).replace(/^archive_/, '')
+            : (item.id || item.invoiceSerial || `archive_${Date.now()}`);
+          const queuePayload = {
+            ...item,
+            id: queueId,
+            source: 'ARCHIVE_RETURN_TO_ACCOUNTING',
+            fromArchive: true,
+            clientName: item.clientName || '',
+            phone: item.phone || item.clientPhone || '',
+            clientPhone: item.phone || item.clientPhone || '',
+            carInfo: item.carInfo || '',
+            carPlate: item.carPlate || '',
+            originalDepartment: dept,
+            department: item.department || dept,
+            currentDepartment: item.currentDepartment || dept,
+            returnedToAccountingAt: now,
+            returnedToAccountingBy: loggedUser,
+            updatedAt: now
+          };
+          await db.collection('accounting_queue').doc(queueId).set(queuePayload, {merge:true});
+          currentSelectedQueueItem = queuePayload;
+          currentOriginalDepartment = dept;
+          updateOriginalDepartmentUI(dept);
+          prepareArchivedInvoice(item);
+          document.getElementById('activeClientTitle').textContent = `العميل #${item.invoiceSerial || '---'} — تم فتحه في الحسابات من الأرشيف`;
+          document.getElementById('amountPaidInput').value = item.paidAmount || 0;
+          document.getElementById('amountPaidInput').dataset.manualEdited = 'true';
+          document.getElementById('paymentMethod').value = item.method || item.paymentMethod || 'نقدي (كاش)';
+          document.getElementById('returnToDepartmentBtn').style.display = 'inline-flex';
+          closeReturnCustomerReview();
+          document.getElementById('archiveModal').style.display = 'none';
+          window.scrollTo({top:0,behavior:'smooth'});
+          alert('✅ تم فتح العميل في الحسابات بكل بياناته: العميل، السيارة، الأصناف، الخدمات، التكاليف والقسم السابق.');
+        } catch (e) {
+          console.error(e);
+          alert('❌ تعذر إرجاع بيانات العميل إلى الحسابات: ' + (e.message || e));
+        }
+        return;
+      }
+
+      const item=currentSelectedQueueItem;
+      const dept=currentOriginalDepartment || getOriginalDepartment(item,{}) || item.originalDepartment || '';
+      if(!dept){ alert('❌ لا يمكن الإرجاع لأن القسم الأصلي غير مسجل.'); return; }
+      if(!confirm(`تأكيد إرجاع ${item.clientName||'العميل'} إلى ${formatDepartmentName(dept)}؟`)) return;
+      closeReturnCustomerReview();
+      await executeReturnCarToOriginalDepartment();
+    }
+
+    async function executeReturnCarToOriginalDepartment() {
+      if (!currentSelectedQueueItem) {
+        alert('الرجاء اختيار سيارة أولاً.');
+        return;
+      }
+
+      const item = currentSelectedQueueItem;
+      let carDocData = {};
+
+      if (item.carId) {
+        try {
+          const carSnap = await db.collection('cars').doc(item.carId).get();
+          if (carSnap.exists) carDocData = carSnap.data();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const originalDepartment = getOriginalDepartment(item, carDocData);
+
+      if (!originalDepartment) {
+        alert('❌ لا يمكن إرجاع السيارة لأن القسم المحول منه غير مسجل في بيانات السيارة.');
+        return;
+      }
+
+      const departmentName = formatDepartmentName(originalDepartment);
+
+      if (!confirm(`تأكيد إرجاع السيارة إلى ${departmentName}؟`)) return;
+
+      try {
+        const now = new Date().toISOString();
+
+        // تحديث بيانات السيارة حتى تظهر مرة أخرى في القسم الأصلي.
+        if (item.carId) {
+          await db.collection('cars').doc(item.carId).set({
+            status: 'IN_PROGRESS',
+            statusLabel: `تم إرجاع السيارة إلى ${departmentName}`,
+            department: originalDepartment,
+            currentDepartment: originalDepartment,
+            assignedDepartment: originalDepartment,
+            originalDepartment: originalDepartment,
+            returnedFromAccounting: true,
+            returnedFromAccountingAt: now,
+            returnedFromAccountingBy: loggedUser,
+            showOnDisplay: true,
+            updatedAt: now
+          }, { merge: true });
+        }
+
+        // حفظ سجل واضح لعملية الإرجاع.
+        await db.collection('department_transfers').add({
+          carId: item.carId || '',
+          clientName: item.clientName || '',
+          phone: item.phone || '',
+          carInfo: item.carInfo || '',
+          carPlate: item.carPlate || '',
+          fromDepartment: 'الحسابات',
+          toDepartment: originalDepartment,
+          toDepartmentName: departmentName,
+          type: 'RETURN_FROM_ACCOUNTING',
+          status: 'RETURNED',
+          returnedBy: loggedUser,
+          dateStr: now,
+          dateFormatted: new Date().toLocaleString('ar-EG')
+        });
+
+        // إزالة السيارة من قائمة انتظار الحسابات.
+        if (item.id) {
+          await db.collection('accounting_queue').doc(item.id).delete();
+        }
+
+        currentSelectedQueueItem = null;
+        currentOriginalDepartment = '';
+        updateOriginalDepartmentUI('');
+
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientPhone').value = '';
+        document.getElementById('carInfo').value = '';
+        document.getElementById('carPlate').value = '';
+        document.getElementById('activeClientTitle').textContent = 'اختر عميلاً من القائمة أو صيانة سريعة';
+
+        alert(`✅ تم إرجاع السيارة بنجاح إلى ${departmentName}.`);
+      } catch (err) {
+        console.error(err);
+        alert('❌ حدث خطأ أثناء إرجاع السيارة: ' + err.message);
+      }
+    }
+
+    async function finalizePaymentAndPrint() {
+      if (!currentSelectedQueueItem) { alert("الرجاء اختيار عميل أولاً!"); return; }
+      const paidAmount = parseFloat(document.getElementById('amountPaidInput').value) || 0;
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const targetTreasuryId = document.getElementById('targetTreasurySelect').value;
+      const discount = parseFloat(document.getElementById('managerDiscountInput').value) || 0;
+      const discountReason = document.getElementById('managerDiscountReason').value || '';
+      const finalTotal = parseFloat(document.getElementById('grandTotalSum').textContent) || 0;
+      const remainingAmount = Math.max(0, finalTotal - paidAmount);
+
+      if (paidAmount > 0 && !targetTreasuryId) {
+        alert("الرجاء تحديد الخزينة المراد إيداع المبلغ المدفوع فيها!");
+        return;
+      }
+
+      let actualMethod = paymentMethod;
+      if (remainingAmount > 0 && paidAmount > 0) {
+        actualMethod = `${paymentMethod} (متبقي آجل: ${remainingAmount})`;
+      } else if (paidAmount === 0 && finalTotal > 0) {
+        actualMethod = `آجل بالكامل (على الحساب)`;
+      }
+
+      if (confirm(`تأكيد تحصيل المدفوع (${paidAmount}) وإصدار الفاتورة وترحيلها للأرشيف؟`)) {
+        try {
+          const invoiceSerial = await getNextInvoiceSerial();
+          const currentDateStr = new Date().toLocaleString('ar-EG');
+
+          document.getElementById('printInvoiceSerial').textContent = invoiceSerial;
+          document.getElementById('printInvoiceDate').textContent = currentDateStr;
+          document.getElementById('printCashierName').textContent = loggedUser;
+          document.getElementById('printAmountPaidSum').textContent = paidAmount;
+
+          const invoiceDataObject = {
+            invoiceSerial: invoiceSerial,
+            clientName: currentSelectedQueueItem.clientName || 'عميل غير مصنف',
+            clientPhone: currentSelectedQueueItem.phone || currentSelectedQueueItem.clientPhone || '',
+            carInfo: currentSelectedQueueItem.carInfo || '',
+            carPlate: currentSelectedQueueItem.carPlate || '',
+            sourceCarId: currentSelectedQueueItem.carId || '',
+            originalDepartment: currentOriginalDepartment || '',
+            requiredParts: JSON.parse(JSON.stringify(currentSelectedQueueItem.requiredParts || [])),
+            quickServicesList: JSON.parse(JSON.stringify(currentSelectedQueueItem.quickServicesList || [])),
+            installationServices: JSON.parse(JSON.stringify(currentSelectedQueueItem.installationServices || [])),
+            partsOnlyTotal: currentPartsOnlySum,
+            partsLaborTotal: currentPartsLaborSum,
+            partsTotal: currentPartsOnlySum + currentPartsLaborSum,
+            quickServicesTotal: currentQuickServicesSum,
+            servicesTotal: currentServicesSum,
+            advancePayment: currentAdvancePayment,
+            managerDiscount: discount,
+            discountReason: discountReason,
+            totalAmount: finalTotal,
+            paidAmount: paidAmount,
+            remainingAmount: remainingAmount,
+            method: actualMethod,
+            treasuryId: targetTreasuryId || '',
+            cashier: loggedUser,
+            dateStr: new Date().toISOString(),
+            dateFormatted: currentDateStr
+          };
+
+          await db.collection('treasury_transactions').add(invoiceDataObject);
+          await db.collection('invoices_archive').add(invoiceDataObject);
+
+          if (paidAmount > 0 && targetTreasuryId) {
+            const tRef = db.collection('treasuries').doc(targetTreasuryId);
+            const tSnap = await tRef.get();
+            if (tSnap.exists) {
+              const currentBal = parseFloat(tSnap.data().balance) || 0;
+              await tRef.update({ balance: currentBal + paidAmount, updatedAt: new Date().toISOString() });
+            }
+          }
+
+          await db.collection('client_accounts').add({
+            clientName: currentSelectedQueueItem.clientName || 'عميل غير مصنف',
+            clientPhone: currentSelectedQueueItem.phone || '',
+            invoiceSerial: invoiceSerial,
+            carInfo: currentSelectedQueueItem.carInfo || '',
+            carPlate: currentSelectedQueueItem.carPlate || '',
+            totalAmount: finalTotal,
+            paidAmount: paidAmount,
+            remainingAmount: remainingAmount,
+            paymentMethod: actualMethod,
+            dateStr: new Date().toISOString(),
+            dateFormatted: currentDateStr
+          });
+
+          if (currentSelectedQueueItem.carId) {
+            await db.collection('cars').doc(currentSelectedQueueItem.carId).set({
+              status: 'DONE',
+              statusLabel: remainingAmount > 0 ? 'تم التسليم (يوجد حساب آجل)' : 'تم الانتهاء والدفع',
+              isPaid: remainingAmount === 0,
+              invoiceSerial: invoiceSerial,
+              paidAmount: paidAmount,
+              remainingAmount: remainingAmount,
+              paymentMethod: actualMethod,
+              showOnDisplay: false
+            }, { merge: true });
+          }
+
+          await db.collection('accounting_queue').doc(currentSelectedQueueItem.id).delete();
+
+          alert(`✅ تمت عملية التحصيل والأرشفة بنجاح برقم فاتورة #${invoiceSerial}.`);
+          // الطباعة تستخدم نفس إعدادات الفاتورة وتملأ ورقة A4 بشكل منسق.
+          window.window.printInvoiceBySize('A4');
+          setTimeout(() => location.reload(), 1200);
+        } catch (err) {
+          alert("خطأ أثناء إتمام العملية: " + err.message);
+        }
+      }
+    }
+
+    async function showStatDetails(type) {
+      const modal = document.getElementById('detailedMovementsModal');
+      const titleEl = document.getElementById('detailedModalTitle');
+      const tbody = document.getElementById('detailedTableBody');
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">جاري تحميل الحركات...</td></tr>`;
+      modal.style.display = 'flex';
+
+      try {
+        if (type === 'drawer' || type === 'transfers' || type === 'treasury' || type === 'deferred') {
+          const snap = await db.collection('treasury_transactions').get();
+          tbody.innerHTML = '';
+          let items = [];
+
+          snap.forEach(doc => {
+            const d = doc.data();
+            const paid = parseFloat(d.paidAmount) || 0;
+            const rem = parseFloat(d.remainingAmount) || 0;
+            const method = String(d.method || '');
+
+            if (type === 'drawer' && !method.includes('انستا باي') && !method.includes('تحويل')) {
+              items.push({ date: d.dateFormatted || d.dateStr, type: 'تحصيل نقدي', desc: `${d.clientName} - ${method}`, amount: paid, cashier: d.cashier });
+            } else if (type === 'transfers' && (method.includes('انستا باي') || method.includes('تحويل'))) {
+              items.push({ date: d.dateFormatted || d.dateStr, type: 'تحويل بنكي / انستا باي', desc: `${d.clientName}`, amount: paid, cashier: d.cashier });
+            } else if (type === 'treasury') {
+              items.push({ date: d.dateFormatted || d.dateStr, type: `حركة (${method})`, desc: `${d.clientName}`, amount: paid, cashier: d.cashier });
+            } else if (type === 'deferred' && rem > 0) {
+              items.push({ date: d.dateFormatted || d.dateStr, type: 'مديونية آجل', desc: `${d.clientName}`, amount: rem, cashier: d.cashier });
+            }
+          });
+
+          if (type === 'drawer') titleEl.textContent = 'كشف تفصيلي: إجمالي الدرج (كاش)';
+          if (type === 'transfers') titleEl.textContent = 'كشف تفصيلي: إجمالي التحويلات';
+          if (type === 'treasury') titleEl.textContent = 'كشف تفصيلي: إجمالي الخزينة العام';
+          if (type === 'deferred') titleEl.textContent = 'كشف تفصيلي: إجمالي الآجل (المديونيات)';
+
+          if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد بيانات مسجلة.</td></tr>`;
+            return;
+          }
+
+          items.forEach(it => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${it.date}</td>
+                <td><b>${it.type}</b></td>
+                <td>${it.desc}</td>
+                <td style="color:var(--treasury-purple); font-weight:bold;">${it.amount}</td>
+                <td>${it.cashier || '---'}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function openQuickMaintenanceModal() {
+      document.getElementById('qmClientName').value = '';
+      document.getElementById('qmClientPhone').value = '';
+      document.getElementById('qmCarInfo').value = '';
+      document.getElementById('qmCarPlate').value = '';
+      selectedQuickServicesMap = {};
+      document.getElementById('selectedQuickServicesSummary').textContent = 'لم يتم اختيار خدمات بعد';
+      document.getElementById('qmTotalSum').textContent = '0';
+      document.getElementById('qmAmountPaid').value = '';
+
+      if (treasuriesList.length > 0) {
+        document.getElementById('qmTargetTreasurySelect').value = treasuriesList[0].id;
+      }
+
+      document.getElementById('quickMaintenanceModal').style.display = 'flex';
+      await loadQuickServicesData();
+    }
+
+    function closeQuickMaintenanceModal() {
+      document.getElementById('quickMaintenanceModal').style.display = 'none';
+    }
+
+    async function openExternalQuickServicesModal() {
+      document.getElementById('externalQuickServicesModal').style.display = 'flex';
+      document.getElementById('quickServiceSearchInput').value = '';
+      document.getElementById('newQuickServiceName').value = '';
+      document.getElementById('newQuickServicePrice').value = '';
+      await renderExternalQuickServicesList();
+    }
+
+    function closeExternalQuickServicesModal() {
+      document.getElementById('externalQuickServicesModal').style.display = 'none';
+      calculateQuickMaintenanceTotal();
+    }
+
+    async function loadQuickServicesData() {
+      try {
+        const snap = await db.collection('quick_services').get();
+        quickServicesList = [];
+        snap.forEach(d => quickServicesList.push({ id: d.id, ...d.data() }));
+      } catch (e) { console.log(e); }
+    }
+
+    async function addNewQuickServiceDefinition() {
+      const name = document.getElementById('newQuickServiceName').value.trim();
+      const price = parseFloat(document.getElementById('newQuickServicePrice').value) || 0;
+      if (!name || price <= 0) {
+        alert("الرجاء إدخال اسم الخدمة وسعر صحيح.");
+        return;
+      }
+      try {
+        await db.collection('quick_services').add({ name, price, createdAt: new Date().toISOString() });
+        alert("✅ تمت إضافة الخدمة بنجاح للقائمة.");
+        document.getElementById('newQuickServiceName').value = '';
+        document.getElementById('newQuickServicePrice').value = '';
+        await renderExternalQuickServicesList();
+      } catch (e) {
+        alert("خطأ أثناء الحفظ: " + e.message);
+      }
+    }
+
+    async function renderExternalQuickServicesList(filterText = '') {
+      const container = document.getElementById('externalQuickServicesContainer');
+      container.innerHTML = `<small style="color:#64748b;">جاري التحميل...</small>`;
+      await loadQuickServicesData();
+
+      if (quickServicesList.length === 0) {
+        container.innerHTML = `<small style="color:#64748b;">لا توجد خدمات صيانة سريعة مسجلة.</small>`;
+        return;
+      }
+
+      const filtered = quickServicesList.filter(qs => qs.name.toLowerCase().includes(filterText.toLowerCase()));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<small style="color:#64748b;">لا توجد نتائج مطابقة للبحث.</small>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      filtered.forEach(qs => {
+        const currentQty = selectedQuickServicesMap[qs.id] ? selectedQuickServicesMap[qs.id].qty : 0;
+        container.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:10px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:8px;">
+            <div>
+              <div style="font-weight:bold; font-size:0.9rem;">${qs.name}</div>
+              <div style="font-size:0.8rem; color:var(--primary-orange);">${qs.price}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button class="btn-action btn-danger" style="padding:2px 8px; font-size:0.8rem;" onclick="changeServiceQty('${qs.id}', '${qs.name}', ${qs.price}, -1)">-</button>
+              <input type="text" id="qs_qty_${qs.id}" value="${currentQty}" readonly style="width:40px; text-align:center; padding:4px; font-weight:bold; border:1px solid var(--border-color); border-radius:4px; background:var(--input-bg);">
+              <button class="btn-action btn-green" style="padding:2px 8px; font-size:0.8rem;" onclick="changeServiceQty('${qs.id}', '${qs.name}', ${qs.price}, 1)">+</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filterExternalQuickServices() {
+      const query = document.getElementById('quickServiceSearchInput').value;
+      renderExternalQuickServicesList(query);
+    }
+
+    function changeServiceQty(id, name, price, delta) {
+      if (!selectedQuickServicesMap[id]) {
+        if (delta > 0) {
+          selectedQuickServicesMap[id] = { name, price, qty: delta };
+        }
+      } else {
+        selectedQuickServicesMap[id].qty += delta;
+        if (selectedQuickServicesMap[id].qty <= 0) {
+          delete selectedQuickServicesMap[id];
+        }
+      }
+      const qtyInput = document.getElementById(`qs_qty_${id}`);
+      if (qtyInput) {
+        qtyInput.value = selectedQuickServicesMap[id] ? selectedQuickServicesMap[id].qty : 0;
+      }
+      updateQuickServicesSummaryText();
+    }
+
+    function updateQuickServicesSummaryText() {
+      let count = 0;
+      let total = 0;
+      Object.values(selectedQuickServicesMap).forEach(item => {
+        count += item.qty;
+        total += item.price * item.qty;
+      });
+      const summaryEl = document.getElementById('selectedQuickServicesSummary');
+      if (count > 0) {
+        summaryEl.textContent = `تم اختيار ${count} خدمة بإجمالي ${total}`;
+      } else {
+        summaryEl.textContent = 'لم يتم اختيار خدمات بعد';
+      }
+    }
+
+    function calculateQuickMaintenanceTotal() {
+      let total = 0;
+      Object.values(selectedQuickServicesMap).forEach(s => total += (s.price * s.qty));
+      document.getElementById('qmTotalSum').textContent = total;
+      document.getElementById('qmAmountPaid').value = total;
+      updateQuickServicesSummaryText();
+    }
+
+    async function executeQuickMaintenanceCheckout() {
+      const clientName = document.getElementById('qmClientName').value.trim() || 'عميل صيانة سريعة';
+      const clientPhone = document.getElementById('qmClientPhone').value.trim() || '---';
+      const carInfo = document.getElementById('qmCarInfo').value.trim() || 'سيارة خارجية';
+      const carPlate = document.getElementById('qmCarPlate').value.trim() || 'بدون لوحة';
+      const paymentMethod = document.getElementById('qmPaymentMethod').value;
+      const targetTreasuryId = document.getElementById('qmTargetTreasurySelect').value;
+      const amountPaid = parseFloat(document.getElementById('qmAmountPaid').value) || 0;
+
+      const servicesArr = Object.values(selectedQuickServicesMap);
+      if (servicesArr.length === 0) { alert("الرجاء اختيار خدمة صيانة سريعة واحدة على الأقل!"); return; }
+      if (amountPaid > 0 && !targetTreasuryId) { alert("الرجاء تحديد الخزينة المراد إيداع المبلغ فيها!"); return; }
+
+      let totalSum = 0;
+      servicesArr.forEach(s => totalSum += (s.price * s.qty));
+
+      if (confirm(`تأكيد تنفيذ وتحصيل صيانة سريعة للعميل (${clientName}) بإجمالي ${totalSum}?`)) {
+        try {
+          const invoiceSerial = await getNextInvoiceSerial();
+          const currentDateStr = new Date().toLocaleString('ar-EG');
+
+          const invoiceData = {
+            invoiceSerial: invoiceSerial,
+            clientName: clientName,
+            clientPhone: clientPhone,
+            carInfo: carInfo,
+            carPlate: carPlate,
+            partsOnlyTotal: 0,
+            partsLaborTotal: 0,
+            partsTotal: 0,
+            quickServicesList: servicesArr,
+            quickServicesTotal: totalSum,
+            servicesTotal: 0,
+            advancePayment: 0,
+            managerDiscount: 0,
+            totalAmount: totalSum,
+            paidAmount: amountPaid,
+            remainingAmount: Math.max(0, totalSum - amountPaid),
+            method: `صيانة سريعة (${paymentMethod})`,
+            treasuryId: targetTreasuryId || '',
+            cashier: loggedUser,
+            dateStr: new Date().toISOString(),
+            dateFormatted: currentDateStr
+          };
+
+          await db.collection('treasury_transactions').add(invoiceData);
+          await db.collection('invoices_archive').add(invoiceData);
+
+          if (amountPaid > 0 && targetTreasuryId) {
+            const tRef = db.collection('treasuries').doc(targetTreasuryId);
+            const tSnap = await tRef.get();
+            if (tSnap.exists) {
+              const currentBal = parseFloat(tSnap.data().balance) || 0;
+              await tRef.update({ balance: currentBal + amountPaid, updatedAt: new Date().toISOString() });
+            }
+          }
+
+          await db.collection('client_accounts').add({
+            clientName: clientName,
+            clientPhone: clientPhone,
+            invoiceSerial: invoiceSerial,
+            carInfo: carInfo,
+            carPlate: carPlate,
+            totalAmount: totalSum,
+            paidAmount: amountPaid,
+            remainingAmount: Math.max(0, totalSum - amountPaid),
+            paymentMethod: `صيانة سريعة (${paymentMethod})`,
+            dateStr: new Date().toISOString(),
+            dateFormatted: currentDateStr
+          });
+
+          document.getElementById('printInvoiceSerial').textContent = invoiceSerial;
+          document.getElementById('printInvoiceDate').textContent = currentDateStr;
+          document.getElementById('printCashierName').textContent = loggedUser;
+          document.getElementById('printAmountPaidSum').textContent = amountPaid;
+          document.getElementById('clientName').value = clientName;
+          document.getElementById('clientPhone').value = clientPhone;
+          document.getElementById('carInfo').value = carInfo;
+          document.getElementById('carPlate').value = carPlate;
+          document.getElementById('grandTotalSum').textContent = totalSum;
+
+          const qsTbody = document.getElementById('invoiceQuickServicesTableBody');
+          qsTbody.innerHTML = '';
+          servicesArr.forEach(qs => {
+            qsTbody.innerHTML += `<tr><td>${qs.name}</td><td>${qs.qty}</td><td>${qs.price}</td><td><b>${qs.price * qs.qty}</b></td></tr>`;
+          });
+
+          alert(`✅ تم إتمام الفاتورة وصدرت برقم #${invoiceSerial} بنجاح.`);
+          closeQuickMaintenanceModal();
+          window.print();
+        } catch (e) {
+          alert("خطأ أثناء التنفيذ: " + e.message);
+        }
+      }
+    }
+
+    async function loadFinancialStats() {
+      try {
+        const snap = await db.collection('treasury_transactions').get();
+        let drawerTotal = 0;
+        let transfersTotal = 0;
+        let deferredTotal = 0;
+
+        snap.forEach(doc => {
+          const d = doc.data();
+          const paid = parseFloat(d.paidAmount) || 0;
+          const rem = parseFloat(d.remainingAmount) || 0;
+          const method = String(d.method || '');
+
+          if (method.includes('انستا باي') || method.includes('تحويل')) {
+            transfersTotal += paid;
+          } else {
+            drawerTotal += paid;
+          }
+          deferredTotal += rem;
+        });
+
+        document.getElementById('statDrawerTotal').textContent = drawerTotal;
+        document.getElementById('statTransfersTotal').textContent = transfersTotal;
+        document.getElementById('statTreasuryTotal').textContent = drawerTotal + transfersTotal;
+        document.getElementById('statDeferredTotal').textContent = deferredTotal;
+      } catch (e) { console.log(e); }
+    }
+
+    async function openTreasuryManagementModal() {
+      document.getElementById('treasuryManagementModal').style.display = 'flex';
+      await loadTreasuriesData();
+    }
+    function closeTreasuryManagementModal() {
+      document.getElementById('treasuryManagementModal').style.display = 'none';
+    }
+
+    async function loadTreasuriesData() {
+      const tbody = document.getElementById('treasuryTableBody');
+      const expSelect = document.getElementById('expenseTreasurySelect');
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">جاري تحميل الخزن...</td></tr>`;
+      if (expSelect) expSelect.innerHTML = `<option value="">اختر الخزينة...</option>`;
+
+      try {
+        const snap = await db.collection('treasuries').get();
+        treasuriesList = [];
+        snap.forEach(d => treasuriesList.push({ id: d.id, ...d.data() }));
+
+        tbody.innerHTML = '';
+        const targetSelect = document.getElementById('targetTreasurySelect');
+        const qmTargetSelect = document.getElementById('qmTargetTreasurySelect');
+        targetSelect.innerHTML = `<option value="">اختر الخزينة...</option>`;
+        qmTargetSelect.innerHTML = `<option value="">اختر الخزينة...</option>`;
+
+        if (treasuriesList.length === 0) {
+          await db.collection('treasuries').add({ name: 'الخزينة الرئيسة (الدرج)', balance: 0, updatedAt: new Date().toISOString() });
+          loadTreasuriesData();
+          return;
+        }
+
+        treasuriesList.forEach(t => {
+          targetSelect.innerHTML += `<option value="${t.id}">${t.name} (الرصيد: ${t.balance || 0})</option>`;
+          qmTargetSelect.innerHTML += `<option value="${t.id}">${t.name} (الرصيد: ${t.balance || 0})</option>`;
+          if (expSelect) expSelect.innerHTML += `<option value="${t.id}">${t.name} (الرصيد: ${t.balance || 0})</option>`;
+
+          tbody.innerHTML += `
+            <tr>
+              <td><b>${t.name}</b></td>
+              <td style="color:var(--btn-green); font-weight:bold;">${t.balance || 0}</td>
+              <td>${t.updatedAt ? new Date(t.updatedAt).toLocaleDateString() : '---'}</td>
+              <td>
+                <button class="btn-action btn-blue" style="padding:3px 8px; font-size:0.75rem;" onclick="editTreasuryBalance('${t.id}', '${t.name}', ${t.balance || 0})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                <button class="btn-action btn-purple" style="padding:3px 8px; font-size:0.75rem;" onclick="showTreasuryStatement('${t.id}', '${t.name}')"><i class="fa-solid fa-file-lines"></i> كشف حساب</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        if (treasuriesList.length > 0 && !document.getElementById('qmTargetTreasurySelect').value) {
+          document.getElementById('qmTargetTreasurySelect').value = treasuriesList[0].id;
+        }
+      } catch (e) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">خطأ</td></tr>`; }
+    }
+
+    async function addNewTreasury() {
+      const name = document.getElementById('treasuryNameInput').value.trim();
+      const balance = parseFloat(document.getElementById('treasuryBalanceInput').value) || 0;
+      if (!name) { alert("أدخل اسم الخزينة."); return; }
+
+      try {
+        await db.collection('treasuries').add({ name, balance, updatedAt: new Date().toISOString() });
+        alert("✅ تمت إضافة الخزينة بنجاح.");
+        document.getElementById('treasuryNameInput').value = '';
+        document.getElementById('treasuryBalanceInput').value = '';
+        await loadTreasuriesData();
+      } catch (e) { alert("خطأ: " + e.message); }
+    }
+
+    async function editTreasuryBalance(id, name, currentBalance) {
+      const pin = prompt(`أدخل كلمة المرور لتعديل رصيد خزينة (${name}) (123):`);
+      if (pin !== "123") { alert("❌ كلمة المرور غير صحيحة!"); return; }
+      const newBal = prompt(`أدخل الرصيد الجديد لخزينة (${name}):`, currentBalance);
+      if (newBal !== null && !isNaN(newBal)) {
+        try {
+          await db.collection('treasuries').doc(id).update({ balance: parseFloat(newBal), updatedAt: new Date().toISOString() });
+          alert("✅ تم تحديث الرصيد بنجاح.");
+          await loadTreasuriesData();
+        } catch (e) { alert("خطأ: " + e.message); }
+      }
+    }
+
+    function openTransferModal() {
+      const fromSel = document.getElementById('transferFromSelect');
+      const toSel = document.getElementById('transferToSelect');
+      fromSel.innerHTML = '';
+      toSel.innerHTML = '';
+
+      treasuriesList.forEach(t => {
+        fromSel.innerHTML += `<option value="${t.id}">${t.name} (الرصيد: ${t.balance || 0})</option>`;
+        toSel.innerHTML += `<option value="${t.id}">${t.name} (الرصيد: ${t.balance || 0})</option>`;
+      });
+
+      document.getElementById('transferAmountInput').value = '';
+      document.getElementById('transferReasonInput').value = '';
+      document.getElementById('transferModal').style.display = 'flex';
+    }
+
+    async function executeTreasuryTransfer() {
+      const fromId = document.getElementById('transferFromSelect').value;
+      const toId = document.getElementById('transferToSelect').value;
+      const amount = parseFloat(document.getElementById('transferAmountInput').value) || 0;
+      const reason = document.getElementById('transferReasonInput').value.trim() || 'تحويل أرصدة بين الخزن';
+
+      if (fromId === toId) { alert("لا يمكن التحويل من وإلى نفس الخزينة!"); return; }
+      if (amount <= 0) { alert("الرجاء إدخال مبلغ صحيح للتحويل."); return; }
+
+      const fromTreasury = treasuriesList.find(t => t.id === fromId);
+      const toTreasury = treasuriesList.find(t => t.id === toId);
+
+      if ((fromTreasury.balance || 0) < amount) {
+        alert("❌ عذراً، رصيد الخزينة المحول منها لا يكفي لإتمام التحويل!");
+        return;
+      }
+
+      if (confirm(`تأكيد تحويل مبلغ ${amount} من (${fromTreasury.name}) إلى (${toTreasury.name})؟`)) {
+        try {
+          const newFromBal = (fromTreasury.balance || 0) - amount;
+          const newToBal = (toTreasury.balance || 0) + amount;
+
+          await db.collection('treasuries').doc(fromId).update({ balance: newFromBal, updatedAt: new Date().toISOString() });
+          await db.collection('treasuries').doc(toId).update({ balance: newToBal, updatedAt: new Date().toISOString() });
+
+          await db.collection('treasury_transfers').add({
+            fromTreasuryId: fromId,
+            fromTreasuryName: fromTreasury.name,
+            toTreasuryId: toId,
+            toTreasuryName: toTreasury.name,
+            amount: amount,
+            reason: reason,
+            cashier: loggedUser,
+            dateStr: new Date().toISOString(),
+            dateFormatted: new Date().toLocaleString('ar-EG')
+          });
+
+          alert("✅ تم تنفيذ عملية التحويل بنجاح وتحديث الأرصدة.");
+          document.getElementById('transferModal').style.display = 'none';
+          await loadTreasuriesData();
+        } catch (e) {
+          alert("خطأ أثناء تنفيذ التحويل: " + e.message);
+        }
+      }
+    }
+
+    async function openTreasuryMovementsModal() {
+      document.getElementById('treasuryMovementsModal').style.display = 'flex';
+      const tbody = document.getElementById('treasuryMovementsTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">جاري تحميل التحركات...</td></tr>`;
+
+      try {
+        const snap = await db.collection('treasury_transfers').orderBy('dateStr', 'desc').get();
+        tbody.innerHTML = '';
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">لا توجد تحويلات مسجلة بين الخزن.</td></tr>`;
+          return;
+        }
+
+        snap.forEach(doc => {
+          const d = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td>${d.dateFormatted || new Date(d.dateStr).toLocaleString()}</td>
+              <td><b>${d.fromTreasuryName}</b></td>
+              <td><b>${d.toTreasuryName}</b></td>
+              <td style="color:var(--treasury-purple); font-weight:bold;">${d.amount}</td>
+              <td>${d.reason}</td>
+              <td>${d.cashier || '---'}</td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function openExpensesModal() {
+      document.getElementById('expensesModal').style.display = 'flex';
+      await loadExpensesData();
+    }
+
+    async function loadExpensesData() {
+      const tbody = document.getElementById('expensesTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">جاري تحميل المصاريف...</td></tr>`;
+      try {
+        const snap = await db.collection('expenses').orderBy('dateStr', 'desc').get();
+        tbody.innerHTML = '';
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">لا توجد مصاريف مسجلة.</td></tr>`;
+          return;
+        }
+        snap.forEach(doc => {
+          const d = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td>${d.dateFormatted || new Date(d.dateStr).toLocaleString()}</td>
+              <td><b>${d.title}</b></td>
+              <td style="color:var(--danger-red); font-weight:bold;">${d.amount}</td>
+              <td>${d.treasuryName || '---'}</td>
+              <td>${d.notes || '---'}</td>
+              <td>${d.cashier || '---'}</td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function addExpenseRecord() {
+      const title = document.getElementById('expenseTitleInput').value.trim();
+      const amount = parseFloat(document.getElementById('expenseAmountInput').value) || 0;
+      const treasuryId = document.getElementById('expenseTreasurySelect').value;
+      const notes = document.getElementById('expenseNotesInput').value.trim();
+
+      if (!title || amount <= 0 || !treasuryId) {
+        alert("الرجاء إدخال بند المصروف ومبلغ صحيح واختيار الخزينة المنصرف منها.");
+        return;
+      }
+
+      const treasuryObj = treasuriesList.find(t => t.id === treasuryId);
+      if ((treasuryObj.balance || 0) < amount) {
+        alert("❌ رصيد الخزينة المحددة لا يكفي لصرف هذا المبلغ!");
+        return;
+      }
+
+      if (confirm(`تأكيد صرف مبلغ ${amount} لبند (${title}) من خزينة (${treasuryObj.name})؟`)) {
+        try {
+          const newBal = (treasuryObj.balance || 0) - amount;
+          await db.collection('treasuries').doc(treasuryId).update({ balance: newBal, updatedAt: new Date().toISOString() });
+
+          await db.collection('expenses').add({
+            title: title,
+            amount: amount,
+            treasuryId: treasuryId,
+            treasuryName: treasuryObj.name,
+            notes: notes,
+            cashier: loggedUser,
+            dateStr: new Date().toISOString(),
+            dateFormatted: new Date().toLocaleString('ar-EG')
+          });
+
+          alert("✅ تم تسجيل وصرف المصروف بنجاح.");
+          document.getElementById('expenseTitleInput').value = '';
+          document.getElementById('expenseAmountInput').value = '';
+          document.getElementById('expenseNotesInput').value = '';
+          await loadExpensesData();
+          await loadTreasuriesData();
+        } catch (e) {
+          alert("خطأ: " + e.message);
+        }
+      }
+    }
+
+    async function openWorkersModal() {
+      document.getElementById('workersModal').style.display = 'flex';
+      await loadWorkersData();
+    }
+
+    async function loadWorkersData() {
+      const tbody = document.getElementById('workersTableBody');
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">جاري تحميل العمال...</td></tr>`;
+      try {
+        const snap = await db.collection('workers').get();
+        tbody.innerHTML = '';
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد عمال مسجلين.</td></tr>`;
+          return;
+        }
+        snap.forEach(doc => {
+          const d = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td><b>${d.name}</b></td>
+              <td><span style="background:rgba(147,51,234,0.1); color:var(--treasury-purple); padding:2px 8px; border-radius:6px; font-weight:bold;">${d.department}</span></td>
+              <td>${d.phone || '---'}</td>
+              <td>${d.notes || '---'}</td>
+              <td>
+                <button class="btn-action btn-danger" style="padding:3px 6px; font-size:0.7rem;" onclick="deleteWorker('${doc.id}')"><i class="fa-solid fa-trash"></i> حذف</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function addWorkerRecord() {
+      const name = document.getElementById('workerNameInput').value.trim();
+      const department = document.getElementById('workerDepartmentSelect').value;
+      const phone = document.getElementById('workerPhoneInput').value.trim();
+      const notes = document.getElementById('workerNotesInput').value.trim();
+
+      if (!name) { alert("أدخل اسم العامل."); return; }
+
+      try {
+        await db.collection('workers').add({
+          name: name,
+          department: department,
+          phone: phone,
+          notes: notes,
+          createdAt: new Date().toISOString()
+        });
+
+        alert("✅ تمت إضافة العامل بنجاح.");
+        document.getElementById('workerNameInput').value = '';
+        document.getElementById('workerPhoneInput').value = '';
+        document.getElementById('workerNotesInput').value = '';
+        await loadWorkersData();
+      } catch (e) {
+        alert("خطأ: " + e.message);
+      }
+    }
+
+    async function deleteWorker(id) {
+      if (confirm("هل تريد حذف هذا العامل؟")) {
+        try {
+          await db.collection('workers').doc(id).delete();
+          await loadWorkersData();
+        } catch (e) { alert("خطأ: " + e.message); }
+      }
+    }
+
+    function printElement(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const old = document.getElementById('activePrintElement');
+      if (old) old.removeAttribute('id');
+      el.setAttribute('id','activePrintElement');
+      document.body.classList.add('print-custom');
+      const style = document.createElement('style');
+      style.id='customPrintStyle';
+      style.textContent='@media print{body *{visibility:hidden!important}#activePrintElement,#activePrintElement *{visibility:visible!important}#activePrintElement{position:absolute;left:0;top:0;width:100%;background:#fff!important;color:#000!important} .no-print{display:none!important}}';
+      document.head.appendChild(style);
+      window.print();
+      setTimeout(()=>{ el.removeAttribute('id'); document.body.classList.remove('print-custom'); style.remove(); },500);
+    }
+
+    async function showTreasuryStatement(treasuryId, treasuryName) {
+      document.getElementById('treasuryStatementTitle').textContent = `كشف حساب وخزينة: ${treasuryName}`;
+      document.getElementById('treasuryStatementModal').style.display = 'flex';
+      const tbody = document.getElementById('treasuryStatementTableBody');
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">جاري تحميل كشف الحساب...</td></tr>`;
+
+      try {
+        const snap = await db.collection('treasury_transactions').where('treasuryId', '==', treasuryId).get();
+        tbody.innerHTML = '';
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b;">لا توجد حركات مسجلة لهذه الخزينة حتى الآن.</td></tr>`;
+          return;
+        }
+
+        snap.forEach(doc => {
+          const d = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td>${d.dateFormatted || new Date(d.dateStr).toLocaleString()}</td>
+              <td>فاتورة مبيعات / صيانة (${d.method || 'تحصيل'})</td>
+              <td style="color:var(--btn-green); font-weight:bold;">+${d.paidAmount || 0}</td>
+              <td>#${d.invoiceSerial}</td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function openArchiveModal() {
+      document.getElementById('archiveModal').style.display = 'flex';
+      await loadArchiveData();
+    }
+    function closeArchiveModal() { document.getElementById('archiveModal').style.display = 'none'; }
+
+    async function loadArchiveData() {
+      const tbody = document.getElementById('archiveTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b;">جاري التحميل...</td></tr>`;
+      try {
+        const snapshot = await db.collection('invoices_archive').orderBy('invoiceSerial', 'desc').get();
+        archiveInvoicesList = [];
+        snapshot.forEach(doc => { archiveInvoicesList.push({ id: doc.id, ...doc.data() }); });
+        renderArchiveTable(archiveInvoicesList);
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">خطأ في تحميل الأرشيف: ${e.message}</td></tr>`;
+      }
+    }
+
+    function renderArchiveTable(list) {
+      const tbody = document.getElementById('archiveTableBody');
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد فواتير مؤرشفة.</td></tr>`;
+        return;
+      }
+      list.forEach(inv => {
+        const rem = inv.remainingAmount || 0;
+        tbody.innerHTML += `
+          <tr>
+            <td><b>#${inv.invoiceSerial}</b></td>
+            <td>${inv.clientName || '---'}</td>
+            <td>${inv.carPlate || inv.carInfo || '---'}</td>
+            <td><b>${inv.totalAmount}</b></td>
+            <td>المدفوع: ${inv.paidAmount || 0} <br><span style="color:var(--danger-red);">آجل: ${rem}</span></td>
+            <td>${inv.dateFormatted || new Date(inv.dateStr).toLocaleDateString()}</td>
+            <td>
+              <button class="btn-action btn-purple" style="padding:4px 8px; font-size:0.72rem;" onclick='openArchivedInvoice(${JSON.stringify(inv)})'>
+                <i class="fa-solid fa-eye"></i> عرض
+              </button>
+              <button class="btn-action btn-blue" style="padding:4px 8px; font-size:0.72rem;" onclick='openArchivedReturnReview(${JSON.stringify(inv)})'>
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> إرجاع للحسابات
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function filterArchive() {
+      const query = document.getElementById('archiveSearchInput').value.toLowerCase();
+      const filtered = archiveInvoicesList.filter(inv => 
+        String(inv.invoiceSerial).includes(query) ||
+        (inv.clientName && inv.clientName.toLowerCase().includes(query)) ||
+        (inv.carPlate && inv.carPlate.toLowerCase().includes(query)) ||
+        (inv.clientPhone && String(inv.clientPhone).toLowerCase().includes(query)) ||
+        (inv.carInfo && inv.carInfo.toLowerCase().includes(query))
+      );
+      renderArchiveTable(filtered);
+    }
+
+    function fillInvoiceTablesFromData(inv) {
+      const parts = Array.isArray(inv.requiredParts) ? inv.requiredParts : [];
+      const partsTbody = document.getElementById('partsTableBody');
+      partsTbody.innerHTML = '';
+      let partsOnly = 0, partsLabor = 0;
+      const visibleParts = parts.filter(p => {
+        const price = parseFloat(p.price) || 0;
+        const qty = parseInt(p.quantityNeeded || p.qty) || 1;
+        const labor = parseFloat(p.installationFee || p.laborFee || 0);
+        return price * qty !== 0 || labor !== 0;
+      });
+      if (!visibleParts.length) {
+        partsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد بنود قطع غيار بقيمة.</td></tr>`;
+      } else {
+        visibleParts.forEach((p,index) => {
+          const price=parseFloat(p.price)||0, qty=parseInt(p.quantityNeeded||p.qty)||1;
+          const labor=parseFloat(p.installationFee||p.laborFee||0), total=price*qty;
+          partsOnly += total; partsLabor += labor;
+          partsTbody.innerHTML += `<tr><td>${index+1}</td><td>${p.name||'قطعة'}</td><td>${qty}</td><td>${price}</td><td><b>${total}</b></td><td>${labor}</td><td><b>${labor}</b></td></tr>`;
+        });
+      }
+
+      const qs = Array.isArray(inv.quickServicesList) ? inv.quickServicesList : [];
+      const qsBody=document.getElementById('invoiceQuickServicesTableBody'); qsBody.innerHTML='';
+      const visibleQs=qs.filter(q=>((parseFloat(q.price)||0)*(parseInt(q.qty)||1))!==0);
+      let qsTotal=0;
+      if(!visibleQs.length) qsBody.innerHTML=`<tr><td colspan="4" style="text-align:center;color:#64748b;">لا توجد خدمات بقيمة.</td></tr>`;
+      else visibleQs.forEach(q=>{const price=parseFloat(q.price)||0,qty=parseInt(q.qty)||1,total=price*qty;qsTotal+=total;qsBody.innerHTML+=`<tr><td>${q.name||'خدمة'}</td><td>${qty}</td><td>${price}</td><td><b>${total}</b></td></tr>`;});
+
+      const services=Array.isArray(inv.installationServices)?inv.installationServices:[];
+      const sBody=document.getElementById('servicesTableBody'); sBody.innerHTML='';
+      const visibleS=services.filter(x=>(parseFloat(x.price)||0)!==0);
+      let servicesTotal=0;
+      if(!visibleS.length) sBody.innerHTML=`<tr><td colspan="2" style="text-align:center;color:#64748b;">لا توجد خدمات تركيب بقيمة.</td></tr>`;
+      else visibleS.forEach(x=>{const v=parseFloat(x.price)||0;servicesTotal+=v;sBody.innerHTML+=`<tr><td>${x.name||'خدمة إضافية'}</td><td><b>${v}</b></td></tr>`;});
+
+      document.getElementById('partsOnlyTotalSum').textContent = inv.partsOnlyTotal ?? partsOnly;
+      document.getElementById('partsLaborTotalSum').textContent = inv.partsLaborTotal ?? partsLabor;
+      document.getElementById('quickServicesTotalSum').textContent = inv.quickServicesTotal ?? qsTotal;
+      document.getElementById('servicesTotalSum').textContent = inv.servicesTotal ?? servicesTotal;
+      document.getElementById('advanceDeductionSum').textContent = inv.advancePayment || 0;
+      document.getElementById('managerDiscountSum').textContent = inv.managerDiscount || 0;
+      document.getElementById('grandTotalSum').textContent = inv.totalAmount || 0;
+      document.getElementById('printAmountPaidSum').textContent = inv.paidAmount || 0;
+      document.getElementById('remainingBalanceSum').textContent = inv.remainingAmount || 0;
+      document.getElementById('remainingBalanceRow').style.display = (parseFloat(inv.remainingAmount)||0)>0 ? 'flex' : 'none';
+    }
+
+    function prepareArchivedInvoice(inv) {
+      document.getElementById('printInvoiceSerial').textContent = inv.invoiceSerial || '---';
+      document.getElementById('printInvoiceDate').textContent = inv.dateFormatted || (inv.dateStr ? new Date(inv.dateStr).toLocaleString('ar-EG') : '---');
+      document.getElementById('printCashierName').textContent = inv.cashier || 'المحاسب';
+      document.getElementById('clientName').value = inv.clientName || '';
+      document.getElementById('clientPhone').value = inv.clientPhone || '';
+      document.getElementById('carInfo').value = inv.carInfo || '';
+      document.getElementById('carPlate').value = inv.carPlate || '';
+      fillInvoiceTablesFromData(inv);
+    }
+
+    function openArchivedInvoice(inv) {
+      prepareArchivedInvoice(inv);
+      document.getElementById('activeClientTitle').textContent = `فاتورة مؤرشفة #${inv.invoiceSerial} — وضع عرض`;
+      document.getElementById('archiveModal').style.display = 'none';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function openArchivedReturnReview(inv){
+      try {
+        returnReviewMode = 'archive';
+        const sourceCarId = inv.sourceCarId || inv.carId || '';
+        let carData = {};
+        if (sourceCarId) {
+          try {
+            const carSnap = await db.collection('cars').doc(sourceCarId).get();
+            if (carSnap.exists) carData = carSnap.data() || {};
+          } catch(e) {}
+          if (!Object.keys(carData).length) {
+            try {
+              const waSnap = await db.collection('workshop_archive').doc(sourceCarId).get();
+              if (waSnap.exists) carData = waSnap.data() || {};
+            } catch(e) {}
+          }
+        }
+        currentSelectedQueueItem = {
+          id: `archive_${inv.id || inv.invoiceSerial || Date.now()}`,
+          carId: sourceCarId,
+          ...carData,
+          ...inv,
+          clientName: inv.clientName || carData.clientName || '',
+          phone: inv.clientPhone || inv.phone || carData.clientPhone || carData.phone || '',
+          clientPhone: inv.clientPhone || inv.phone || carData.clientPhone || carData.phone || '',
+          carInfo: inv.carInfo || carData.carInfo || `${carData.brand||''} ${carData.model||''}`.trim(),
+          carPlate: inv.carPlate || carData.carPlate || carData.plate || '',
+          requiredParts: Array.isArray(inv.requiredParts) ? inv.requiredParts : (Array.isArray(carData.requiredParts) ? carData.requiredParts : []),
+          quickServicesList: Array.isArray(inv.quickServicesList) ? inv.quickServicesList : (Array.isArray(carData.quickServicesList) ? carData.quickServicesList : []),
+          installationServices: Array.isArray(inv.installationServices) ? inv.installationServices : (Array.isArray(carData.installationServices) ? carData.installationServices : []),
+          originalDepartment: inv.originalDepartment || carData.originalDepartment || inv.department || carData.department || carData.currentDepartment || '',
+          fromArchive: true
+        };
+        currentOriginalDepartment = currentSelectedQueueItem.originalDepartment || '';
+        updateOriginalDepartmentUI(currentOriginalDepartment);
+        await openReturnCustomerReview();
+      } catch(e) {
+        console.error(e);
+        alert('❌ تعذر عرض بيانات العميل من الأرشيف: ' + (e.message || e));
+      }
+    }
+
+    async function loadArchivedInvoiceToAccounting(inv){
+      return openArchivedReturnReview(inv);
+    }
+
+    function printArchivedInvoice(inv, size='A4') {
+      prepareArchivedInvoice(inv);
+      window.printInvoiceBySize(size);
+    }
+
+    async function openClientAccountsModal() {
+      document.getElementById('clientAccountsModal').style.display = 'flex';
+      await loadClientAccountsData();
+    }
+    function closeClientAccountsModal() { document.getElementById('clientAccountsModal').style.display = 'none'; }
+
+    async function loadClientAccountsData() {
+      const tbody = document.getElementById('clientAccountsTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">جاري تحميل حسابات العملاء...</td></tr>`;
+      try {
+        const snap = await db.collection('client_accounts').get();
+        let map = {};
+        snap.forEach(doc => {
+          const d = doc.data();
+          const key = d.clientName || 'عميل';
+          if (!map[key]) {
+            map[key] = { name: key, phone: d.clientPhone || '---', visits: 0, totalSpent: 0, totalPaid: 0, remaining: 0 };
+          }
+          map[key].visits += 1;
+          map[key].totalSpent += (parseFloat(d.totalAmount) || 0);
+          map[key].totalPaid += (parseFloat(d.paidAmount) || 0);
+          map[key].remaining += (parseFloat(d.remainingAmount) || 0);
+        });
+
+        renderClientAccountsTable(Object.values(map));
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+      }
+    }
+
+    function renderClientAccountsTable(list) {
+      const tbody = document.getElementById('clientAccountsTableBody');
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b;">لا توجد حسابات مسجلة للعملاء.</td></tr>`;
+        return;
+      }
+      list.forEach(c => {
+        tbody.innerHTML += `
+          <tr>
+            <td><b>${c.name}</b></td>
+            <td>${c.phone}</td>
+            <td>${c.visits}</td>
+            <td>${c.totalSpent}</td>
+            <td style="color:var(--btn-green);">${c.totalPaid}</td>
+            <td style="color:var(--danger-red); font-weight:bold;">${c.remaining}</td>
+            <td class="no-print">
+              <button class="btn-action btn-blue" style="padding:3px 8px; font-size:0.75rem;" onclick="showClientStatement('${c.name}')"><i class="fa-solid fa-list"></i> كشف زيارات</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function filterClientAccounts() {
+      loadClientAccountsData();
+    }
+
+    async function showClientStatement(clientName) {
+      alert(`عرض تفاصيل وزيارات العميل: ${clientName}`);
+    }
+  </script>
+<script id="print-professional-v5-js">
+(function(){
+  const money=v=>{const n=parseFloat(v);return Number.isFinite(n)&&Math.abs(n)>0.000001?n.toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2}):''};
+  const num=v=>{const n=parseFloat(v);return Number.isFinite(n)?n:0};
+  const esc=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  function rowHasData(row){return row && [...row.cells].some(c=>{const t=(c.innerText||'').replace(/[-—–s0.]+/g,'');return t.length>0});}
+  function hideEmptyBlocks(root){
+    root.querySelectorAll('.card-box').forEach(box=>{
+      if(box.classList.contains('no-print')) return;
+      const tb=box.querySelector('tbody');
+      if(tb){
+        const rows=[...tb.querySelectorAll('tr')].filter(rowHasData);
+        const meaningful=rows.filter(r=>!/(لا توجد|جاري التحميل|لا يوجد)/.test(r.innerText||''));
+        if(!meaningful.length) box.classList.add('print-only-empty-hide');
+      }
+    });
+    root.querySelectorAll('.summary-row').forEach(r=>{
+      const value=r.querySelector('span:last-child');
+      if(value && !money(value.innerText.replace(/,/g,''))) r.classList.add('print-only-empty-hide');
+    });
+  }
+  function printNode(id,title){
+    const el=document.getElementById(id); if(!el){alert('❌ لم يتم العثور على بيانات الطباعة');return;}
+    const clone=el.cloneNode(true); clone.classList.add('professional-print'); hideEmptyBlocks(clone);
+    const w=window.open('','_blank','width=900,height=700'); if(!w){window.print();return;}
+    w.document.write('<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>'+esc(title||'طباعة')+'</title><style>@page{size:A4 portrait;margin:8mm}body{font-family:Arial,sans-serif;direction:rtl;margin:0;color:#111}.professional-print{background:#fff;padding:0}.professional-print table{width:100%;border-collapse:collapse;font-size:9px}.professional-print th,.professional-print td{border:1px solid #cbd5e1;padding:4px;text-align:right}.professional-print th{background:#f1f5f9;font-weight:900}.professional-print .print-only-empty-hide{display:none!important}.professional-print .no-print{display:none!important}.professional-print .summary-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #cbd5e1}.professional-print .card-box{margin:5px 0;padding:6px;border:1px solid #cbd5e1;border-radius:4px}.professional-print h3,.professional-print h4{margin:0 0 6px}.print-head{border-bottom:2px solid #111;margin-bottom:8px;padding-bottom:5px;font-weight:900;font-size:15px}</style></head><body><div class="print-head">'+esc(title||'تقرير')+'</div>'+clone.outerHTML+'</body></html>');
+    w.document.close(); w.focus(); setTimeout(()=>{w.print();setTimeout(()=>w.close(),400)},250);
+  }
+  window.printElement=function(id){
+    const map={treasuryStatementPrintArea:'كشف حساب الخزينة',treasuryMovementsPrintArea:'حركة الخزينة',expensesPrintArea:'كشف المصاريف',archivePrintArea:'الأرشيف',clientAccountsPrintArea:'ملخص حسابات العملاء',detailedPrintArea:'الملخص المالي',workersPrintArea:'تقرير العاملين'};
+    printNode(id,map[id]||'تقرير مالي');
+  };
+
+  const INVOICE_PRINT_DEFAULTS = {
+    tableWidth: 100,
+    fontSize: 9,
+    rowPad: 3,
+    border: 1,
+    margin: 7,
+    fontFamily: 'Arial, sans-serif',
+    fontWeight: 700,
+    columns: [7, 28, 9, 13, 14, 15, 14]
+  };
+  const INVOICE_PRINT_COLUMNS = ['مسلسل','الصنف / القطعة','الكمية','سعر الوحدة','إجمالي سعر الوحدة','مُصنعية التركيب','إجمالي المصنعية'];
+
+  function getInvoicePrintSettings(){
+    try{
+      const x=JSON.parse(localStorage.getItem('invoicePrintSettings')||'null');
+      return Object.assign({},INVOICE_PRINT_DEFAULTS,x||{});
+    }catch(e){return Object.assign({},INVOICE_PRINT_DEFAULTS);}
+  }
+  function saveInvoicePrintSettings(){
+    const st=readInvoicePrintControls();
+    localStorage.setItem('invoicePrintSettings',JSON.stringify(st));
+    updateInvoicePrintPreview();
+    alert('✅ تم حفظ إعدادات الطباعة.');
+  }
+  function readInvoicePrintControls(){
+    const st=getInvoicePrintSettings();
+    ['tableWidth','fontSize','rowPad','border','margin'].forEach(k=>{
+      const el=document.getElementById('ips'+k.charAt(0).toUpperCase()+k.slice(1));
+      if(el) st[k]=Number(el.value);
+    });
+    const ff=document.getElementById('ipsFontFamily');
+    const fw=document.getElementById('ipsFontWeight');
+    if(ff) st.fontFamily=ff.value;
+    if(fw) st.fontWeight=Number(fw.value);
+
+    st.columns=INVOICE_PRINT_COLUMNS.map((_,i)=>{
+      const el=document.getElementById('ipsCol'+i);
+      return el?Number(el.value):(st.columns[i]||INVOICE_PRINT_DEFAULTS.columns[i]);
+    });
+    return st;
+  }
+  function buildInvoiceColumnControls(){
+    const st=getInvoicePrintSettings(), box=document.getElementById('ipsColumnControls');
+    if(!box)return;
+    box.innerHTML=INVOICE_PRINT_COLUMNS.map((name,i)=>`
+      <div class="ips-col-row">
+        <label>${name}</label>
+        <input id="ipsCol${i}" type="number" min="3" max="60" step="1" value="${st.columns[i]||INVOICE_PRINT_DEFAULTS.columns[i]}" oninput="updateInvoicePrintPreview()">
+      </div>`).join('');
+  }
+  function setInvoicePrintControls(st){
+    const map={tableWidth:'ipsTableWidth',fontSize:'ipsFontSize',rowPad:'ipsRowPad',border:'ipsBorder',margin:'ipsMargin'};
+    Object.keys(map).forEach(k=>{const el=document.getElementById(map[k]);if(el)el.value=st[k];});
+    const ff=document.getElementById('ipsFontFamily');
+    const fw=document.getElementById('ipsFontWeight');
+    if(ff) ff.value=st.fontFamily || INVOICE_PRINT_DEFAULTS.fontFamily;
+    if(fw) fw.value=String(st.fontWeight || INVOICE_PRINT_DEFAULTS.fontWeight);
+    buildInvoiceColumnControls();
+    updateInvoicePrintPreview();
+  }
+  function resetInvoicePrintSettings(){
+    localStorage.removeItem('invoicePrintSettings');
+    setInvoicePrintControls(Object.assign({},INVOICE_PRINT_DEFAULTS,{columns:[...INVOICE_PRINT_DEFAULTS.columns]}));
+  }
+  function openInvoicePrintSettings(){
+    const m=document.getElementById('invoicePrintSettingsModal');
+    if(!m)return;
+    m.style.display='flex';
+    setInvoicePrintControls(getInvoicePrintSettings());
+  }
+  function closeInvoicePrintSettings(){
+    const m=document.getElementById('invoicePrintSettingsModal');
+    if(m)m.style.display='none';
+  }
+  function invoicePreviewClone(){
+    const src=document.getElementById('printableInvoiceArea');
+    if(!src)return null;
+    const clone=src.cloneNode(true);
+    clone.classList.remove('card-box');
+    clone.classList.add('preview-invoice');
+    clone.querySelectorAll('.no-print').forEach(x=>x.remove());
+    clone.querySelectorAll('input,select,button').forEach(x=>x.remove());
+    const header=clone.querySelector('#printInvoiceHeader');
+    if(header) header.style.display='block';
+    return clone;
+  }
+  function applyInvoicePreviewStyle(root,st){
+    if(!root)return;
+    root.style.width=st.tableWidth+'%';
+    root.style.fontSize=st.fontSize+'px';
+    root.style.margin='0 auto';
+    root.style.padding='0';
+    root.style.color='#000';
+    root.style.background='#fff';
+    root.style.fontFamily=st.fontFamily || 'Arial, sans-serif';
+    root.style.fontWeight=st.fontWeight || 700;
+    const tables=root.querySelectorAll('table');
+    tables.forEach(table=>{
+      table.style.width='100%';
+      table.style.tableLayout='fixed';
+      table.style.fontSize=st.fontSize+'px';
+      table.querySelectorAll('th,td').forEach(cell=>{
+        cell.style.padding=st.rowPad+'px '+Math.max(2,Math.round(st.rowPad*0.8))+'px';
+        cell.style.border=st.border+'px solid #000';
+        cell.style.lineHeight='1.2';
+      });
+    });
+    const partsTable=root.querySelector('#partsTableBody')?.closest('table');
+    if(partsTable){
+      const widths=st.columns;
+      const total=widths.reduce((a,b)=>a+b,0)||100;
+      const cols=[...partsTable.querySelectorAll('tr:first-child th')].length;
+      widths.slice(0,cols).forEach((w,i)=>{
+        const pct=(w/total*100).toFixed(2)+'%';
+        partsTable.querySelectorAll('tr').forEach(row=>{
+          const cell=row.children[i]; if(cell)cell.style.width=pct;
+        });
+      });
+    }
+  }
+  function updateInvoicePrintPreview(){
+    const st=readInvoicePrintControls();
+    const labels={tableWidth:'%',fontSize:'px',rowPad:'px',border:'px',margin:'mm'};
+    Object.keys(labels).forEach(k=>{
+      const el=document.getElementById('ips'+k.charAt(0).toUpperCase()+k.slice(1)+'Val');
+      if(el)el.textContent=st[k]+labels[k];
+    });
+    const paper=document.getElementById('invoicePrintPreviewPaper');
+    if(!paper)return;
+    const clone=invoicePreviewClone();
+    if(!clone){paper.innerHTML='<div style="padding:30px;text-align:center">لا توجد فاتورة للمعاينة.</div>';return;}
+    applyInvoicePreviewStyle(clone,st);
+    paper.style.padding=st.margin*3.78+'px';
+    paper.innerHTML='';
+    paper.appendChild(clone);
+  }
+  function printInvoiceFromPreview(){
+    const st=readInvoicePrintControls();
+    localStorage.setItem('invoicePrintSettings',JSON.stringify(st));
+    closeInvoicePrintSettings();
+    window.window.printInvoiceBySize('A4');
+  }
+  function applyInvoicePrintSettingsToPage(st){
+    const styleId='invoiceDynamicPrintSettings';
+    document.getElementById(styleId)?.remove();
+    const colRules=st.columns.map((w,i)=>{
+      const n=i+1;
+      return `#printableInvoiceArea #partsTableBody~*{} #printableInvoiceArea table:first-of-type tr>*:nth-child(${n}){width:${w}%;}`;
+    }).join('');
+    const css=`@media print{
+      @page{size:A4 portrait;margin:${st.margin}mm}
+      body.print-a4 #printableInvoiceArea{
+        width:${st.tableWidth}% !important;
+        min-height:calc(297mm - ${st.margin * 2}mm) !important;
+        height:auto !important;
+        margin:0 auto !important;
+        padding:${Math.max(3,st.margin)}mm !important;
+        box-sizing:border-box !important;
+        display:flex !important;
+        flex-direction:column !important;
+        font-family:${st.fontFamily} !important;
+        font-size:${st.fontSize}px !important;
+        font-weight:${st.fontWeight} !important;
+      }
+      body.print-a4 #printableInvoiceArea table{font-size:${st.fontSize}px !important;table-layout:fixed !important;width:100% !important;}
+      body.print-a4 #printableInvoiceArea th,body.print-a4 #printableInvoiceArea td{
+        font-size:${st.fontSize}px !important;
+        font-family:${st.fontFamily} !important;
+        font-weight:${st.fontWeight} !important;
+        padding:${st.rowPad}px !important;
+        border:${st.border}px solid #000 !important;
+        line-height:1.2 !important;
+        white-space:normal !important;
+        word-break:break-word !important;
+      }
+      body.print-a4 #printableInvoiceArea .invoice-footer-notes{
+        margin-top:auto !important;
+        padding-top:12px !important;
+      }
+      body.print-a4 #printableInvoiceArea > .card-box{
+        break-inside:avoid !important;
+        page-break-inside:avoid !important;
+      }
+      ${colRules}
+    }`;
+    const stEl=document.createElement('style');stEl.id=styleId;stEl.textContent=css;document.head.appendChild(stEl);
+    return stEl;
+  }
+
+  function prepareInvoiceFullPagePrint(st){
+    const area=document.getElementById('printableInvoiceArea');
+    if(!area)return;
+    area.classList.add('invoice-full-page-print');
+
+    // إزالة أي تمدد سابق للصفوف عند إعادة الطباعة.
+    area.querySelectorAll('table tbody tr').forEach(r=>{
+      r.style.minHeight='';
+      r.style.height='';
+    });
+
+    // لو الفاتورة قصيرة، اجعل منطقة الفاتورة نفسها بحجم صفحة A4 كاملة
+    // مع إبقاء التوقيعات/الملاحظات في أسفل الورقة.
+    area.style.minHeight=`calc(297mm - ${Math.max(3,st.margin)*2}mm)`;
+    area.style.fontFamily=st.fontFamily || 'Arial, sans-serif';
+    area.style.fontWeight=st.fontWeight || 700;
+
+    // منع انقسام جداول الفاتورة على صفحتين.
+    area.querySelectorAll('table').forEach(t=>{
+      t.style.breakInside='avoid';
+      t.style.pageBreakInside='avoid';
+    });
+  }
+
+  window.printInvoiceBySize=function(){
+    const el=document.getElementById('printableInvoiceArea'); if(!el){window.print();return;}
+    hideEmptyBlocks(el);
+    document.body.classList.add('print-a4');
+    const printSettings = getInvoicePrintSettings();
+    const dynamicPrintStyle = applyInvoicePrintSettingsToPage(printSettings);
+    prepareInvoiceFullPagePrint(printSettings);
+    // إزالة البنود المالية الصفرية/الفارغة من الفاتورة نفسها قبل الطباعة.
+    ['quickServicesTotalSum','servicesTotalSum','advanceDeductionSum','managerDiscountSum','remainingBalanceSum'].forEach(id=>{const x=document.getElementById(id);if(x&&num((x.innerText||'').replace(/,/g,''))===0){const r=x.closest('.summary-row');if(r)r.style.display='none';}});
+    const quick=document.getElementById('invoiceQuickServicesTableBody'); if(quick){const rows=[...quick.querySelectorAll('tr')].filter(rowHasData).filter(r=>!/(لا توجد|جاري التحميل)/.test(r.innerText||''));const card=quick.closest('.card-box');if(card&&!rows.length)card.style.display='none';}
+    const services=document.getElementById('servicesTableBody'); if(services){const rows=[...services.querySelectorAll('tr')].filter(rowHasData).filter(r=>!/(لا توجد|جاري التحميل)/.test(r.innerText||''));const card=services.closest('.card-box');if(card&&!rows.length)card.style.display='none';}
+    const old=document.getElementById('invoicePageSizeStyle');if(old)old.remove();const st=document.createElement('style');st.id='invoicePageSizeStyle';st.textContent='@media print{@page{size:A4 portrait;margin:5mm}#printableInvoiceArea{page-break-inside:avoid!important;break-inside:avoid!important}.card-box{break-inside:avoid!important}}';document.head.appendChild(st);
+    window.print();setTimeout(()=>{
+      document.body.classList.remove('print-a4');
+      st.remove();
+      dynamicPrintStyle.remove();
+      const area=document.getElementById('printableInvoiceArea');
+      if(area){
+        area.classList.remove('invoice-full-page-print');
+        area.style.minHeight='';
+        area.style.fontFamily='';
+        area.style.fontWeight='';
+        area.querySelectorAll('table').forEach(t=>{
+          t.style.breakInside='';
+          t.style.pageBreakInside='';
+        });
+      }
+    },1000);
+  };
+  // إصلاح: تصدير دوال إعدادات الطباعة حتى تعمل أزرار onclick في HTML
+  window.openInvoicePrintSettings = openInvoicePrintSettings;
+  window.closeInvoicePrintSettings = closeInvoicePrintSettings;
+  window.updateInvoicePrintPreview = updateInvoicePrintPreview;
+  window.saveInvoicePrintSettings = saveInvoicePrintSettings;
+  window.resetInvoicePrintSettings = resetInvoicePrintSettings;
+  window.printInvoiceFromPreview = printInvoiceFromPreview;
+
+window.showClientStatement=async function(clientName){
+    let docs=[]; try{const snap=await db.collection('client_accounts').get();snap.forEach(d=>{const x=d.data();if((x.clientName||'')===clientName)docs.push(x)});}catch(e){alert('تعذر تحميل كشف الحساب: '+e.message);return;}
+    docs.sort((a,b)=>String(a.timestamp||a.date||a.createdAt||'').localeCompare(String(b.timestamp||b.date||b.createdAt||'')));
+    const rows=docs.map((x,i)=>{const total=num(x.totalAmount||x.grandTotal),paid=num(x.paidAmount),rem=num(x.remainingAmount||(total-paid));return '<tr><td>'+(i+1)+'</td><td>'+esc(x.date||x.timestamp||x.createdAt||'')+'</td><td>'+esc(x.invoiceSerial||x.invoiceNumber||'')+'</td><td>'+esc(x.carInfo||'')+'</td><td>'+money(total)+'</td><td>'+money(paid)+'</td><td>'+money(rem)+'</td></tr>';}).join('');
+    const total=docs.reduce((a,x)=>a+num(x.totalAmount||x.grandTotal),0),paid=docs.reduce((a,x)=>a+num(x.paidAmount),0),rem=docs.reduce((a,x)=>a+num(x.remainingAmount||(num(x.totalAmount||x.grandTotal)-num(x.paidAmount))),0);
+    const w=window.open('','_blank','width=1000,height=750');if(!w)return;
+    w.document.write('<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>كشف حساب '+esc(clientName)+'</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;color:#111}.head{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px}.meta{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;margin-bottom:10px}.meta div{border:1px solid #cbd5e1;padding:6px}.bank{width:100%;border-collapse:collapse;font-size:10px}.bank th,.bank td{border:1px solid #cbd5e1;padding:5px}.bank th{background:#0f172a;color:#fff}.tot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.tot div{border:1px solid #cbd5e1;padding:7px;font-weight:900}</style></head><body><div class="head"><div><h2 style="margin:0">كشف حساب عميل</h2><div>حركة مالية تفصيلية</div></div><div>'+new Date().toLocaleDateString('ar-EG')+'</div></div><div class="meta"><div><b>العميل:</b> '+esc(clientName)+'</div><div><b>عدد الزيارات:</b> '+docs.length+'</div><div><b>الرصيد:</b> '+money(rem)+'</div></div><table class="bank"><thead><tr><th>م</th><th>التاريخ</th><th>رقم الفاتورة</th><th>البيان / السيارة</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>'+rows+'</tbody></table><div class="tot"><div>إجمالي المدين<br>'+money(total)+'</div><div>إجمالي المدفوع<br>'+money(paid)+'</div><div>الرصيد المستحق<br>'+money(rem)+'</div></div></body></html>');w.document.close();setTimeout(()=>{w.print();setTimeout(()=>w.close(),500)},250);
+  };
+})();
+</script>
+
+<style id="finalInvoicePrintDesign">
+@media print {
+  @page { size:A4 portrait; margin:8mm 9mm 8mm; }
+
+  html,body {
+    width:210mm !important; min-height:297mm !important;
+    margin:0 !important; padding:0 !important; background:#fff !important;
+  }
+
+  body.print-a4 {
+    background:#fff !important; color:#18263d !important;
+    font-family:Arial,Tahoma,sans-serif !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+
+  body.print-a4 #printableInvoiceArea {
+    width:192mm !important; min-height:281mm !important; height:281mm !important;
+    box-sizing:border-box !important; margin:0 auto !important; padding:0 !important;
+    border:0 !important; border-radius:0 !important; box-shadow:none !important;
+    background:#fff !important; display:flex !important; flex-direction:column !important;
+    overflow:hidden !important; direction:rtl !important;
+  }
+
+  body.print-a4 #printInvoiceHeader {
+    flex:0 0 auto !important; margin:0 0 4mm !important; padding:0 0 3mm !important;
+    border-bottom:1.2px solid #243653 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader::before {
+    content:"فاتورة" !important; display:block !important; width:72mm !important;
+    margin:0 0 3mm auto !important; padding:4.5mm 5mm !important;
+    box-sizing:border-box !important; background:#243653 !important; color:#fff !important;
+    text-align:center !important; font-size:24pt !important; line-height:1 !important;
+    font-weight:900 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader h2 {
+    margin:0 0 2mm !important; padding:0 !important; color:#243653 !important;
+    font-size:15pt !important; font-weight:900 !important; text-align:right !important;
+  }
+
+  body.print-a4 #printInvoiceHeader p {
+    margin:1mm 0 !important; color:#334155 !important; font-size:8pt !important;
+    line-height:1.35 !important; font-weight:600 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader > div:first-of-type {
+    margin-top:2.5mm !important; padding-top:2mm !important;
+    border-top:1px solid #aeb9c8 !important; color:#243653 !important;
+    font-size:10.5pt !important; font-weight:900 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader > div:last-of-type {
+    display:grid !important; grid-template-columns:repeat(3,1fr) !important;
+    gap:2mm !important; margin-top:2mm !important; padding:2mm 0 !important;
+    border-top:1px solid #c8d0db !important; border-bottom:1px solid #c8d0db !important;
+    font-size:7.5pt !important; font-weight:700 !important;
+  }
+
+  body.print-a4 #printInvoiceHeader > div:last-of-type span {
+    text-align:center !important; padding:0 1mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) {
+    display:grid !important; grid-template-columns:1fr 1fr !important;
+    gap:4mm !important; margin:0 0 2mm !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) .form-field {
+    display:flex !important; align-items:center !important; gap:2mm !important;
+    min-height:7mm !important; border-bottom:1px dashed #b8c2cf !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) label {
+    color:#243653 !important; font-size:7.5pt !important; font-weight:900 !important;
+    white-space:nowrap !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .form-grid:not(.no-print) input {
+    flex:1 !important; min-width:0 !important; border:0 !important;
+    background:transparent !important; padding:0 !important; color:#111827 !important;
+    font-size:8pt !important; font-weight:700 !important; text-align:right !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .card-box {
+    flex:0 0 auto !important; margin:2mm 0 !important; padding:0 !important;
+    border:0 !important; background:#fff !important;
+    break-inside:avoid !important; page-break-inside:avoid !important;
+  }
+
+  body.print-a4 #printableInvoiceArea > .card-box > div:first-child {
+    margin:0 0 1.5mm !important; padding:1.5mm 2mm !important;
+    border:0 !important; border-right:3px solid #243653 !important;
+    background:#f2f5f8 !important; color:#243653 !important;
+    font-size:8pt !important; font-weight:900 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea table {
+    width:100% !important; margin:0 !important; border-collapse:collapse !important;
+    table-layout:fixed !important; font-size:7.3pt !important; direction:rtl !important;
+  }
+
+  body.print-a4 #printableInvoiceArea th {
+    background:#243653 !important; color:#fff !important; border:1px solid #243653 !important;
+    padding:2.1mm 1mm !important; font-size:7.3pt !important; font-weight:900 !important;
+    line-height:1.15 !important; text-align:center !important; vertical-align:middle !important;
+  }
+
+  body.print-a4 #printableInvoiceArea td {
+    background:#fff !important; color:#111827 !important; border:1px solid #aab7c7 !important;
+    padding:1.8mm 1mm !important; font-size:7.2pt !important; font-weight:600 !important;
+    line-height:1.2 !important; text-align:center !important; vertical-align:middle !important;
+  }
+
+  body.print-a4 #printableInvoiceArea tbody tr:nth-child(even) td {
+    background:#f8fafc !important;
+  }
+
+  body.print-a4 #printableInvoiceArea #partsTableBody tr {
+    height:7mm !important; break-inside:avoid !important; page-break-inside:avoid !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-summary-box {
+    width:72% !important; margin:3mm 0 0 auto !important; padding:2mm 3mm !important;
+    border:1px solid #aab7c7 !important; background:#fff !important;
+    break-inside:avoid !important; page-break-inside:avoid !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row {
+    display:flex !important; justify-content:space-between !important; align-items:center !important;
+    min-height:6.5mm !important; padding:1mm 0 !important;
+    border-bottom:1px solid #d8dee6 !important; color:#334155 !important;
+    font-size:7.7pt !important; font-weight:700 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .summary-row:last-child {
+    border-bottom:0 !important; color:#243653 !important;
+    font-size:10pt !important; font-weight:900 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes {
+    margin-top:auto !important; padding:3mm 0 0 !important;
+    border-top:1.2px solid #243653 !important; color:#243653 !important;
+    flex:0 0 auto !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes p {
+    margin:0 0 5mm !important; font-size:7.4pt !important;
+    line-height:1.45 !important; font-weight:600 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .invoice-footer-notes > div {
+    display:flex !important; justify-content:space-between !important;
+    margin:0 !important; padding:2mm 4mm !important;
+    font-size:7.8pt !important; font-weight:800 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea::after {
+    content:"مركز أوتو نون لصيانة السيارات   •   خدمة الصيانة وقطع الغيار   •   شكراً لتعاملكم معنا" !important;
+    display:block !important; flex:0 0 auto !important; margin-top:3mm !important;
+    padding:3mm 4mm !important; background:#243653 !important; color:#fff !important;
+    text-align:center !important; font-size:7.3pt !important; font-weight:800 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .no-print,
+  body.print-a4 #originalDepartmentBox,
+  body.print-a4 #advancePaymentAlertBox {
+    display:none !important;
+  }
+}
+</style>
+
+<script>
+window.addEventListener('load', function () {
+  if (typeof window.printInvoiceBySize !== 'function') {
+    console.error('printInvoiceBySize لم يتم تحميلها.');
+  }
+});
+</script>
+
+
+<style id="invoice-blank-page-fix">
+@media print {
+  body.print-a4 .main-grid {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  body.print-a4 .main-grid > div {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  body.print-a4 #printableInvoiceArea {
+    display: flex !important;
+    visibility: visible !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  body.print-a4 #printableInvoiceArea,
+  body.print-a4 #printableInvoiceArea * {
+    visibility: visible !important;
+  }
+
+  body.print-a4 #printableInvoiceArea .no-print {
+    display: none !important;
+  }
+
+  body.print-a4 #printInvoiceHeader {
+    display: block !important;
+    visibility: visible !important;
+  }
+}
+</style>
+
+</body>
+</html>

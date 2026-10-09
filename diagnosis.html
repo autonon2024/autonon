@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - الفحص والتشخيص الشامل</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --header-orange: #d97706;
+      --text-main: #0f172a;
+      --border-color: #e2e8f0;
+      --input-bg: #ffffff;
+      --btn-green: #10b981;
+      --btn-dz: #8b5cf6;
+      --btn-blue: #0284c7;
+      --danger-red: #dc2626;
+    }
+
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+    }
+
+    .client-info-box {
+      background: rgba(2, 132, 199, 0.08);
+      border: 2px solid var(--btn-blue);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    body.dark-mode .client-info-box {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: #38bdf8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.2s ease; }
+    
+    html, body {
+      direction: rtl !important;
+      text-align: right !important;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 12px;
+      font-size: 0.95rem;
+    }
+
+    .urgency-banner {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 12px;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+      display: none;
+    }
+
+    .header-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--primary-orange);
+    }
+    .brand-logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+
+    .engineer-badge-header {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+      border: 1px solid #c4b5fd;
+    }
+
+    .top-search-card {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .top-search-card input {
+      padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 8px;
+      background: var(--input-bg); color: var(--text-main); font-size: 0.9rem; outline: none;
+    }
+
+    .diag-tabs-container {
+      display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 6px;
+    }
+    .diag-tab {
+      background: var(--card-bg); border: 2px solid var(--border-color); padding: 9px 16px;
+      border-radius: 10px; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;
+      white-space: nowrap; color: var(--text-main);
+    }
+    .diag-tab.active { background: #0284c7; color: white; border-color: #0284c7; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4); }
+
+    .main-layout { display: grid; grid-template-columns: 560px 1fr; gap: 16px; }
+    @media (max-width: 1100px) { .main-layout { grid-template-columns: 1fr; } }
+
+    .card-box {
+      background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);
+      padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); text-align: right;
+    }
+    .card-title {
+      color: var(--primary-orange); font-size: 1.05rem; font-weight: bold; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    @media (max-width: 600px) {
+      .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .form-field { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+    .form-field label { font-size: 0.85rem; font-weight: bold; opacity: 0.9; }
+    .form-field input, .form-field textarea, .form-field select {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border-color); background: var(--input-bg);
+      border-radius: 8px; font-size: 0.9rem; color: var(--text-main); outline: none; text-align: right;
+    }
+
+    .image-upload-container {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 10px;
+    }
+    .image-preview-card {
+      position: relative; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-color);
+    }
+    .image-preview-card img { width: 100%; height: 80px; object-fit: cover; display: block; }
+    .image-preview-card input { font-size: 0.75rem; padding: 5px; border: none; border-top: 1px solid var(--border-color); width: 100%; text-align: right; }
+
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .suspended-alert { animation: pulse-red 2s infinite; border: 2px solid #ef4444 !important; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; direction: rtl; text-align: right; }
+    th { background: rgba(234, 88, 12, 0.12); color: var(--primary-orange); padding: 10px; text-align: right; font-weight: bold; }
+    td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: right; }
+
+    .badge-status { padding: 4px 9px; border-radius: 6px; font-weight: bold; font-size: 0.78rem; }
+    .badge-queue { background: var(--primary-orange); color: white; }
+    .badge-suspended { background: #ef4444; color: white; }
+
+    .btn-action-sm { padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: var(--primary-orange); color: white; }
+    .btn-danger { background: var(--danger-red); color: white; }
+    .btn-whatsapp { background: #22c55e; color: white; }
+    .btn-dz { background: var(--btn-dz); color: white; }
+    .btn-print { background: #0284c7; color: white; }
+    .btn-hold { background: #f59e0b; color: white; }
+
+    .engineer-session { background:linear-gradient(135deg,#0f766e,#0ea5e9); color:#fff; padding:8px 14px; border-radius:20px; font-weight:800; display:flex; align-items:center; gap:8px; box-shadow:0 6px 18px rgba(14,165,233,.2); }
+    .header-tools { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .btn-lift { background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff; }
+    .search-result-banner { display:none; margin:0 0 12px; padding:12px 14px; border-radius:10px; background:linear-gradient(135deg,rgba(2,132,199,.10),rgba(124,58,237,.10)); border:1px solid rgba(2,132,199,.25); }
+    .search-result-banner.show { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .lift-live { display:flex; align-items:center; gap:8px; margin-top:6px; font-size:.78rem; color:#64748b; }
+    .lift-live-dot { width:9px; height:9px; border-radius:50%; background:#94a3b8; display:inline-block; }
+    .lift-live-dot.ok { background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.12); }
+    .photo-upload-status { font-size:.8rem; font-weight:700; color:#64748b; margin-top:7px; }
+    .photo-upload-status.ok { color:#16a34a; }
+    .photo-upload-status.err { color:#dc2626; }
+    .session-logout { background:#ef4444!important; color:#fff!important; }
+
+    .feature-panel{border:1px solid var(--border-color);border-radius:12px;padding:12px;margin-bottom:12px;background:linear-gradient(135deg,rgba(2,132,199,.045),rgba(124,58,237,.035));}
+    .feature-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-weight:900;color:var(--primary-orange)}
+    .feature-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .diagnostic-launch{background:linear-gradient(135deg,#111827,#334155);color:#fff;border:1px solid #475569}
+    .diagnostic-launch:hover{filter:brightness(1.12)}
+    .app-status{font-size:.78rem;color:#64748b;margin-top:7px;line-height:1.6}
+    .app-status.ok{color:#16a34a}.app-status.warn{color:#d97706}
+    .lift-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    @media(max-width:700px){.lift-mini-grid{grid-template-columns:1fr}}
+    .lift-mini{padding:10px;border:1px solid var(--border-color);border-radius:10px;background:var(--input-bg);display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .lift-mini .dot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.10);flex:0 0 auto}
+    .lift-mini.busy .dot{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.10)}
+    .lift-mini.offline .dot{background:#94a3b8;box-shadow:none}
+    .lift-mini small{display:block;color:#64748b;margin-top:2px;font-size:.72rem}
+    .search-result-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:10px}
+    .search-result-card{border:1px solid var(--border-color);border-radius:10px;padding:10px;background:var(--input-bg);cursor:pointer}
+    .search-result-card:hover{border-color:var(--btn-blue);transform:translateY(-1px)}
+    .search-result-card strong{color:var(--btn-blue)}
+    .engineer-badge-header{cursor:default}
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+  <div class="header-top-bar">
+    <div class="brand-logo">
+      <img src="non.png" alt="NON Logo">
+      <span>مركز أوتو نون (NON) - الفحص والتشخيص</span>
+    </div>
+
+    <div class="engineer-badge-header">
+      <i class="fa-solid fa-user-tie"></i>
+      <span>المهندس: <strong id="loggedEngineerName">مهندس الاستقبال والتشخيص</strong></span>
+    </div>
+
+    <div class="header-tools">
+      <button class="btn-action-sm btn-primary" style="background:#8b5cf6;" onclick="openJobOrderPreview()"><i class="fa-solid fa-file-invoice"></i> معاينة جيب أوردر</button>
+      <a href="display.html" target="_blank" class="btn-action-sm btn-print"><i class="fa-solid fa-display"></i> شاشة العرض</a>
+      <a href="lift_control.html" target="_blank" class="btn-action-sm btn-lift"><i class="fa-solid fa-car-rear"></i> إدارة الكوريك / الحوامل</a>
+      <button class="btn-dark-toggle" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> المظهر</button>
+      <button class="btn-action-sm session-logout" onclick="logoutEngineer()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+    </div>
+  </div>
+
+  <div class="top-search-card">
+    <i class="fa-solid fa-magnifying-glass" style="color:var(--primary-orange); font-size:1.2rem;"></i>
+    <input type="text" id="topSearchInput" placeholder="ابحث بالاسم، الهاتف، السيريال، أو رقم اللوحة (يشمل الأرشيف)..." onkeyup="if(event.key==='Enter') executeSearch()" style="flex:1; min-width:200px;">
+    
+    <button class="btn-action-sm btn-primary" onclick="executeSearch()"><i class="fa-solid fa-magnifying-glass"></i> بحث شامل</button>
+
+    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+      <label style="font-size:0.8rem; font-weight:bold;">من:</label>
+      <input type="date" id="filterFromDate">
+      <label style="font-size:0.8rem; font-weight:bold;">إلى:</label>
+      <input type="date" id="filterToDate">
+    </div>
+  </div>
+
+  <div id="searchResultBanner" class="search-result-banner">
+    <span id="searchResultText"><i class="fa-solid fa-circle-info"></i> جاهز للبحث في السيارات الحالية والأرشيف.</span>
+    <button class="btn-action-sm" style="background:#64748b;color:#fff;" onclick="clearSearchResults()"><i class="fa-solid fa-xmark"></i> مسح البحث</button>
+  </div>
+
+  <div id="searchResultList" class="search-result-list"></div>
+
+  <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.85rem; color: var(--primary-orange);">
+    <i class="fa-solid fa-folder-tree"></i> السيارات المفتوحة للتشخيص حالياً (التشخيص المتعدد):
+  </div>
+  <div class="diag-tabs-container" id="diagTabsContainer">
+    <div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>
+  </div>
+
+  <div class="main-layout">
+    <div>
+      <div class="card-box">
+        <div id="urgencyBanner" class="urgency-banner">
+          <i class="fa-solid fa-triangle-exclamation"></i> تنبيه: هذه السيارة مسجلة كـ "سرعة استعجال / مستعجلة للغاية"!
+        </div>
+
+        <div class="card-title">
+          <span><i class="fa-solid fa-stethoscope"></i> فحص وتشخيص السيارة الحالية</span>
+          <span id="serialStatusBadge" class="badge-status" style="background:#64748b; color:white;">السيريال غير مفعل</span>
+        </div>
+
+        <div style="background:rgba(234, 88, 12, 0.05); border:1px dashed var(--primary-orange); border-radius:8px; padding:10px; margin-bottom:12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="font-size: 0.82rem; font-weight: bold; color: var(--primary-orange);">ربط وتفعيل سيريال السيارة (VIN):</label>
+            <a href="print-barcodes.html" target="_blank" class="btn-action-sm btn-print" style="font-size: 0.78rem; padding: 4px 8px;">
+              <i class="fa-solid fa-barcode"></i> فتح صفحة الباركود والاسكان
+            </a>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="diagSerialInput" placeholder="أدخل أو امسح السيريال هنا (اسكان يدوي)..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--border-color);">
+            <button class="btn-action-sm btn-primary" onclick="activateAndSaveSerial()"><i class="fa-solid fa-key"></i> حفظ السيريال</button>
+          </div>
+        </div>
+
+        <div class="feature-panel">
+          <div class="feature-head">
+            <span><i class="fa-solid fa-microchip"></i> جهاز كشف الأعطال الخارجي</span>
+            <span style="font-size:.72rem;color:#64748b;font-weight:700">Android Diagnostic App</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>رابط/مخطط تشغيل التطبيق</label>
+              <input id="diagAndroidScheme" value="autonon" placeholder="مثال: autonon">
+            </div>
+            <div class="form-field">
+              <label>Package Name (اختياري)</label>
+              <input id="diagAndroidPackage" value="com.autonon.diagnostic" placeholder="com.example.diagnostic">
+            </div>
+          </div>
+          <div class="feature-actions">
+            <button type="button" class="btn-action-sm diagnostic-launch" onclick="openExternalDiagnosticApp()"><i class="fa-solid fa-satellite-dish"></i> فتح برنامج كشف الأعطال</button>
+            <button type="button" class="btn-action-sm" style="background:#64748b;color:#fff" onclick="saveDiagnosticAppSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ إعدادات التطبيق</button>
+            <button type="button" class="btn-action-sm" style="background:#0ea5e9;color:#fff" onclick="copyDiagnosticVin()"><i class="fa-regular fa-copy"></i> نسخ VIN</button>
+          </div>
+          <div id="diagnosticAppStatus" class="app-status">سيتم إرسال رقم VIN/السيريال الحالي للتطبيق الخارجي عند فتحه. يجب أن يكون التطبيق مثبتاً ويدعم Deep Link أو Intent.</div>
+        </div>
+
+        <div class="feature-panel">
+          <div class="feature-head">
+            <span><i class="fa-solid fa-warehouse"></i> حالة الكواريك / الحوامل الآن</span>
+            <a href="lift_control.html" target="_blank" class="btn-action-sm btn-lift" style="font-size:.76rem;padding:6px 10px"><i class="fa-solid fa-sliders"></i> فتح وحدة التحكم</a>
+          </div>
+          <div id="liftMiniStatusGrid" class="lift-mini-grid"><div class="lift-mini"><span>جاري تحميل الكواريك...</span></div></div>
+        </div>
+
+        <div class="client-info-box">
+          <div style="font-weight: bold; color: var(--btn-blue); font-size: 0.9rem; margin-bottom: 10px;">
+            <i class="fa-solid fa-user-circle"></i> بيانات العميل والسيارة الأساسية:
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label>رقم الدور:</label>
+              <input type="text" id="diagQueueNo" readonly placeholder="الدور">
+            </div>
+            <div class="form-field">
+              <label>اسم العميل:</label>
+              <input type="text" id="diagClientName" placeholder="اسم العميل...">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label>الواتساب / الهاتف:</label>
+              <input type="text" id="diagPhone" placeholder="01xxxxxxxxx">
+            </div>
+            <div class="form-field">
+              <label>نوع الوقود:</label>
+              <select id="diagFuelType">
+                <option value="بنزين">بنزين</option>
+                <option value="غاز طبيعي">غاز طبيعي</option>
+                <option value="كهرباء">كهرباء</option>
+                <option value="بنزين + غاز">بنزين + غاز طبيعي</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-field"><label>الماركة:</label><input type="text" id="diagBrand"></div>
+            <div class="form-field"><label>الموديل:</label><input type="text" id="diagModel"></div>
+            <div class="form-field"><label>اللوحة:</label><input type="text" id="diagPlate"></div>
+          </div>
+
+          <div class="form-grid" style="margin-top: 8px;">
+            <div class="form-field">
+              <label><i class="fa-solid fa-gauge"></i> قراءة العداد الحالية (كم):</label>
+              <input type="number" id="diagCurrentOdoInput" placeholder="مثال: 120000">
+            </div>
+            <div class="form-field">
+              <label><i class="fa-solid fa-note-sticky"></i> ملاحظات العداد:</label>
+              <input type="text" id="diagOdoNotesInput" placeholder="حالة العداد أو ملاحظات التابلوه...">
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top: 10px; background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="color: var(--primary-orange);"><i class="fa-solid fa-comment-dots"></i> شكوى العميل (كما وصفها عند الاستقبال):</label>
+            <textarea id="receptionComplaintText" rows="2" placeholder="اكتب النص الذي ذكره العميل حرفياً عند قدومه..." style="background: var(--input-bg); font-weight: bold;"></textarea>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px;">
+          <div class="form-field" style="margin-top: 6px;">
+            <label style="color:var(--primary-orange); font-size:0.85rem;"><i class="fa-solid fa-user-gear"></i> تقرير التشخيص والفحص الفني وملاحظات الفحص:</label>
+            <textarea id="diagIssueText" rows="2" placeholder="اكتب وصف الفحص الفني ونتائج فحص المجسم وحل شكوى العميل..."></textarea>
+          </div>
+
+          <div style="border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-top: 10px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <label style="font-size:0.82rem; font-weight:bold;"><i class="fa-solid fa-camera"></i> صور الفحص الفني والعيوب:</label>
+              
+              <div style="display:flex; gap:8px;">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImageSelected(event)">
+                <button type="button" class="btn-action-sm btn-primary" onclick="document.getElementById('cameraInput').click()"><i class="fa-solid fa-camera"></i> التقاط بالكاميرا</button>
+
+                <input type="file" id="galleryInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelected(event)">
+                <button type="button" class="btn-action-sm" style="background:#6366f1; color:white;" onclick="document.getElementById('galleryInput').click()"><i class="fa-solid fa-paperclip"></i> إرفاق</button>
+              </div>
+            </div>
+            <div class="image-upload-container" id="uploadedImagesContainer"></div>
+          </div>
+
+          <div style="border:1px solid var(--btn-green); background:rgba(34,197,94,0.03); border-radius:8px; padding:12px; margin-bottom:12px;">
+            <div style="font-weight:bold; color:var(--btn-green); font-size:0.9rem; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+              <span><i class="fa-solid fa-camera-retro"></i> تصوير السيارة بعد الإصلاح وإرسالها للعميل واتساب:</span>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="file" id="afterRepairCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleAfterRepairImageSelected(event)">
+              <button type="button" class="btn-action-sm btn-primary" style="background:var(--btn-green);" onclick="document.getElementById('afterRepairCameraInput').click()"><i class="fa-solid fa-camera"></i> التقاط صورة بعد الإصلاح</button>
+              <button type="button" class="btn-action-sm btn-whatsapp" style="flex:1;" onclick="sendAfterRepairPhotoWhatsApp()"><i class="fa-brands fa-whatsapp"></i> إرسال الصورة للعميل واتساب</button>
+            </div>
+            <div class="image-upload-container" id="afterRepairImagesContainer" style="margin-top:10px;"></div>
+            <div id="afterRepairUploadStatus" class="photo-upload-status"><i class="fa-solid fa-circle-info"></i> الصورة ستُرفع للمخزن السحابي قبل فتح واتساب، حتى يستطيع العميل فتحها.</div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button type="button" class="btn-action-sm" style="flex:1; background: #0ea5e9; color: white;" onclick="updateClientDataInSystem()"><i class="fa-solid fa-floppy-disk"></i> تحديث بيانات العميل بالسيستم</button>
+            <button type="button" class="btn-action-sm btn-danger" onclick="deleteCurrentClient()"><i class="fa-solid fa-trash"></i> حذف العميل (وأرشفته)</button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; background:rgba(234,88,12,0.01);">
+          <div style="font-weight:bold; color:var(--primary-orange); font-size:0.9rem; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-code-branch"></i> توجيه السيارات للأقسام المختصة:</span>
+            <button type="button" class="btn-action-sm" style="font-size:0.75rem; background:var(--btn-dz); color:white; padding:4px 8px;" onclick="addNewDepartmentOrServicePrompt()">
+              <i class="fa-solid fa-plus"></i> إضافة قسم أو خدمة جديدة
+            </button>
+          </div>
+
+          <div class="form-grid" style="margin-bottom:10px;">
+            <div class="form-field">
+              <label style="color:var(--primary-orange); font-size:0.85rem;">القسم المحول إليه:</label>
+              <select id="diagTargetDepartment" onchange="onDepartmentChange()">
+                <option value="mechanics">⚙️ ميكانيكا (Mechanics)</option>
+                <option value="quick_maintenance">⚡ صيانة سريعة (Quick Maintenance)</option>
+                <option value="brakes_suspension">🛑 فرامل وعفشة (Brakes & Suspension)</option>
+                <option value="painting">🚗 سمكرة ودهان (Painting / Body Shop)</option>
+                <option value="tires">🛞 كاوتش وترصيص (Tires)</option>
+                <option value="upholstery">💺 سروجي وتنجيد (Upholstery)</option>
+                <option value="electricity">⚡ كهرباء وبرمجة وتكييف (Electricity)</option>
+                <option value="wash">🚿 المغسلة وغسيل وتنظيف (Wash)</option>
+              </select>
+            </div>
+            
+            <div class="form-field">
+              <label style="color:var(--primary-orange); font-size:0.85rem;">نوع الخدمة (بند الخدمة):</label>
+              <select id="diagServiceTypeSelect">
+                <option value="">-- اختر القسم أولاً --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-bottom:10px;">
+            <label style="color:var(--primary-orange); font-size:0.85rem;"><i class="fa-solid fa-car-rear"></i> تخصيص الكوريك / الحامل (Lift / Bay):</label>
+            <select id="diagLiftSelect" onchange="updateSelectedLiftInfo()">
+              <option value="">جاري تحميل الكواريك المتاحة...</option>
+            </select>
+            <div class="lift-live"><span id="selectedLiftLiveDot" class="lift-live-dot"></span><span id="selectedLiftLiveText">لم يتم اختيار كوريك</span></div>
+          </div>
+
+          <div class="form-field" style="margin-bottom:10px;">
+            <label style="color:var(--primary-orange); font-size:0.85rem;"><i class="fa-solid fa-user-gear"></i> الفني المسؤول عن الكوريك:</label>
+            <input id="diagLiftTechnician" readonly placeholder="يظهر تلقائياً حسب الكوريك المختار">
+          </div>
+          
+          <div style="display:flex; gap:8px; margin-top: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-action-sm btn-whatsapp" style="flex:1; background:#0284c7; justify-content: center;" onclick="navigateToAssignedDepartmentPage()">
+              <i class="fa-solid fa-arrow-left"></i> الذهاب المباشر للقسم المختص
+            </button>
+            <button type="button" class="btn-action-sm" style="background:#0ea5e9; color:white;" onclick="sendDirectWashCall('فوري')">
+              <i class="fa-solid fa-water"></i> 🚿 استدعاء فوري للمغسلة
+            </button>
+            <button type="button" class="btn-action-sm btn-danger" onclick="sendDirectWashCall('مستعجل')">
+              <i class="fa-solid fa-triangle-exclamation"></i> 🚨 غسيل مستعجل للغاية
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button type="button" class="btn-action-sm" style="background:#16a34a; color:white; padding:12px; font-size:1rem;" onclick="finishDiagnosisAndTransferToDepartment()">
+            <i class="fa-solid fa-paper-plane"></i> إرسال للفني وتخصيص الكوريك (وإرسال إشعار واتساب للعميل)
+          </button>
+
+          <button type="button" class="btn-action-sm" style="background:#059669; color:white; padding:12px; font-size:1rem; border: 2px solid #10b981;" onclick="completeAndCloseCarWork()">
+            <i class="fa-solid fa-circle-check"></i> ✅ إنهاء العمل وتسليم السيارة (أرشفة وإغلاق)
+          </button>
+
+          <button type="button" id="btnToggleHold" class="btn-action-sm btn-hold" style="padding:11px; font-size:0.95rem;" onclick="toggleCarHoldStatus()">
+            <i class="fa-solid fa-pause-circle"></i> ⏸️ تعليق السياره لحين رد العميل
+          </button>
+
+          <button type="button" class="btn-action-sm btn-whatsapp" style="padding:11px; font-size:0.95rem;" onclick="sendWhatsAppDetailedCostToClient()">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> 📱 إرسال تفاصيل الفحص للعميل واتساب
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-box suspended-alert">
+        <div class="card-title" style="color:#ef4444;">
+          <span><i class="fa-solid fa-triangle-exclamation"></i> السيارات المعلقة (في انتظار قطع الغيار/الموافقة)</span>
+          <span id="suspendedCountBadge" class="badge-status badge-suspended">0 سيارة</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>الدور</th>
+                <th>العميل</th>
+                <th>السيارة</th>
+                <th>سبب التعليق</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="suspendedCarsTbody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات معلقة حالياً</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title">
+          <span><i class="fa-solid fa-car-side"></i> جدول حالة السيارات والأقسام المتابعة</span>
+          <span id="waitingCountBadge" class="badge-status badge-queue">0 سيارة</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>الدور</th>
+                <th>العميل</th>
+                <th>السيارة والقسم الحالي</th>
+                <th>الحالة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="waitingCarsTbody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAo4cdiLNInZoVPA6kFkDUl1tWaxcLVtKk",
+      authDomain: "auto-non-b841f.firebaseapp.com",
+      projectId: "auto-non-b841f",
+      storageBucket: "auto-non-b841f.firebasestorage.app",
+      messagingSenderId: "512423300329",
+      appId: "1:512423300329:web:190310e1c4b80c9921b478",
+      measurementId: "G-ZG5RQBB3GL"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    let departmentServicesMap = {
+      "mechanics": ["سيرفيس صيانه", "عمرة موتور كاملة", "تغيير جوان وش سلندر", "صيانة ريداتير وتبريد", "تغيير زيت موتور وفلتر"],
+      "quick_maintenance": ["تشخيص أعطال", "تنظيف رشاشات", "شحن بطارية", "دورة مياه ريداتير", "فحص تكييف", "فحص دينامو", "تغيير زيت وفلتر"],
+      "brakes_suspension": ["تغيير تيل فرامل أمامي/خلفي", "خرط طانبير فرامل", "تغيير مساعدين ومقصات", "ضبط أقصي زوايا"],
+      "painting": ["سمكرة صاج البوداس", "دهان وبويا الفرن", "إصلاح خبطات الشاصيه", "تلقيط بويا"],
+      "tires": ["ترصيص إطارات عجل", "لحام كاوتش وفك", "تغيير إطارات جديدة", "ضبط ضغط الهواء"],
+      "upholstery": ["تنجيد كراسي السيارة", "تغيير أرضيات وسقف", "إصلاح طارات الجلد", "تنجيد طابلوه"],
+      "electricity": ["فحص كويلات وبوجيهات", "برمجة كنترول وبوابات", "شحن وتكييف صيانة كمبروسر", "فحص حساسات وضفيرة"],
+      "wash": ["غسيل خارجي وداخلي", "غسيل سيارات فوري", "غسيل مستعجل", "تلميع وتطهير شامل"]
+    };
+
+    let activeDiagnosisCarsMap = {}; 
+    let currentSelectedCarDocId = null;
+    let currentCarStatus = null;
+    let allCarsLocalData = [];
+    let archiveCarsLocalData = [];
+    let workshopArchiveLocalData = [];
+    let uploadedImagesArr = [];
+    let afterRepairImagesArr = [];
+    let liftsLocalData = [];
+    let searchResultsLocalData = [];
+
+    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      enforceEngineerLogin();
+      loadDiagnosticAppSettings();
+      initRealtimeCarsListener();
+      initRealtimeArchiveListener();
+      initRealtimeLiftsListener();
+      onDepartmentChange();
+      openCarFromUrlIfRequested();
+    });
+
+    function enforceEngineerLogin() {
+      const sessionRaw = localStorage.getItem('autonon_engineer_session');
+      const legacyUser = localStorage.getItem('currentUser');
+      
+      if (!sessionRaw && !legacyUser) { 
+        window.location.replace('login_2.html'); 
+        return; 
+      }
+      
+      try {
+        let name = "مهندس الاستقبال والتشخيص";
+        if (sessionRaw) {
+          const session = JSON.parse(sessionRaw);
+          if (session.name) name = session.name;
+        } else if (legacyUser) {
+          name = legacyUser;
+        }
+        document.getElementById('loggedEngineerName').textContent = name;
+      } catch(e) {
+        document.getElementById('loggedEngineerName').textContent = "مهندس الاستقبال";
+      }
+    }
+
+    window.logoutEngineer = function() {
+      localStorage.removeItem('autonon_engineer_session');
+      localStorage.removeItem('currentUser');
+      window.location.replace('login_2.html');
+    };
+
+    window.openJobOrderPreview = function() {
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة من القائمة الحالية أولاً لفتح جيب أوردر الخاص بها!");
+        return;
+      }
+      window.open(`job_order.html?carId=${currentSelectedCarDocId}`, '_blank');
+    };
+
+    function addNewDepartmentOrServicePrompt() {
+      const typeChoice = prompt("اختر نوع الإضافة:\n1 - إضافة قسم جديد\n2 - إضافة خدمة جديدة لقسم موجود", "1");
+      if (typeChoice === "1") {
+        const newDept = prompt("أدخل اسم القسم الجديد:");
+        if (newDept && newDept.trim()) {
+          if (!departmentServicesMap[newDept.trim()]) {
+            departmentServicesMap[newDept.trim()] = ["خدمة عامة جديدة"];
+            const deptSelect = document.getElementById('diagTargetDepartment');
+            let opt = document.createElement('option');
+            opt.value = newDept.trim();
+            opt.textContent = "📁 " + newDept.trim();
+            deptSelect.appendChild(opt);
+            deptSelect.value = newDept.trim();
+            onDepartmentChange();
+            alert(`✅ تمت إضافة القسم (${newDept.trim()}) بنجاح.`);
+          } else {
+            alert("القسم موجود مسبقاً.");
+          }
+        }
+      } else if (typeChoice === "2") {
+        const currentDept = document.getElementById('diagTargetDepartment').value;
+        const newService = prompt(`أدخل اسم الخدمة الجديدة المضافة لقسم (${currentDept}):`);
+        if (newService && newService.trim()) {
+          if (!departmentServicesMap[currentDept]) departmentServicesMap[currentDept] = [];
+          departmentServicesMap[currentDept].push(newService.trim());
+          onDepartmentChange();
+          alert(`✅ تمت إضافة الخدمة (${newService.trim()}) للقسم بنجاح.`);
+        }
+      }
+    }
+
+    function onDepartmentChange() {
+      const deptSelect = document.getElementById('diagTargetDepartment');
+      const serviceSelect = document.getElementById('diagServiceTypeSelect');
+      if (!deptSelect || !serviceSelect) return;
+      const selectedDept = deptSelect.value;
+      const services = departmentServicesMap[selectedDept] || [];
+      
+      let html = '';
+      services.forEach(s => {
+        html += `<option value="${s}">${s}</option>`;
+      });
+      serviceSelect.innerHTML = html;
+    }
+
+    function navigateToAssignedDepartmentPage() {
+      const deptSelect = document.getElementById('diagTargetDepartment');
+      if (!deptSelect) return;
+      const dept = deptSelect.value;
+      
+      let targetPage = "tech_dashboard.html";
+      if (dept === "mechanics") targetPage = "mechanics.html";
+      else if (dept === "quick_maintenance") targetPage = "mechanics.html";
+      else if (dept === "brakes_suspension") targetPage = "brakes_suspension.html";
+      else if (dept === "painting") targetPage = "painting.html";
+      else if (dept === "tires") targetPage = "tires.html";
+      else if (dept === "upholstery") targetPage = "upholstery.html";
+      else if (dept === "electricity") targetPage = "electricity.html";
+      else if (dept === "wash") targetPage = "wash.html";
+
+      window.location.href = targetPage;
+    }
+
+    window.sendDirectWashCall = async function(type) {
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة أولاً لتوجيهها للمغسلة!");
+        return;
+      }
+      const labelText = type === 'مستعجل' ? '🚨 غسيل مستعجل للغاية بالمغسلة' : '🚿 غسيل فوري بالمغسلة';
+      try {
+        await db.collection("cars").doc(currentSelectedCarDocId).update({
+          status: 'IN_WASH',
+          targetDepartment: 'wash',
+          serviceType: type === 'مستعجل' ? 'غسيل مستعجل' : 'غسيل فوري',
+          statusLabel: labelText,
+          displayStatus: type === 'مستعجل' ? 'URGENT_WASH' : 'WASH',
+          updatedAt: new Date().toISOString()
+        });
+        alert(`✅ تم إرسال طلب ${labelText} بنجاح.`);
+      } catch(e) {
+        console.error(e);
+        alert("حدث خطأ أثناء إرسال طلب المغسلة.");
+      }
+    };
+
+    function openCarFromUrlIfRequested() {
+      const params = new URLSearchParams(location.search);
+      const requestedCarId = params.get('carId');
+      if (!requestedCarId) return;
+      const tryOpen = () => {
+        if (allCarsLocalData.some(c => c.id === requestedCarId) || archiveCarsLocalData.some(c => c.id === requestedCarId) || workshopArchiveLocalData.some(c => c.id === requestedCarId)) {
+          startDiagnosisForCar(requestedCarId);
+          return true;
+        }
+        return false;
+      };
+      if (tryOpen()) return;
+      let attempts=0;
+      const timer=setInterval(()=>{attempts++; if(tryOpen()||attempts>20) clearInterval(timer)},250);
+    }
+
+    function renderTabs() {
+      let tabsHtml = "";
+      let hasActiveTab = false;
+
+      allCarsLocalData.forEach((car) => {
+        const clientName = car.clientName || car.name || 'غير متوفر';
+        const plate = car.plate || car.carPlate || 'بدون لوحة';
+        const status = car.status || 'QUEUED';
+
+        if (status === 'IN_DIAGNOSIS' || status === 'IN_PROGRESS' || status === 'IN_WASH' || status === 'PARTS_APPROVAL_REQUEST') {
+          activeDiagnosisCarsMap[car.id] = car;
+          let activeClass = (currentSelectedCarDocId === car.id) ? 'active' : '';
+          tabsHtml += `
+            <div class="diag-tab ${activeClass}" onclick="startDiagnosisForCar('${car.id}')">
+              <i class="fa-solid fa-car"></i> ${clientName} (${plate})
+            </div>
+          `;
+          hasActiveTab = true;
+        }
+      });
+
+      if (!hasActiveTab) tabsHtml = `<div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>`;
+      document.getElementById('diagTabsContainer').innerHTML = tabsHtml;
+    }
+
+    function initRealtimeCarsListener() {
+      db.collection("cars").onSnapshot((snapshot) => {
+        allCarsLocalData = [];
+        let waitingHtml = "";
+        let suspendedHtml = "";
+        let waitingCount = 0;
+        let suspendedCount = 0;
+
+        snapshot.forEach((doc) => {
+          const car = { id: doc.id, ...doc.data() };
+          allCarsLocalData.push(car);
+
+          const clientName = car.clientName || car.name || 'غير متوفر';
+          const plate = car.plate || car.carPlate || 'بدون لوحة';
+          const brandModel = `${car.brand || ''} ${car.model || ''}`;
+          const queueNo = car.queueNo || '-';
+          const status = car.status || 'QUEUED';
+          const dept = car.targetDepartment || car.department || 'عام';
+
+          if (status === 'SUSPENDED' || car.isSuspended) {
+            suspendedCount++;
+            suspendedHtml += `
+              <tr>
+                <td><b>${queueNo}</b></td>
+                <td>${clientName}</td>
+                <td>${brandModel} (${plate})</td>
+                <td><span style="color:#ef4444; font-weight:bold;">${car.suspendReason || 'في انتظار قطع غيار/موافقة'}</span></td>
+                <td><button class="btn-action-sm btn-primary" onclick="startDiagnosisForCar('${car.id}')">فحص</button></td>
+              </tr>
+            `;
+          } else if (status !== 'COMPLETED' && status !== 'ARCHIVED' && status !== 'PARTS_APPROVAL_REQUEST') {
+            waitingCount++;
+            waitingHtml += `
+              <tr>
+                <td><b>${queueNo}</b></td>
+                <td>${clientName}</td>
+                <td>${brandModel} (${plate})<br><small style="color:var(--primary-orange);">القسم: ${dept}</small></td>
+                <td><span class="badge-status badge-queue">${car.statusLabel || 'قيد الانتظار'}</span></td>
+                <td><button class="btn-action-sm btn-primary" onclick="startDiagnosisForCar('${car.id}')"><i class="fa-solid fa-stethoscope"></i> فحص وتشخيص</button></td>
+              </tr>
+            `;
+          }
+        });
+
+        if (waitingCount === 0) waitingHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات مسجلة حالياً</td></tr>`;
+        if (suspendedCount === 0) suspendedHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا توجد سيارات معلقة حالياً</td></tr>`;
+
+        document.getElementById('waitingCarsTbody').innerHTML = waitingHtml;
+        document.getElementById('suspendedCarsTbody').innerHTML = suspendedHtml;
+        document.getElementById('waitingCountBadge').innerText = `${waitingCount} سيارة`;
+        document.getElementById('suspendedCountBadge').innerText = `${suspendedCount} سيارة`;
+
+        renderTabs();
+
+        if (!currentSelectedCarDocId && allCarsLocalData.length > 0) {
+          const firstValid = allCarsLocalData.find(c => c.status !== 'COMPLETED' && c.status !== 'ARCHIVED');
+          if (firstValid) startDiagnosisForCar(firstValid.id);
+        }
+      });
+    }
+
+    function initRealtimeArchiveListener() {
+      db.collection("archive").onSnapshot((snapshot) => {
+        archiveCarsLocalData = [];
+        snapshot.forEach((doc) => archiveCarsLocalData.push({ id: doc.id, ...doc.data() }));
+      });
+      db.collection("workshop_archive").onSnapshot((snapshot) => {
+        workshopArchiveLocalData = [];
+        snapshot.forEach((doc) => workshopArchiveLocalData.push({ id: doc.id, ...doc.data() }));
+      });
+    }
+
+    window.startDiagnosisForCar = async function(docId) {
+      let car = allCarsLocalData.find(c => c.id === docId);
+      let isFromArchive = false;
+      if (!car) {
+        car = archiveCarsLocalData.find(c => c.id === docId);
+        isFromArchive = true;
+      }
+      if (!car) {
+        car = workshopArchiveLocalData.find(c => c.id === docId);
+        isFromArchive = true;
+      }
+      if (!car) return;
+
+      currentSelectedCarDocId = car.id;
+      currentCarStatus = car.status || 'QUEUED';
+
+      if (!isFromArchive && (car.status === 'QUEUED' || !car.status || car.status === 'WAITING')) {
+        try {
+          await db.collection("cars").doc(docId).update({
+            status: 'IN_DIAGNOSIS',
+            statusLabel: 'جاري التشخيص والفحص'
+          });
+          car.status = 'IN_DIAGNOSIS';
+        } catch(e) {
+          console.error(e);
+        }
+      }
+
+      document.getElementById('diagQueueNo').value = car.queueNo || '';
+      document.getElementById('diagClientName').value = car.clientName || car.name || '';
+      document.getElementById('diagPhone').value = car.phone || car.clientPhone || '';
+      document.getElementById('diagFuelType').value = car.fuelType || 'بنزين';
+      document.getElementById('diagBrand').value = car.brand || '';
+      document.getElementById('diagModel').value = car.model || '';
+      document.getElementById('diagPlate').value = car.plate || car.carPlate || '';
+      document.getElementById('diagCurrentOdoInput').value = car.currentOdo || '';
+      document.getElementById('diagOdoNotesInput').value = car.odoNotes || '';
+      document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.complaint || '';
+      document.getElementById('diagIssueText').value = car.diagnosisDetails || '';
+      document.getElementById('diagSerialInput').value = car.serialNo || car.serial || '';
+
+      renderTabs();
+    }
+
+    window.updateClientDataInSystem = async function() {
+      if (!currentSelectedCarDocId) {
+        alert("يرجى اختيار سيارة أولاً لتحديث بياناتها!");
+        return;
+      }
+      try {
+        await db.collection("cars").doc(currentSelectedCarDocId).update({
+          clientName: document.getElementById('diagClientName').value,
+          phone: document.getElementById('diagPhone').value,
+          fuelType: document.getElementById('diagFuelType').value,
+          brand: document.getElementById('diagBrand').value,
+          model: document.getElementById('diagModel').value,
+          plate: document.getElementById('diagPlate').value,
+          currentOdo: document.getElementById('diagCurrentOdoInput').value,
+          odoNotes: document.getElementById('diagOdoNotesInput').value,
+          receptionComplaint: document.getElementById('receptionComplaintText').value,
+          diagnosisDetails: document.getElementById('diagIssueText').value,
+          serialNo: document.getElementById('diagSerialInput').value,
+          updatedAt: new Date().toISOString()
+        });
+        alert("✅ تم تحديث بيانات العميل وسيريال السيارة (VIN) بنجاح!");
+      } catch (e) {
+        console.error(e);
+        alert("حدث خطأ أثناء التحديث.");
+      }
+    }
+
+    window.finishDiagnosisAndTransferToDepartment = async function() {
+      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
+      const targetDept = document.getElementById('diagTargetDepartment').value;
+      const serviceType = document.getElementById('diagServiceTypeSelect').value;
+      const liftId = document.getElementById('diagLiftSelect').value;
+      const lift = liftsLocalData.find(x => x.id === liftId);
+      const clientName = document.getElementById('diagClientName').value || 'عميلنا';
+      const phone = document.getElementById('diagPhone').value;
+      const isWash = targetDept === "wash";
+
+      if (!isWash && (!lift || lift.status !== 'idle')) {
+        alert("⚠️ اختر كوريك متاح وغير مشغول أولاً، أو اجعل الحالة مغسلة.");
+        return;
+      }
+      const technician = lift?.technicianName || '';
+      try {
+        const now = new Date().toISOString();
+        await db.collection("cars").doc(currentSelectedCarDocId).update({
+          status: isWash ? 'IN_WASH' : 'IN_PROGRESS',
+          statusLabel: `محول إلى قسم: ${targetDept}${lift ? ` (${lift.name})` : ''}`,
+          targetDepartment: targetDept,
+          serviceType: serviceType,
+          assignedLift: lift ? lift.name : '',
+          assignedLiftId: lift ? lift.id : '',
+          assignedTechnician: technician,
+          diagnosisEngineer: getEngineerName(),
+          diagnosisDetails: document.getElementById('diagIssueText').value,
+          serialNo: document.getElementById('diagSerialInput').value,
+          displayStatus: isWash ? 'WASH' : 'IN_PROGRESS',
+          updatedAt: now
+        });
+
+        if (lift && !isWash) {
+          await db.collection('lifts').doc(lift.id).update({
+            status: 'busy',
+            carId: currentSelectedCarDocId,
+            carClientName: clientName,
+            busySince: now,
+            lastUpdatedAt: now
+          });
+        }
+
+        const carDataSnapshot = await db.collection("cars").doc(currentSelectedCarDocId).get();
+        if(carDataSnapshot.exists) {
+          const carData = carDataSnapshot.data();
+          await db.collection("workshop_archive").add({
+            ...carData, department: targetDept, serviceType: serviceType,
+            assignedLift: lift ? lift.name : '', assignedLiftId: lift ? lift.id : '',
+            assignedTechnician: technician, diagnosisEngineer: getEngineerName(), createdAt: now
+          });
+        }
+
+        if (phone) {
+          let cleanPhone = normalizeEgyptPhone(phone);
+          const liftText = lift ? ` على ${lift.name}${technician ? ` مع الفني ${technician}` : ''}` : '';
+          const msg = `مرحباً بك يا ${clientName} في مركز أوتو نون (NON).\nتم تحويل سيارتك إلى القسم المختص (${targetDept})${liftText} لبدء العمل.\nسنوافيك بالمستجدات تباعاً.`;
+          window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        alert(`🚀 تم إرسال السيارة بنجاح إلى قسم (${targetDept})${lift ? ` وتخصيص (${lift.name}) للفني (${technician || 'غير محدد'})` : ''}.`);
+      } catch(e) { console.error(e); alert("خطأ في الإرسال للقسم أو تحديث حالة الكوريك."); }
+    };
+
+    window.completeAndCloseCarWork = async function() {
+      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
+      if (!confirm("هل أنت متأكد من إنهاء العمل وتسليم السيارة ونقلها للأرشيف وإغلاق الطلب؟")) return;
+      try {
+        const carRef = db.collection("cars").doc(currentSelectedCarDocId);
+        const doc = await carRef.get();
+        if (doc.exists) {
+          const carData = doc.data();
+          await db.collection("workshop_archive").doc(currentSelectedCarDocId).set({
+            ...carData,
+            status: 'ARCHIVED',
+            statusLabel: 'مؤرشف ومسلم',
+            archivedAt: new Date().toISOString()
+          });
+          if (carData.assignedLiftId) {
+            try {
+              await db.collection('lifts').doc(carData.assignedLiftId).update({
+                status:'idle', carId:null, carClientName:null, busySince:null, lastUpdatedAt:new Date().toISOString()
+              });
+            } catch(releaseErr) { console.warn('تعذر تحرير الكوريك:', releaseErr); }
+          }
+          await carRef.delete();
+          alert("✅ تم إنهاء العمل ونقل العميل إلى الأرشيف وتحرير الكوريك بنجاح.");
+          currentSelectedCarDocId = null;
+        }
+      } catch(e) { console.error(e); alert("حدث خطأ أثناء الأرشفة."); }
+    }
+
+    window.toggleCarHoldStatus = async function() {
+      if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
+      const reason = prompt("أدخل سبب تعليق السيارة (مثال: في انتظار رد العميل / قطع غيار):", "في انتظار موافقة العميل");
+      if (!reason) return;
+      try {
+        await db.collection("cars").doc(currentSelectedCarDocId).update({
+          status: 'SUSPENDED',
+          isSuspended: true,
+          statusLabel: 'معلق',
+          suspendReason: reason,
+          displayStatus: 'SUSPENDED',
+          updatedAt: new Date().toISOString()
+        });
+        alert("⏸ تم تعليق السيارة بنجاح وتحديث حالتها لتظهر فوراً على شاشة العرض.");
+      } catch(e) { console.error(e); alert("خطأ."); }
+    }
+
+    function getEngineerName() {
+      try { 
+        const sessionRaw = localStorage.getItem('autonon_engineer_session');
+        if (sessionRaw) return JSON.parse(sessionRaw).name || 'غير محدد';
+        return localStorage.getItem('currentUser') || 'غير محدد';
+      } catch(e) { return 'غير محدد'; }
+    }
+
+    function normalizeEgyptPhone(phone) {
+      let p = String(phone || '').replace(/[^0-9+]/g,'').trim();
+      if (p.startsWith('+20')) return p.substring(1);
+      if (p.startsWith('20')) return p;
+      if (p.startsWith('0')) return '2' + p;
+      return '20' + p;
+    }
+
+    function initRealtimeLiftsListener() {
+      db.collection('lifts').onSnapshot((snapshot) => {
+        liftsLocalData = [];
+        snapshot.forEach(doc => liftsLocalData.push({id:doc.id, ...doc.data()}));
+        renderLiftSelect();
+      }, (error) => { console.error('خطأ تحميل الكواريك:', error); renderLiftSelect(); });
+    }
+
+    function renderLiftSelect() {
+      const select = document.getElementById('diagLiftSelect');
+      if (!select) return;
+      const current = select.value;
+      const available = liftsLocalData.filter(x => x.active !== false && (x.status || 'idle') === 'idle');
+      let html = '<option value="">-- اختر كوريك متاح --</option>';
+      available.forEach(l => { html += `<option value="${l.id}">🟢 ${escapeHtml(l.name || l.id)}${l.technicianName ? ` — الفني: ${escapeHtml(l.technicianName)}` : ''}</option>`; });
+      const busy = liftsLocalData.filter(x => (x.status || 'idle') === 'busy');
+      busy.forEach(l => { html += `<option value="" disabled>🔴 ${escapeHtml(l.name || l.id)} — مشغول${l.carClientName ? ` (${escapeHtml(l.carClientName)})` : ''}</option>`; });
+      const offline = liftsLocalData.filter(x => x.active === false || (x.status || '') === 'offline');
+      offline.forEach(l => { html += `<option value="" disabled>⚪ ${escapeHtml(l.name || l.id)} — عاطل/غير متاح</option>`; });
+      if (!liftsLocalData.length) html += '<option value="" disabled>لا توجد كواريك مسجلة حالياً</option>';
+      select.innerHTML = html;
+      if (available.some(x=>x.id===current)) select.value=current;
+      updateSelectedLiftInfo();
+      renderLiftMiniStatus();
+    }
+
+    window.updateSelectedLiftInfo = function() {
+      const id = document.getElementById('diagLiftSelect')?.value;
+      const lift = liftsLocalData.find(x=>x.id===id);
+      const dot=document.getElementById('selectedLiftLiveDot'); const txt=document.getElementById('selectedLiftLiveText'); const tech=document.getElementById('diagLiftTechnician');
+      if (!lift) { if(dot) dot.className='lift-live-dot'; if(txt) txt.textContent='لم يتم اختيار كوريك'; if(tech) tech.value=''; return; }
+      if(dot) dot.className='lift-live-dot ok';
+      if(txt) txt.textContent=`${lift.name || ''} — متاح${lift.technicianName ? ` — الفني: ${lift.technicianName}` : ''}`;
+      if(tech) tech.value=lift.technicianName || 'غير محدد';
+    };
+
+    function renderLiftMiniStatus(){
+      const box=document.getElementById('liftMiniStatusGrid'); if(!box) return;
+      if(!liftsLocalData.length){box.innerHTML='<div class="lift-mini offline"><span>لا توجد كواريك مسجلة</span></div>';return;}
+      box.innerHTML=liftsLocalData.map(l=>{
+        const status=(l.status||'idle');
+        const cls=status==='busy'?'busy':(l.active===false||status==='offline'?'offline':'');
+        const label=status==='busy'?'مشغول':(l.active===false||status==='offline'?'عاطل/غير متاح':'متاح');
+        const sub=status==='busy'?(l.carClientName||'سيارة مخصصة'):(l.technicianName||'بدون فني محدد');
+        return `<div class="lift-mini ${cls}"><span><span style="display:flex;align-items:center;gap:7px"><span class="dot"></span><b>${escapeHtml(l.name||l.id)}</b></span><small>${escapeHtml(label)} — ${escapeHtml(sub)}</small></span><i class="fa-solid fa-car-rear" style="opacity:.6"></i></div>`;
+      }).join('');
+    }
+
+    function saveDiagnosticAppSettings(){
+      const scheme=(document.getElementById('diagAndroidScheme')?.value||'autonon').trim().replace(/:$/,'');
+      const pkg=(document.getElementById('diagAndroidPackage')?.value||'').trim();
+      localStorage.setItem('autonon_diag_scheme',scheme);localStorage.setItem('autonon_diag_package',pkg);
+      const st=document.getElementById('diagnosticAppStatus'); if(st){st.className='app-status ok';st.textContent='تم حفظ إعدادات تشغيل برنامج كشف الأعطال على هذا الجهاز.';}
+    }
+    
+    function loadDiagnosticAppSettings(){
+      const scheme=localStorage.getItem('autonon_diag_scheme')||'autonon';
+      const pkg=localStorage.getItem('autonon_diag_package')||'com.autonon.diagnostic';
+      const a=document.getElementById('diagAndroidScheme'),b=document.getElementById('diagAndroidPackage'); if(a)a.value=scheme;if(b)b.value=pkg;
+    }
+
+    function currentDiagnosticVin(){
+      return (document.getElementById('diagSerialInput')?.value||'').trim() || (document.getElementById('diagPlate')?.value||'').trim();
+    }
+
+    window.copyDiagnosticVin=async function(){
+      const vin=currentDiagnosticVin(); if(!vin){alert('لا يوجد VIN أو سيريال للسيارة الحالية.');return;}
+      try{await navigator.clipboard.writeText(vin);alert('✅ تم نسخ VIN/السيريال.');}catch(e){prompt('انسخ الرقم:',vin);}
+    };
+
+    window.openExternalDiagnosticApp=function(){
+      const vin=currentDiagnosticVin();
+      if(!vin){alert('اختر سيارة وأدخل VIN/السيريال أولاً.');return;}
+      const scheme=(document.getElementById('diagAndroidScheme')?.value||localStorage.getItem('autonon_diag_scheme')||'autonon').trim().replace(/:$/,'');
+      const pkg=(document.getElementById('diagAndroidPackage')?.value||localStorage.getItem('autonon_diag_package')||'').trim();
+      saveDiagnosticAppSettings();
+      const custom=`${scheme}://diagnose?vin=${encodeURIComponent(vin)}&plate=${encodeURIComponent(document.getElementById('diagPlate')?.value||'')}`;
+      const intent=`intent://diagnose?vin=${encodeURIComponent(vin)}&plate=${encodeURIComponent(document.getElementById('diagPlate')?.value||'')}#Intent;scheme=${scheme};${pkg?`package=${pkg};`:''}end`;
+      const st=document.getElementById('diagnosticAppStatus');if(st){st.className='app-status warn';st.textContent='جاري محاولة فتح برنامج أندرويد الخارجي...';}
+      const w=window.open(intent,'_blank');
+      setTimeout(()=>{try{window.location.href=custom;}catch(_){}},700);
+      setTimeout(()=>{if(st){st.className='app-status';st.textContent='إذا لم يفتح التطبيق، تأكد من تثبيته وأنه يدعم Deep Link/Intent بالـ scheme المحدد.';}},1800);
+    };
+
+    function escapeHtml(v){ return String(v ?? '').replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+    window.executeSearch = async function() {
+      const q = document.getElementById('topSearchInput').value.toLowerCase().trim();
+      const from = document.getElementById('filterFromDate').value;
+      const to = document.getElementById('filterToDate').value;
+      if (!q && !from && !to) { alert('اكتب كلمة بحث أو اختر فترة زمنية.'); return; }
+      const sources = [...allCarsLocalData, ...archiveCarsLocalData, ...workshopArchiveLocalData];
+      const norm = v => String(v ?? '').toLowerCase();
+      const dateValue = c => c.createdAt || c.updatedAt || c.arrivalDate || c.createdDate || c.archivedAt || '';
+      const matched = sources.filter(c => {
+        const hay = [c.clientName,c.name,c.phone,c.clientPhone,c.plate,c.carPlate,c.serialNo,c.serial,c.queueNo,c.brand,c.model,c.statusLabel,c.assignedLift,c.assignedTechnician].map(norm).join(' ');
+        const textOk = !q || hay.includes(q);
+        const d = String(dateValue(c)).slice(0,10);
+        const fromOk = !from || d >= from; const toOk = !to || d <= to;
+        return textOk && fromOk && toOk;
+      });
+      searchResultsLocalData=matched;
+      const banner=document.getElementById('searchResultBanner'); const text=document.getElementById('searchResultText'); const resultList=document.getElementById('searchResultList');
+      banner.classList.add('show');
+      text.innerHTML=`<i class="fa-solid fa-magnifying-glass"></i> تم العثور على <strong>${matched.length}</strong> نتيجة${q ? ` للبحث: <strong>${escapeHtml(q)}</strong>` : ''}.`;
+      if(resultList){
+        resultList.innerHTML=matched.slice(0,20).map(c=>`<div class="search-result-card" onclick="startDiagnosisForCar('${escapeHtml(c.id)}')"><strong>${escapeHtml(c.clientName||c.name||'بدون اسم')}</strong><div>${escapeHtml((c.brand||'')+' '+(c.model||''))} — ${escapeHtml(c.plate||c.carPlate||'بدون لوحة')}</div><small>${escapeHtml(c.phone||c.clientPhone||'')} • ${escapeHtml(c.statusLabel||c.status||'')}</small></div>`).join('');
+      }
+      if (matched.length === 1) { startDiagnosisForCar(matched[0].id); }
+      else if (matched.length > 1) {
+        const first=matched.find(x=>allCarsLocalData.some(c=>c.id===x.id));
+        if(first) startDiagnosisForCar(first.id);
+        alert(`🔎 تم العثور على ${matched.length} نتيجة. تم فتح أول نتيجة متاحة حالياً.`);
+      } else alert('لم يتم العثور على نتائج مطابقة.');
+    };
+
+    window.clearSearchResults = function(){
+      searchResultsLocalData=[]; document.getElementById('topSearchInput').value=''; document.getElementById('filterFromDate').value=''; document.getElementById('filterToDate').value=''; document.getElementById('searchResultBanner').classList.remove('show'); document.getElementById('searchResultList').innerHTML='';
+    };
+
+    window.sendWhatsAppDetailedCostToClient = function() {
+      const phone = document.getElementById('diagPhone').value;
+      const client = document.getElementById('diagClientName').value || 'عميلنا العزيز';
+      const complaint = document.getElementById('receptionComplaintText').value || '';
+      if (!phone) { alert("رقم هاتف العميل غير متوفر حالياً!"); return; }
+      
+      let cleanPhone = phone.trim();
+      if (cleanPhone.startsWith('0')) cleanPhone = '2' + cleanPhone;
+      else if (!cleanPhone.startsWith('2')) cleanPhone = '20' + cleanPhone.replace(/^\+/, '');
+
+      const msg = `أهلاً بك يا ${client} من مركز أوتو نون (NON).\nبيانات فحص السيارة والشكوى: ${complaint}\nللاستفسار تواصل معنا.`;
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function handleImageSelected(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImagesArr.push({ url: e.target.result, title: 'صورة فحص' });
+          renderUploadedImages();
+        };
+        reader.readAsDataURL(files[i]);
+      }
+    }
+
+    function renderUploadedImages() {
+      const container = document.getElementById('uploadedImagesContainer');
+      if (!container) return;
+      let html = '';
+      uploadedImagesArr.forEach((img, idx) => {
+        html += `
+          <div class="image-preview-card">
+            <img src="${img.url}" alt="فحص">
+            <input type="text" value="${img.title}" oninput="uploadedImagesArr[${idx}].title = this.value">
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function handleAfterRepairImageSelected(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          afterRepairImagesArr.push({ url: e.target.result, file: files[i], title: 'صورة بعد الإصلاح' });
+          renderAfterRepairImages();
+        };
+        reader.readAsDataURL(files[i]);
+      }
+    }
+
+    function renderAfterRepairImages() {
+      const container = document.getElementById('afterRepairImagesContainer');
+      if (!container) return;
+      let html = '';
+      afterRepairImagesArr.forEach((img, idx) => {
+        html += `
+          <div class="image-preview-card">
+            <img src="${img.url}" alt="بعد الإصلاح">
+            <input type="text" value="${img.title}" oninput="afterRepairImagesArr[${idx}].title = this.value">
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    async function sendAfterRepairPhotoWhatsApp() {
+      const phone = document.getElementById('diagPhone').value;
+      const client = document.getElementById('diagClientName').value || 'عميلنا العزيز';
+      const statusEl = document.getElementById('afterRepairUploadStatus');
+      if (!phone) { alert("رقم هاتف العميل غير متوفر حالياً!"); return; }
+      if (afterRepairImagesArr.length === 0) { alert("يرجى التقاط أو إرفاق صورة واحدة على الأقل للسيارة بعد الإصلاح!"); return; }
+      const img = afterRepairImagesArr[afterRepairImagesArr.length - 1];
+      if (!img.file && !img.url) { alert('الصورة غير صالحة.'); return; }
+      
+      const waWindow = window.open('about:blank', '_blank');
+      try {
+        if(statusEl){ statusEl.className='photo-upload-status'; statusEl.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> جاري رفع صورة السيارة...'; }
+        let publicUrl = img.downloadUrl || '';
+        if (!publicUrl) {
+          const blob = img.file || await (await fetch(img.url)).blob();
+          const ext = (blob.type && blob.type.split('/')[1]) || 'jpg';
+          const path = `after-repair/${currentSelectedCarDocId || 'general'}/${Date.now()}.${ext}`;
+          const ref = storage.ref().child(path);
+          await ref.put(blob, {contentType: blob.type || 'image/jpeg'});
+          publicUrl = await ref.getDownloadURL();
+          img.downloadUrl = publicUrl;
+          if (currentSelectedCarDocId) {
+            await db.collection('cars').doc(currentSelectedCarDocId).update({ afterRepairImages: firebase.firestore.FieldValue.arrayUnion({url:publicUrl,title:img.title || 'صورة بعد الإصلاح', uploadedAt:new Date().toISOString()}) });
+          }
+        }
+        const cleanPhone = normalizeEgyptPhone(phone);
+        const msg = `مرحباً بك يا ${client} من مركز أوتو نون (NON).\nتم بحمد الله الانتهاء من إصلاح سيارتك.\nصورة السيارة بعد الإصلاح:\n${publicUrl}\nنتمنى لك قيادة آمنة!`;
+        if(statusEl){ statusEl.className='photo-upload-status ok'; statusEl.innerHTML='<i class="fa-solid fa-circle-check"></i> تم رفع الصورة بنجاح — جاري فتح واتساب...'; }
+        const waUrl=`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+        if(waWindow && !waWindow.closed){ waWindow.location.href=waUrl; }
+        else { window.open(waUrl, '_blank'); }
+      } catch(e) {
+        console.error(e);
+        if(waWindow && !waWindow.closed){ try{waWindow.close();}catch(_){} }
+        if(statusEl){ statusEl.className='photo-upload-status err'; statusEl.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i> تعذر رفع الصورة. تأكد من صلاحيات Firebase Storage ثم حاول مرة أخرى.'; }
+        alert('تعذر رفع الصورة وإرسال رابطها عبر واتساب.');
+      }
+    }
+
+    window.activateAndSaveSerial = function() {
+      const val = document.getElementById('diagSerialInput').value.trim();
+      if (!val) { alert("أدخل سيريال صحيح!"); return; }
+      const badge = document.getElementById('serialStatusBadge');
+      badge.style.background = '#10b981';
+      badge.innerText = 'السيريال مفعل ومعتمد';
+      alert(`✅ تم ربط وحفظ السيريال (${val}) للسيارة بنجاح.`);
+    };
+  </script>
+</body>
+</html>

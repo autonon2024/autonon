@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز أوتو نون (NON) - إدارة الموردين والحسابات الشاملة المتقدمة</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary-orange: #ea580c;
+      --text-main: #0f172a;
+      --border-color: #cbd5e1;
+      --input-bg: #ffffff;
+      --btn-green: #10b981;
+      --danger-red: #dc2626;
+      --btn-blue: #0284c7;
+      --btn-purple: #9333ea;
+      --gold-vip: #d97706;
+      --win-bg: #e2e8f0;
+      --win-blue-header: #1e3a8a;
+    }
+
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --border-color: #334155;
+      --input-bg: #334155;
+      --win-bg: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.2s ease; }
+    
+    html, body {
+      direction: rtl !important;
+      text-align: right !important;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+
+    .desktop-app-container {
+      background: var(--win-bg);
+      border: 2px solid var(--win-blue-header);
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      margin-bottom: 15px;
+    }
+
+    .app-top-titlebar {
+      background: var(--win-blue-header);
+      color: white;
+      padding: 8px 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    .suppliers-workspace {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 1100px) { .suppliers-workspace { grid-template-columns: 1fr; } }
+
+    .workspace-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      position: relative;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 7px;
+    }
+    .form-row label {
+      min-width: 90px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+    .form-row input, .form-row select {
+      flex: 1;
+      padding: 5px 8px;
+      border: 1px solid var(--border-color);
+      background: var(--input-bg);
+      border-radius: 4px;
+      font-size: 0.82rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .btn-win {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-decoration: none;
+    }
+    .btn-win:hover { filter: brightness(1.1); }
+    .btn-win-green { background: #10b981; }
+    .btn-win-red { background: #ef4444; }
+    .btn-win-orange { background: #f97316; }
+
+    .payments-section {
+      background: #1e3a8a;
+      color: white;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .payments-section h3 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      color: #93c5fd;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 4px;
+    }
+
+    .header-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .brand-logo { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: bold; color: var(--primary-orange); }
+    .brand-logo img { width: 38px; height: 38px; object-fit: contain; border-radius: 50%; }
+
+    .center-nav { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+    .btn-nav { background: var(--primary-orange); color: white; padding: 6px 10px; border-radius: 15px; font-weight: bold; font-size: 0.78rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .btn-nav-purple { background: var(--btn-purple); color: white; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.8rem; direction: rtl; text-align: right; }
+    th { background: #1e3a8a; color: white; padding: 6px; text-align: right; font-weight: bold; }
+    td { padding: 6px; border-bottom: 1px solid var(--border-color); text-align: right; background: var(--card-bg); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
+    .stat-title { font-size: 0.72rem; opacity: 0.8; font-weight: bold; margin-bottom: 2px; }
+    .stat-value { font-size: 0.95rem; font-weight: bold; }
+
+    /* نتائج بحث المخزن المنسدلة */
+    #inventorySearchResults {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      left: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 0 0 4px 4px;
+    }
+    .search-result-item {
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .search-result-item:hover {
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 20px; }
+    }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- شريط التنقل العلوي -->
+  <div class="header-top-bar no-print">
+    <div class="brand-logo">
+      <img src="non.png" alt="NON" onerror="this.style.display='none'">
+      <span>مركز أوتو نون (NON) - قسم الموردين والحسابات المتطور[cite: 23]</span>
+    </div>
+    <div class="center-nav">
+      <button class="btn-nav" onclick="location.href='treasury_4.html'"><i class="fa-solid fa-house"></i> الرئيسية والمخزن</button>
+      <button class="btn-nav btn-nav-purple" onclick="switchMainTab('suppliers')"><i class="fa-solid fa-truck-field"></i> شاشة الموردين</button>
+      <button class="btn-nav" style="background:var(--btn-green);" onclick="switchMainTab('invoices')"><i class="fa-solid fa-file-invoice-dollar"></i> فواتير الموردين</button>
+      <button class="btn-nav" style="background:var(--gold-vip);" onclick="switchMainTab('payments')"><i class="fa-solid fa-money-bill-transfer"></i> المدفوعات والمقبوضات</button>
+    </div>
+    <div>
+      <button style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main); padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.78rem;" onclick="document.body.classList.toggle('dark-mode')">
+        <i class="fa-solid fa-moon"></i> المظهر
+      </button>
+    </div>
+  </div>
+
+  <!-- مؤشرات سريعة -->
+  <div class="stats-grid no-print">
+    <div class="stat-card" style="border-right: 4px solid var(--primary-orange);">
+      <div class="stat-title">إجمالي مديونية الموردين</div>
+      <div class="stat-value" id="statSuppliersDebt">0 ج.م</div>
+    </div>
+    <div class="stat-card" style="border-right: 4px solid var(--btn-green);">
+      <div class="stat-title">إجمالي المدفوعات للموردين</div>
+      <div class="stat-value" id="statTotalPaid">0 ج.م</div>
+    </div>
+    <div class="stat-card" style="border-right: 4px solid var(--btn-blue);">
+      <div class="stat-title">عدد الموردين المسجلين</div>
+      <div class="stat-value" id="statSuppliersCount">0 مورد</div>
+    </div>
+  </div>
+
+  <!-- التطبيق الرئيسي -->
+  <div class="desktop-app-container" id="mainSupplierScreen">
+    
+    <div class="app-top-titlebar">
+      <span><i class="fa-solid fa-window-maximize"></i> حسابات العملاء والموردين والمدفوعات (مركز أوتو نون - إصدار 2026)[cite: 23]</span>
+      <span id="currentDateDisplay">2026/09/23</span>
+    </div>
+
+    <!-- الجزء العلوي: فواتير وإذن التوريد والمشتريات -->
+    <div class="suppliers-workspace">
+      
+      <!-- العمود الأول: بيانات إذن التوريد والصنف -->
+      <div class="workspace-box">
+        <div style="font-weight:bold; color:var(--win-blue-header); margin-bottom:8px; font-size:0.85rem; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
+          <i class="fa-solid fa-boxes-packing"></i> تسجيل إذن توريد وبضاعة جديدة
+        </div>
+        <form onsubmit="saveSupplierInvoiceAndItem(event)">
+          <div class="form-row">
+            <label>رقم إذن التوريد:</label>
+            <input type="text" id="supInvoiceNo" value="NON-SUP-101" required>
+            <input type="date" id="supInvoiceDate" style="max-width:130px;" required>
+          </div>
+          <div class="form-row">
+            <label>اسم المورد:</label>
+            <select id="supSelectName" required onchange="updateSelectedSupplierDebt()">
+              <option value="">-- اختر المورد / التاجر --</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>نوع التعامل:</label>
+            <select id="supDealType"><option value="مورد">مورد</option><option value="متعهد">متعهد</option><option value="وكيل معتمد">وكيل معتمد</option></select>
+          </div>
+          <div class="form-row">
+            <label>الكود (الباركود):</label>
+            <input type="text" id="supItemBarcode" placeholder="الكود...">
+            <button type="button" class="btn-win" onclick="generateSupBarcode()">توليد</button>
+          </div>
+          
+          <!-- خانة الصنف المحدثة: بحث في المخزن أو إضافة صنف جديد -->
+          <div class="form-row" style="position:relative;">
+            <label>الصنف:</label>
+            <input type="text" id="supItemName" required placeholder="ابحث بالاسم أو اكتب صنفاً جديداً..." autocomplete="off" oninput="searchInventoryForSupplier(this.value)">
+            <input type="hidden" id="existingInventoryItemId" value="">
+            <div id="inventorySearchResults"></div>
+          </div>
+
+          <div class="form-row">
+            <label>سعر الشراء:</label>
+            <input type="number" id="supItemBuy" required step="any" oninput="calcSupTotal()">
+            <label style="min-width:50px; text-align:left;">خصم %:</label>
+            <input type="number" id="supDiscount" value="0" step="any" oninput="calcSupTotal()" style="max-width:70px;">
+          </div>
+          <div class="form-row">
+            <label>العدد (الكمية):</label>
+            <input type="number" id="supItemQty" value="1" min="1" required oninput="calcSupTotal()">
+            <label style="min-width:60px; text-align:left;">الإجمالي:</label>
+            <input type="text" id="supItemTotal" readonly style="font-weight:bold; color:var(--primary-orange);" value="0">
+          </div>
+          <div style="display:flex; gap:5px; margin-top:10px; flex-wrap:wrap;">
+            <button type="submit" class="btn-win btn-win-green"><i class="fa-solid fa-save"></i> حفظ الصنف والمورد</button>
+            <button type="button" class="btn-win btn-win-orange" onclick="clearSupForm()">إذن توريد جديد</button>
+            <button type="button" class="btn-win btn-win-red" onclick="deleteSelectedItem()"><i class="fa-solid fa-trash"></i> حذف صنف</button>
+            <button type="button" class="btn-win" onclick="printSupInvoiceModal()"><i class="fa-solid fa-print"></i> طباعة الإذن</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- العمود الثاني: قائمة الموردين والبحث -->
+      <div class="workspace-box">
+        <div style="font-weight:bold; color:var(--win-blue-header); margin-bottom:8px; font-size:0.85rem; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
+          <i class="fa-solid fa-address-book"></i> أسماء الموردين والتجار[cite: 23]
+        </div>
+        <div class="form-row">
+          <input type="text" id="searchSupplierInput" onkeyup="filterSuppliersList()" placeholder="🔍 بحث في حساب المورد...">
+        </div>
+        <div style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 8px;">
+          <table style="width:100%;" id="suppliersNamesTable">
+            <tbody id="suppliersNamesTbody">
+              <tr><td>جاري تحميل الموردين...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-row">
+          <label>المخزن:</label>
+          <select id="selectedStoreHouse"><option value="مخزن المحل الرئيسي">مخزن المحل الرئيسي</option></select>
+        </div>
+        <div style="display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;">
+          <button type="button" class="btn-win btn-win-green" onclick="addNewSupplierPrompt()"><i class="fa-solid fa-user-plus"></i> إضافة مورد جديد</button>
+          <button type="button" class="btn-win btn-win-red" onclick="deleteSelectedSupplier()"><i class="fa-solid fa-user-slash"></i> حذف مورد</button>
+        </div>
+      </div>
+
+      <!-- العمود الثالث: أزرار العمليات والإجراءات السريعة -->
+      <div class="workspace-box" style="display:flex; flex-direction:column; gap:6px; justify-content:flex-start;">
+        <div style="font-weight:bold; color:var(--win-blue-header); margin-bottom:2px; font-size:0.85rem; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
+          <i class="fa-solid fa-bars-progress"></i> العمليات والإدارة
+        </div>
+        <button class="btn-win btn-win-green" onclick="switchMainTab('invoices')"><i class="fa-solid fa-file-lines"></i> يومية الوارد (الفواتير)</button>
+        <button class="btn-win btn-win-orange" onclick="switchMainTab('payments')"><i class="fa-solid fa-receipt"></i> يومية المدفوعات</button>
+        <button class="btn-win" style="background:#0284c7;" onclick="openSupplierStatement()"><i class="fa-solid fa-file-invoice"></i> كشف حساب المورد</button>
+        <button class="btn-win" style="background:var(--gold-vip);" onclick="printDetailedSupplierAccountStatement()"><i class="fa-solid fa-print"></i> طباعة كشف الحساب</button>
+        <button class="btn-win btn-win-red" onclick="deleteSelectedSupplierRecord()"><i class="fa-solid fa-trash"></i> حذف وارد / تسوية</button>
+        <button class="btn-win" style="background:#7c3aed;" onclick="exportTableToExcel('#supplierInvoicesTable', 'Suppliers_Invoices.xlsx')"><i class="fa-solid fa-file-excel"></i> تصدير إكسل</button>
+      </div>
+
+    </div>
+
+    <!-- الجزء السفلي: حساب المدفوعات والمقبوضات -->
+    <div class="payments-section">
+      <h3><i class="fa-solid fa-money-check-dollar"></i> حساب المدفوعات والمقبوضات للموردين[cite: 23]</h3>
+      <form onsubmit="saveSupplierPayment(event)">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:8px; margin-bottom:8px;">
+          <div class="form-row">
+            <label style="color:white;">رقم السداد:</label>
+            <input type="text" id="payNo" value="PAY-901" required>
+          </div>
+          <div class="form-row">
+            <label style="color:white;">تاريخ السداد:</label>
+            <input type="date" id="payDate" required>
+          </div>
+          <div class="form-row">
+            <label style="color:white;">اسم المورد:</label>
+            <select id="paySupName" required onchange="updateSelectedSupplierDebt()">
+              <option value="">-- اختر المورد --</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label style="color:white;">الخزنة / الدفع:</label>
+            <select id="payMethod"><option value="نقدي (كاش)">نقدي (كاش)</option><option value="شيك بنكي">شيك بنكي</option><option value="انستا باى / تحويل">إنستا باي / تحويل</option></select>
+          </div>
+          <div class="form-row">
+            <label style="color:white;">المبلغ المسدد:</label>
+            <input type="number" id="payAmount" required step="any" placeholder="0.00">
+          </div>
+          <div class="form-row">
+            <label style="color:white;">البيان / ملاحظات:</label>
+            <input type="text" id="payNotes" placeholder="دفعة حساب / تسوية...">
+          </div>
+        </div>
+        <button type="submit" class="btn-win btn-win-green"><i class="fa-solid fa-check"></i> حفظ سند الدفع للمورد</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- الجداول التبصيلية (مخفية أو معروضة حسب التبويب) -->
+  <div class="desktop-app-container" id="invoicesTabSection" style="display:none;">
+    <div class="app-top-titlebar"><span><i class="fa-solid fa-file-invoice-dollar"></i> سجل فواتير وإذن توريد الموردين</span></div>
+    <div style="overflow-x:auto;">
+      <table id="supplierInvoicesTable">
+        <thead><tr><th>رقم الإذن</th><th>التاريخ</th><th>المورد</th><th>الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>الإجمالي</th></tr></thead>
+        <tbody id="supplierInvoicesTbody"><tr><td colspan="7" style="text-align:center;">لا توجد فواتير مسجلة.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="desktop-app-container" id="paymentsTabSection" style="display:none;">
+    <div class="app-top-titlebar"><span><i class="fa-solid fa-money-bill-transfer"></i> سجل المدفوعات والسدادات للموردين</span></div>
+    <div style="overflow-x:auto;">
+      <table id="supplierPaymentsTable">
+        <thead><tr><th>رقم السداد</th><th>التاريخ</th><th>المورد</th><th>المبلغ المسدد</th><th>طريقة الدفع</th><th>البيان</th></tr></thead>
+        <tbody id="supplierPaymentsTbody"><tr><td colspan="6" style="text-align:center;">لا توجد مدفوعات مسجلة.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- منطقة الطباعة المخفية -->
+  <div id="printableArea" style="display:none;"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAo4cdiLNInZoVPA6kFkDUl1tWaxcLVtKk",
+      authDomain: "auto-non-b841f.firebaseapp.com",
+      projectId: "auto-non-b841f",
+      storageBucket: "auto-non-b841f.firebasestorage.app",
+      messagingSenderId: "512423300329",
+      appId: "1:512423300329:web:190310e1c4b80c9921b478",
+      measurementId: "G-ZG5RQBB3GL"
+    };
+
+    let db = null;
+    let useLocalFallback = false;
+
+    try {
+      if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+      db = firebase.firestore();
+    } catch(err) {
+      useLocalFallback = true;
+    }
+
+    let cachedSuppliers = [];
+    let cachedInventory = [];
+    let cachedSupInvoices = [];
+    let cachedSupPayments = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('supInvoiceDate').valueAsDate = new Date();
+      document.getElementById('payDate').valueAsDate = new Date();
+      document.getElementById('currentDateDisplay').innerText = new Date().toISOString().substring(0, 10).replace(/-/g, '/');
+      generateSupBarcode();
+      loadAllData();
+    });
+
+    function generateSupBarcode() {
+      document.getElementById('supItemBarcode').value = "SUP-NON-" + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    function calcSupTotal() {
+      let buy = parseFloat(document.getElementById('supItemBuy').value) || 0;
+      let qty = parseInt(document.getElementById('supItemQty').value) || 1;
+      let disc = parseFloat(document.getElementById('supDiscount').value) || 0;
+      let total = (buy * qty) * (1 - disc / 100);
+      document.getElementById('supItemTotal').value = total.toFixed(2);
+    }
+
+    function switchMainTab(tab) {
+      document.getElementById('mainSupplierScreen').style.display = 'block';
+      document.getElementById('invoicesTabSection').style.display = 'none';
+      document.getElementById('paymentsTabSection').style.display = 'none';
+
+      if (tab === 'invoices') {
+        document.getElementById('invoicesTabSection').style.display = 'block';
+      } else if (tab === 'payments') {
+        document.getElementById('paymentsTabSection').style.display = 'block';
+      }
+    }
+
+    async function getData(col) {
+      if (useLocalFallback) return JSON.parse(localStorage.getItem(col) || '[]');
+      try {
+        const snap = await db.collection(col).get();
+        let list = [];
+        snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+        return list;
+      } catch (err) {
+        useLocalFallback = true;
+        return JSON.parse(localStorage.getItem(col) || '[]');
+      }
+    }
+
+    async function addData(col, data) {
+      if (!data.dateStr) data.dateStr = new Date().toISOString();
+      if (useLocalFallback) {
+        let list = JSON.parse(localStorage.getItem(col) || '[]');
+        data.id = 'local_' + Date.now();
+        list.push(data);
+        localStorage.setItem(col, JSON.stringify(list));
+        return data.id;
+      }
+      try {
+        let res = await db.collection(col).add(data);
+        return res.id;
+      } catch (err) {
+        useLocalFallback = true;
+        let list = JSON.parse(localStorage.getItem(col) || '[]');
+        data.id = 'local_' + Date.now();
+        list.push(data);
+        localStorage.setItem(col, JSON.stringify(list));
+        return data.id;
+      }
+    }
+
+    async function loadAllData() {
+      cachedSuppliers = await getData("suppliers");
+      cachedInventory = await getData("inventory");
+      cachedSupInvoices = await getData("supplier_invoices");
+      cachedSupPayments = await getData("supplier_payments");
+
+      renderSuppliersDropdowns();
+      renderSuppliersTable();
+      renderInvoicesTable();
+      renderPaymentsTable();
+      updateStats();
+    }
+
+    function renderSuppliersDropdowns() {
+      let supSelects = [document.getElementById('supSelectName'), document.getElementById('paySupName')];
+      supSelects.forEach(sel => {
+        if (!sel) return;
+        let currentVal = sel.value;
+        sel.innerHTML = '<option value="">-- اختر المورد / التاجر --</option>';
+        cachedSuppliers.forEach(s => {
+          sel.innerHTML += `<option value="${s.name}">${s.name} (${s.dealType || 'مورد'})</option>`;
+        });
+        sel.value = currentVal;
+      });
+    }
+
+    function renderSuppliersTable() {
+      const tbody = document.getElementById('suppliersNamesTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (cachedSuppliers.length === 0) {
+        tbody.innerHTML = '<tr><td>لا توجد مورديين مسجلين.</td></tr>';
+        return;
+      }
+      cachedSuppliers.forEach(s => {
+        tbody.innerHTML += `
+          <tr onclick="selectSupplierByName('${s.name}')" style="cursor:pointer;">
+            <td style="font-weight:bold; padding:6px; border-bottom:1px solid var(--border-color);">${s.name} <br><small style="color:var(--primary-orange);">${s.phone || ''}</small></td>
+          </tr>
+        `;
+      });
+      document.getElementById('statSuppliersCount').innerText = cachedSuppliers.length + " مورد";
+    }
+
+    function selectSupplierByName(name) {
+      document.getElementById('supSelectName').value = name;
+      document.getElementById('paySupName').value = name;
+      updateSelectedSupplierDebt();
+    }
+
+    function filterSuppliersList() {
+      const query = document.getElementById('searchSupplierInput').value.toLowerCase();
+      const filtered = cachedSuppliers.filter(s => s.name.toLowerCase().includes(query));
+      const tbody = document.getElementById('suppliersNamesTbody');
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td>لا توجد نتائج مطابقة.</td></tr>';
+        return;
+      }
+      filtered.forEach(s => {
+        tbody.innerHTML += `
+          <tr onclick="selectSupplierByName('${s.name}')" style="cursor:pointer;">
+            <td style="font-weight:bold; padding:6px; border-bottom:1px solid var(--border-color);">${s.name}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // دالة البحث الفوري المحدثة لدعم مطابقة الحروف بدقة
+    function searchInventoryForSupplier(query) {
+      const resBox = document.getElementById('inventorySearchResults');
+      if(!query || query.trim() === '') {
+        resBox.style.display = 'none';
+        document.getElementById('existingInventoryItemId').value = '';
+        return;
+      }
+      
+      const cleanQuery = query.trim().toLowerCase();
+
+      // تصفية الأصناف من المخزن بناءً على الاسم أو الباركود
+      let matches = cachedInventory.filter(i => {
+        let itemName = (i.name || "").toLowerCase();
+        let itemBarcode = (i.barcode || "").toLowerCase();
+        return itemName.includes(cleanQuery) || itemBarcode.includes(cleanQuery);
+      });
+
+      resBox.innerHTML = '';
+      
+      // دائماً نضع خيار إضافة صنف جديد كخيار أول
+      resBox.innerHTML += `<div class="search-result-item" style="color:var(--primary-orange); font-weight:bold; border-bottom:2px solid var(--border-color);" onclick="selectNewItemMode('${query}')">➕ إضافة كصنف جديد تماماً</div>`;
+
+      if(matches.length > 0) {
+        matches.forEach(m => {
+          resBox.innerHTML += `
+            <div class="search-result-item" onclick="selectInventoryItemForSup('${m.id}', '${m.name}', ${m.buyPrice || 0}, '${m.barcode}')">
+              <strong>${m.name}</strong> - شراء: ${m.buyPrice || 0} ج.م (المتاح: ${m.qty || 0})
+            </div>`;
+        });
+      } else {
+        resBox.innerHTML += `<div class="search-result-item" style="color:gray; text-align:center;">لا توجد مطابقة في المخزن الحالي</div>`;
+      }
+      
+      resBox.style.display = 'block';
+    }
+
+    // تفعيل وضع إضافة صنف جديد
+    function selectNewItemMode(query) {
+      document.getElementById('existingInventoryItemId').value = ''; 
+      if(!query.includes('إضافة')) {
+        document.getElementById('supItemName').value = query;
+      }
+      document.getElementById('inventorySearchResults').style.display = 'none';
+      document.getElementById('supItemBuy').focus();
+    }
+
+    // اختيار صنف موجود مسبقاً من المخزن
+    function selectInventoryItemForSup(id, name, buyPrice, barcode) {
+      document.getElementById('existingInventoryItemId').value = id;
+      document.getElementById('supItemName').value = name;
+      document.getElementById('supItemBuy').value = buyPrice;
+      document.getElementById('supItemBarcode').value = barcode;
+      document.getElementById('inventorySearchResults').style.display = 'none';
+      calcSupTotal();
+    }
+
+    // دالة حفظ إذن التوريد وإضافة الصنف (تحديث المخزن تلقائياً إن كان موجوداً أو إنشاءه إن كان جديداً)
+    async function saveSupplierInvoiceAndItem(e) {
+      e.preventDefault();
+      const supName = document.getElementById('supSelectName').value;
+      if(!supName) {
+        alert("الرجاء اختيار المورد أولاً!");
+        return;
+      }
+
+      const invoiceNo = document.getElementById('supInvoiceNo').value.trim();
+      const invoiceDate = document.getElementById('supInvoiceDate').value;
+      const dealType = document.getElementById('supDealType').value;
+      const barcode = document.getElementById('supItemBarcode').value.trim();
+      const itemName = document.getElementById('supItemName').value.trim();
+      const buyPrice = parseFloat(document.getElementById('supItemBuy').value) || 0;
+      const disc = parseFloat(document.getElementById('supDiscount').value) || 0;
+      const qty = parseInt(document.getElementById('supItemQty').value) || 1;
+      
+      let finalPrice = (buyPrice - (buyPrice * (disc / 100))) * qty;
+      let existingId = document.getElementById('existingInventoryItemId').value;
+
+      if(existingId) {
+        let targetItem = cachedInventory.find(i => i.id === existingId);
+        if(targetItem) {
+          let newQty = (targetItem.qty || 0) + qty;
+          if (useLocalFallback || existingId.startsWith('local_')) {
+            let list = JSON.parse(localStorage.getItem('inventory') || '[]');
+            list = list.map(i => i.id === existingId ? { ...i, qty: newQty, buyPrice } : i);
+            localStorage.setItem('inventory', JSON.stringify(list));
+          } else {
+            await db.collection("inventory").doc(existingId).update({ qty: newQty, buyPrice });
+          }
+        }
+      } else {
+        await addData("inventory", {
+          name: itemName,
+          barcode: barcode || ("SUP-NON-" + Math.floor(100000 + Math.random() * 900000)),
+          qty: qty,
+          buyPrice: buyPrice,
+          sellPrice: buyPrice * 1.25
+        });
+      }
+
+      await addData("supplier_invoices", {
+        invoiceNo,
+        dateStr: invoiceDate,
+        supName,
+        dealType,
+        itemName,
+        qty,
+        buyPrice,
+        totalAmount: finalPrice
+      });
+
+      await addData("suppliers_ledger", {
+        supName,
+        type: 'فاتورة شراء بضاعة',
+        amount: finalPrice,
+        notes: `إذن توريد رقم ${invoiceNo} - صنف: ${itemName} (${qty} قطعة)`
+      });
+
+      alert("تم حفظ إذن التوريد، وتحديث/إضافة الصنف للمخزن، وتسجيل حساب المورد بنجاح!");
+      clearSupForm();
+      loadAllData();
+    }
+
+    async function addNewSupplierPrompt() {
+      let name = prompt("أدخل اسم المورد / التاجر الجديد:");
+      if (!name) return;
+      let phone = prompt("أدخل رقم هاتف المورد:") || '';
+      let dealType = prompt("أدخل نوع التعامل (مورد / متعهد / وكيل):") || 'مورد';
+
+      await addData("suppliers", { name, phone, dealType });
+      alert("تم إضافة المورد بنجاح!");
+      loadAllData();
+    }
+
+    async function deleteSelectedSupplier() {
+      let supName = document.getElementById('supSelectName').value;
+      if (!supName) {
+        alert("الرجاء اختيار المورد المراد حذفه من القائمة أولاً.");
+        return;
+      }
+      if (confirm(`هل أنت متأكد من حذف المورد (${supName}) نهائياً؟`)) {
+        let supObj = cachedSuppliers.find(s => s.name === supName);
+        if (supObj) {
+          if (useLocalFallback || supObj.id.startsWith('local_')) {
+            let list = JSON.parse(localStorage.getItem('suppliers') || '[]');
+            list = list.filter(s => s.id !== supObj.id);
+            localStorage.setItem('suppliers', JSON.stringify(list));
+          } else {
+            await db.collection("suppliers").doc(supObj.id).delete();
+          }
+          alert("تم حذف المورد بنجاح.");
+          loadAllData();
+        }
+      }
+    }
+
+    async function deleteSelectedItem() {
+      let existingId = document.getElementById('existingInventoryItemId').value;
+      let itemName = document.getElementById('supItemName').value.trim();
+
+      if (!itemName) {
+        alert("الرجاء كتابة أو اختيار اسم الصنف المراد حذفه.");
+        return;
+      }
+
+      let targetItem = cachedInventory.find(i => i.id === existingId || i.name.trim().toLowerCase() === itemName.trim().toLowerCase());
+      if (!targetItem) {
+        alert("الصنف غير موجود في المخزن الرئيسي للحذف.");
+        return;
+      }
+
+      if (confirm(`هل أنت متأكد من حذف الصنف (${targetItem.name}) من المخزن نهائياً؟`)) {
+        if (useLocalFallback || targetItem.id.startsWith('local_')) {
+          let list = JSON.parse(localStorage.getItem('inventory') || '[]');
+          list = list.filter(i => i.id !== targetItem.id);
+          localStorage.setItem('inventory', JSON.stringify(list));
+        } else {
+          await db.collection("inventory").doc(targetItem.id).delete();
+        }
+        alert("تم حذف الصنف بنجاح من المخزن.");
+        document.getElementById('supItemName').value = '';
+        document.getElementById('existingInventoryItemId').value = '';
+        loadAllData();
+      }
+    }
+
+    async function saveSupplierPayment(e) {
+      e.preventDefault();
+      const payNo = document.getElementById('payNo').value.trim();
+      const payDate = document.getElementById('payDate').value;
+      const supName = document.getElementById('paySupName').value;
+      const payMethod = document.getElementById('payMethod').value;
+      const amount = parseFloat(document.getElementById('payAmount').value) || 0;
+      const notes = document.getElementById('payNotes').value.trim();
+
+      if (!supName) {
+        alert("الرجاء اختيار المورد!");
+        return;
+      }
+
+      await addData("supplier_payments", {
+        payNo,
+        dateStr: payDate,
+        supName,
+        payMethod,
+        amount,
+        notes
+      });
+
+      await addData("suppliers_ledger", {
+        supName,
+        type: 'سداد نقدية للمورد',
+        amount: -amount,
+        notes: `سند دفع رقم: ${payNo} (${payMethod})`
+      });
+
+      alert("تم حفظ سند الدفع وتحديث حساب المورد بنجاح!");
+      e.target.reset();
+      document.getElementById('payDate').valueAsDate = new Date();
+      loadAllData();
+    }
+
+    async function updateSelectedSupplierDebt() {
+      let supName = document.getElementById('supSelectName').value || document.getElementById('paySupName').value;
+      if (!supName) return;
+      let ledger = await getData("suppliers_ledger");
+      let totalDebt = 0;
+      ledger.forEach(l => {
+        if (l.supName === supName) {
+          totalDebt += (parseFloat(l.amount) || 0);
+        }
+      });
+      document.getElementById('statSuppliersDebt').innerText = totalDebt.toLocaleString() + " ج.م";
+    }
+
+    async function updateStats() {
+      let ledger = await getData("suppliers_ledger");
+      let totalDebt = 0;
+      ledger.forEach(l => { totalDebt += (parseFloat(l.amount) || 0); });
+      document.getElementById('statSuppliersDebt').innerText = totalDebt.toLocaleString() + " ج.م";
+
+      let totalPaid = 0;
+      cachedSupPayments.forEach(p => { totalPaid += (parseFloat(p.amount) || 0); });
+      document.getElementById('statTotalPaid').innerText = totalPaid.toLocaleString() + " ج.م";
+    }
+
+    function renderInvoicesTable() {
+      const tbody = document.getElementById('supplierInvoicesTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (cachedSupInvoices.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد فواتير مسجلة.</td></tr>';
+        return;
+      }
+      cachedSupInvoices.sort((a, b) => (b.dateStr || '').localeCompare(a.dateStr || ''));
+      cachedSupInvoices.forEach(inv => {
+        tbody.innerHTML += `
+          <tr>
+            <td><code>${inv.invoiceNo}</code></td>
+            <td>${(inv.dateStr || '').substring(0, 10)}</td>
+            <td style="font-weight:bold;">${inv.supName}</td>
+            <td style="color:var(--primary-orange);">${inv.itemName}</td>
+            <td>${inv.qty}</td>
+            <td>${inv.buyPrice} ج.م</td>
+            <td style="font-weight:bold;">${inv.totalAmount} ج.م</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderPaymentsTable() {
+      const tbody = document.getElementById('supplierPaymentsTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (cachedSupPayments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد مدفوعات مسجلة.</td></tr>';
+        return;
+      }
+      cachedSupPayments.sort((a, b) => (b.dateStr || '').localeCompare(a.dateStr || ''));
+      cachedSupPayments.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td><code>${p.payNo}</code></td>
+            <td>${(p.dateStr || '').substring(0, 10)}</td>
+            <td style="font-weight:bold;">${p.supName}</td>
+            <td style="font-weight:bold; color:var(--btn-green);">${p.amount} ج.م</td>
+            <td>${p.payMethod}</td>
+            <td>${p.notes || '---'}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function clearSupForm() {
+      document.getElementById('supItemName').value = '';
+      document.getElementById('supItemBarcode').value = '';
+      document.getElementById('existingInventoryItemId').value = '';
+      document.getElementById('supItemBuy').value = '';
+      document.getElementById('supItemQty').value = '1';
+      document.getElementById('supDiscount').value = '0';
+      document.getElementById('supItemTotal').value = '0';
+      generateSupBarcode();
+    }
+
+    function printSupInvoiceModal() {
+      window.print();
+    }
+
+    function openSupplierStatement() {
+      switchMainTab('invoices');
+    }
+
+    function printDetailedSupplierAccountStatement() {
+      window.print();
+    }
+
+    async function deleteSelectedSupplierRecord() {
+      alert("يرجى استخدام شاشة يومية الوارد أو المدفوعات لمراجعة وحذف السجلات الخاطئة.");
+    }
+
+    function exportTableToExcel(tableQuery, filename) {
+      const wb = XLSX.utils.table_to_book(document.querySelector(tableQuery), {sheet: "Sheet1"});
+      XLSX.writeFile(wb, filename);
+    }
+  </script>
+</body>
+</html>

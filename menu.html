@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة مركز أوتو نون</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('NON.PNG') no-repeat center center fixed;
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f39c12;
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #f39c12;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* منطقة سحب وإفلات الملفات */
+        .drop-zone {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px dashed #f39c12;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .drop-zone.dragover {
+            background: rgba(243, 156, 18, 0.3);
+            border-color: #fff;
+        }
+
+        .drop-zone p {
+            color: #ddd;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .drop-zone span {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* زر فتح وضع التحكم بكلمة السر */
+        .admin-control-bar {
+            margin-bottom: 20px;
+        }
+
+        .admin-control-bar button {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #f39c12;
+            color: #f39c12;
+            padding: 6px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .admin-control-bar button:hover {
+            background: #f39c12;
+            color: #fff;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            padding: 10px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .card:hover {
+            background: rgba(243, 156, 18, 0.2);
+            border-color: #f39c12;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        /* أزرار التعديل والحذف (مخفية افتراضياً) */
+        .card-actions {
+            margin-top: 12px;
+            display: none; /* مخفية حتى يتم إدخال كلمة المرور */
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .card-actions.visible {
+            display: flex;
+        }
+
+        .card-actions button {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 3px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .card-actions button.delete-btn:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+
+        .card-actions button.edit-btn:hover {
+            background: #2980b9;
+            border-color: #2980b9;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="NON.PNG" alt="شعار مركز أوتو نون" class="logo">
+        <h1>نظام استقبال وإدارة مركز أوتو نون</h1>
+    </header>
+
+    <!-- منطقة سحب وإفلات ملفات الـ HTML -->
+    <div class="drop-zone" id="dropZone">
+        <p>📁 اسحب وأفلت ملف الـ HTML هنا لإضافته فوراً</p>
+        <span>أو انقر لاختيار الملف من جهازك</span>
+        <input type="file" id="fileInput" accept=".html" style="display: none;">
+    </div>
+
+    <!-- زر تفعيل وضع التعديل والحذف بكلمة المرور -->
+    <div class="admin-control-bar">
+        <button onclick="toggleAdminMode()">🔐 تفعيل خيارات التعديل والحذف</button>
+    </div>
+
+    <div class="grid-container" id="gridContainer">
+        <!-- سيتم تعبئة البطاقات تلقائياً هنا -->
+    </div>
+
+    <footer>
+        جميع الحقوق محفوظة &copy; مركز أوتو نون 2026
+    </footer>
+
+    <script>
+        // القائمة الافتراضية للملفات
+        const defaultShortcuts = [
+            { title: "الرئيسية", desc: "الصفحة الرئيسية للنظام", file: "index.html" },
+            { title: "التشخيص", desc: "فحص وتشخيص الأعطال", file: "diagnosis.html" },
+            { title: "العملاء", desc: "إدارة بيانات العملاء", file: "customers.html" },
+            { title: "أوامر العمل", desc: "متابعة الشغل والمهام", file: "job_order.html" },
+            { title: "الميكانيكا والفنيين", desc: "إدارة الفنيين والأعطال", file: "mechanics.html" },
+            { title: "الفرامل والتعليق", desc: "قسم العفشة والفرامل", file: "brakes_suspension.html" },
+            { title: "الكهرباء", desc: "قسم كهرباء السيارات", file: "electricity.html" },
+            { title: "السمكرة والدهان", desc: "قسم البدي والدهان", file: "painting.html" },
+            { title: "الإطارات", desc: "قسم الكاوتش والإطارات", file: "tires.html" },
+            { title: "التنجيد", desc: "قسم صالون السيارة", file: "upholsery.html" },
+            { title: "الغسيل", desc: "قسم التطهير والغسيل", file: "wash.html" },
+            { title: "الخزينة", desc: "الحسابات والماليات", file: "treasury.html" },
+            { title: "الموردين", desc: "إدارة الموردين والقطع", file: "mowared.html" },
+            { title: "طباعة الباركود", desc: "باركود قطع الغيار", file: "print-barcodes.html" },
+            { title: "الشاشات العرضية", desc: "شاشة متابعة العمل", file: "display.html" },
+            { title: "الأرشيف", desc: "الملفات والتقارير السابقة", file: "archive.html" },
+            { title: "المستخدمين", desc: "صلاحيات الدخول للنظام", file: "users_manager.html" },
+             { title: "الحسابات", desc: " الدخول ", file: "users_manager.html" },
+            { title: "الفحص الشامل", desc: "قوائم المراجعة السريعة", file: "check.html" }
+        ];
+
+        let isAdminUnlocked = false;
+
+        function getShortcuts() {
+            const saved = localStorage.getItem('auto_noon_shortcuts');
+            return saved ? JSON.parse(saved) : defaultShortcuts;
+        }
+
+        function saveShortcuts(shortcuts) {
+            localStorage.setItem('auto_noon_shortcuts', JSON.stringify(shortcuts));
+            renderShortcuts();
+        }
+
+        function renderShortcuts() {
+            const container = document.getElementById('gridContainer');
+            const shortcuts = getShortcuts();
+            container.innerHTML = '';
+
+            shortcuts.forEach((item, index) => {
+                const actionsClass = isAdminUnlocked ? 'card-actions visible' : 'card-actions';
+                container.innerHTML += `
+                    <div class="card">
+                        <a href="${item.file}" style="text-decoration: none; color: inherit; display: block;">
+                            <h3>${item.title}</h3>
+                            <p>${item.desc}</p>
+                        </a>
+                        <div class="${actionsClass}">
+                            <button class="edit-btn" onclick="editShortcut(${index})">تعديل</button>
+                            <button class="delete-btn" onclick="deleteShortcut(${index})">حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // التحقق من كلمة المرور لإظهار أزرار التعديل والحذف
+        function toggleAdminMode() {
+            if (!isAdminUnlocked) {
+                const pass = prompt('الرجاء إدخال كلمة المرور (331122):');
+                if (pass === '331122') {
+                    isAdminUnlocked = true;
+                    alert('تم فتح صلاحيات التعديل والحذف بنجاح.');
+                    renderShortcuts();
+                } else if (pass !== null) {
+                    alert('كلمة المرور غير صحيحة!');
+                }
+            } else {
+                isAdminUnlocked = false;
+                alert('تم إغلاق وضع التحكم.');
+                renderShortcuts();
+            }
+        }
+
+        // معالجة السحب والإفلات
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            const fileName = file.name;
+            if (!fileName.endsWith('.html')) {
+                alert('يرجى اختيار ملف HTML صالح.');
+                return;
+            }
+
+            // استخراج اسم مقترح للعنوان بناءً على اسم الملف
+            let defaultTitle = fileName.replace('.html', '').replace(/[-_]/g, ' ');
+            
+            const title = prompt('أدخل عنوان الزر الظاهر:', defaultTitle);
+            if (!title) return;
+            const desc = prompt('أدخل وصفاً مختصراً للقسم:', 'اختصار ملف جديد');
+
+            const shortcuts = getShortcuts();
+            shortcuts.push({
+                title: title.trim(),
+                desc: desc ? desc.trim() : 'ملف تخصصي',
+                file: fileName
+            });
+
+            saveShortcuts(shortcuts);
+            alert('تمت إضافة الاختصار بنجاح!');
+        }
+
+        function deleteShortcut(index) {
+            if (confirm('هل أنت متأكد من حذف هذا الاختصار؟')) {
+                const shortcuts = getShortcuts();
+                shortcuts.splice(index, 1);
+                saveShortcuts(shortcuts);
+            }
+        }
+
+        function editShortcut(index) {
+            const shortcuts = getShortcuts();
+            const item = shortcuts[index];
+
+            const newTitle = prompt('تعديل عنوان الزر:', item.title);
+            if (newTitle === null) return;
+            const newDesc = prompt('تعديل الوصف:', item.desc);
+            if (newDesc === null) return;
+            const newFile = prompt('تعديل اسم ملف الـ HTML:', item.file);
+            if (newFile === null) return;
+
+            shortcuts[index] = {
+                title: newTitle.trim() || item.title,
+                desc: newDesc.trim() || item.desc,
+                file: newFile.trim() || item.file
+            };
+
+            saveShortcuts(shortcuts);
+        }
+
+        window.onload = renderShortcuts;
+    </script>
+</body>
+</html>

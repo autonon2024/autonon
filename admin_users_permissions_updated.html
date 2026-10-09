@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز أوتو نون (NON) - لوحة المدير</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+<style>
+:root{
+  --bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --orange:#ea580c;--blue:#0284c7;--green:#10b981;--red:#dc2626;--yellow:#f59e0b;
+  --purple:#9333ea;--cyan:#0891b2;--shadow:0 8px 25px rgba(15,23,42,.07)
+}
+body.dark-mode{--bg:#0f172a;--card:#1e293b;--text:#f8fafc;--muted:#94a3b8;--border:#334155}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Tahoma,Arial,sans-serif}
+body{background:var(--bg);color:var(--text);padding:12px;transition:.25s}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.header{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow);position:sticky;top:8px;z-index:20}
+.brand{display:flex;align-items:center;gap:10px}.brand i{font-size:30px;color:var(--orange)}
+.brand h1{font-size:1.2rem}.brand small{color:var(--muted)}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:8px 12px;font-weight:700;color:#fff;display:inline-flex;gap:7px;align-items:center}
+.orange{background:var(--orange)}.blue{background:var(--blue)}.green{background:var(--green)}
+.red{background:var(--red)}.yellow{background:var(--yellow);color:#111827}.purple{background:var(--purple)}
+.gray{background:#475569}
+.layout{display:grid;grid-template-columns:235px 1fr;gap:14px;margin-top:14px}
+.sidebar{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:10px;height:max-content;position:sticky;top:90px}
+.navbtn{width:100%;background:transparent;border:1px solid transparent;color:var(--text);padding:11px 12px;border-radius:9px;text-align:right;margin-bottom:5px;font-weight:700;display:flex;gap:9px;align-items:center}
+.navbtn:hover,.navbtn.active{background:rgba(234,88,12,.1);border-color:rgba(234,88,12,.25);color:var(--orange)}
+.content{min-width:0}.section{display:none}.section.active{display:block}
+.titlebar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.titlebar h2{font-size:1.25rem}.titlebar p{color:var(--muted);font-size:.85rem}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;box-shadow:var(--shadow)}
+.stat i{font-size:20px;color:var(--orange)}.stat b{font-size:1.5rem;display:block;margin:7px 0}.stat span{color:var(--muted);font-size:.78rem}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+.panel h3{margin-bottom:10px;font-size:1rem}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:720px}th,td{border-bottom:1px solid var(--border);padding:9px;text-align:right;font-size:.82rem}th{background:rgba(2,132,199,.06)}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(100,116,139,.12)}
+input,select{width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none}
+label{font-size:.78rem;color:var(--muted);font-weight:700;display:block;margin-bottom:5px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.dept{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card)}
+.dept .icon{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:rgba(234,88,12,.1);color:var(--orange);font-size:19px;margin-bottom:8px}
+.dept h4{margin-bottom:5px}.dept small{color:var(--muted)}.dept .dept-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.dept .dept-actions button{font-size:.72rem;padding:6px 8px}
+.file-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.file-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card);display:flex;align-items:center;justify-content:space-between;gap:10px}.file-card .file-info{min-width:0}.file-card .file-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:rgba(2,132,199,.1);color:var(--blue);font-size:18px;flex:0 0 auto}.file-card .file-name{font-weight:700;word-break:break-word}.file-card small{color:var(--muted);display:block;margin-top:3px}.file-card button{font-size:.72rem;padding:6px 8px;white-space:nowrap}@media(max-width:1150px){.file-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:800px){.file-grid{grid-template-columns:1fr}}
+.progress{height:7px;background:var(--border);border-radius:20px;overflow:hidden;margin-top:6px}.progress>span{display:block;height:100%;background:var(--orange)}
+.alertbox{padding:11px;border-radius:10px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);margin-bottom:10px}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.kpi{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:9px 0}
+@media(max-width:1150px){.cards{grid-template-columns:repeat(3,1fr)}.dept-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.sidebar{position:static}.grid2,.form-row{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.dept-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body id="pageBody">
+
+<header class="header">
+  <div class="brand">
+    <i class="fa-solid fa-user-tie"></i>
+    <div><h1>لوحة تحكم المدير</h1><small>مركز أوتو نون (NON) — الإدارة المركزية</small></div>
+  </div>
+  <div class="actions">
+    <button class="btn blue" onclick="refreshAll()"><i class="fa-solid fa-rotate"></i> تحديث</button>
+    <button class="btn gray" onclick="toggleDarkMode()"><i id="themeIcon" class="fa-solid fa-moon"></i> الوضع</button>
+    <button class="btn orange" onclick="location.href='index.html'"><i class="fa-solid fa-house"></i> الرئيسية</button>
+  </div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <button class="navbtn active" data-section="dashboard"><i class="fa-solid fa-chart-pie"></i> الرئيسية</button>
+  <button class="navbtn" data-section="departments"><i class="fa-solid fa-sitemap"></i> الأقسام</button>
+  <button class="navbtn" data-section="systemFiles"><i class="fa-solid fa-folder-open"></i> ملفات المنظومة</button>
+  <button class="navbtn" data-section="cars"><i class="fa-solid fa-car"></i> كل السيارات</button>
+  <button class="navbtn" data-section="workflow"><i class="fa-solid fa-route"></i> حركة التشغيل</button>
+  <button class="navbtn" data-section="inventory"><i class="fa-solid fa-boxes-stacked"></i> المخزن والطلبات</button>
+  <button class="navbtn" data-section="accounting"><i class="fa-solid fa-calculator"></i> الحسابات</button>
+  <button class="navbtn" data-section="returns"><i class="fa-solid fa-arrow-rotate-left"></i> المرتجعات</button>
+  <button class="navbtn" data-section="users"><i class="fa-solid fa-users-gear"></i> المستخدمون والصلاحيات</button>
+  <button class="navbtn" data-section="settings"><i class="fa-solid fa-gears"></i> إعدادات النظام</button>
+  <hr style="border:0;border-top:1px solid var(--border);margin:8px 0">
+  <div style="padding:8px;color:var(--muted);font-size:.75rem">المدير: <b id="loggedUser">غير محدد</b></div>
+</aside>
+
+<main class="content">
+
+<section id="dashboard" class="section active">
+ <div class="titlebar"><div><h2>نظرة عامة على المركز</h2><p>متابعة كل الأقسام والحالات والطلبات من مكان واحد.</p></div></div>
+ <div class="cards">
+  <div class="stat"><i class="fa-solid fa-car"></i><b id="statCars">0</b><span>إجمالي السيارات</span></div>
+  <div class="stat"><i class="fa-solid fa-screwdriver-wrench"></i><b id="statActive">0</b><span>قيد العمل</span></div>
+  <div class="stat"><i class="fa-solid fa-pause"></i><b id="statSuspended">0</b><span>معلق / بانتظار قطع</span></div>
+  <div class="stat"><i class="fa-solid fa-calculator"></i><b id="statAccounting">0</b><span>متوجه للحسابات</span></div>
+  <div class="stat"><i class="fa-solid fa-box"></i><b id="statRequests">0</b><span>طلبات مخزن معلقة</span></div>
+  <div class="stat"><i class="fa-solid fa-rotate-left"></i><b id="statReturns">0</b><span>مرتجعات قيد المراجعة</span></div>
+ </div>
+ <div class="grid2">
+  <div class="panel"><h3>حالة التشغيل</h3><div id="statusSummary"></div></div>
+  <div class="panel"><h3>تنبيهات المدير</h3><div id="alertsBox"><div class="empty">جاري تحميل التنبيهات...</div></div></div>
+ </div>
+</section>
+
+<section id="departments" class="section">
+ <div class="titlebar"><div><h2>إدارة الأقسام</h2><p>الأقسام الحالية قابلة للتعديل، ويمكن إضافة أقسام جديدة لاحقًا.</p></div>
+ <button class="btn orange" onclick="showAddDepartment()"><i class="fa-solid fa-plus"></i> إضافة قسم</button></div>
+ <div id="departmentForm" class="panel" style="display:none">
+   <h3>إضافة قسم جديد</h3>
+   <div class="form-row">
+    <div><label>اسم القسم</label><input id="newDeptName" placeholder="مثال: قسم التكييف"></div>
+    <div><label>اسم الملف</label><input id="newDeptFile" placeholder="مثال: ac.html"></div>
+   </div>
+   <div class="form-row">
+    <div><label>وصف مختصر</label><input id="newDeptDesc" placeholder="وصف القسم"></div>
+    <div><label>الأيقونة</label><input id="newDeptIcon" value="fa-gears" placeholder="fa-gears"></div>
+   </div>
+   <button class="btn green" onclick="addDepartment()"><i class="fa-solid fa-check"></i> حفظ القسم</button>
+   <button class="btn gray" onclick="document.getElementById('departmentForm').style.display='none'">إلغاء</button>
+ </div>
+ <div id="departmentsGrid" class="dept-grid"></div>
+</section>
+
+<section id="systemFiles" class="section">
+  <div class="titlebar"><div><h2>ملفات المنظومة</h2><p>كل ملفات HTML الموجودة في مجلد المشروع كما تم إضافتها للوحة المدير.</p></div></div>
+  <div class="panel"><div id="systemFilesGrid" class="file-grid"></div></div>
+</section>
+
+<section id="cars" class="section">
+ <div class="titlebar"><div><h2>إدارة كل السيارات</h2><p>بحث ومتابعة السيارة مهما كان القسم الذي توجد فيه.</p></div></div>
+ <div class="panel">
+  <div class="form-row">
+   <div><label>بحث</label><input id="carSearch" oninput="renderCars()" placeholder="اسم العميل / اللوحة / السيارة"></div>
+   <div><label>الحالة</label><select id="carStatusFilter" onchange="renderCars()"><option value="">كل الحالات</option><option>IN_PROGRESS</option><option>PENDING_APPROVAL</option><option>WAITING_FOR_PARTS</option><option>SENT_TO_TREASURY</option><option>DONE</option></select></div>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>العميل</th><th>السيارة</th><th>اللوحة</th><th>القسم</th><th>الحالة</th><th>الموظف</th><th>إجراء</th></tr></thead><tbody id="carsTbody"></tbody></table></div>
+ </div>
+</section>
+
+<section id="workflow" class="section">
+ <div class="titlebar"><div><h2>حركة التشغيل</h2><p>السيارة تنتقل بين الاستقبال والأقسام والمخزن والحسابات حتى الإغلاق.</p></div></div>
+ <div class="panel"><div id="workflowList"></div></div>
+</section>
+
+<section id="inventory" class="section">
+ <div class="titlebar"><div><h2>المخزن وطلبات الأقسام</h2><p>مراقبة طلبات قطع الغيار والخامات وإذن الصرف.</p></div></div>
+ <div class="cards">
+  <div class="stat"><i class="fa-solid fa-boxes-stacked"></i><b id="inventoryCount">0</b><span>أصناف المخزن</span></div>
+  <div class="stat"><i class="fa-solid fa-file-circle-exclamation"></i><b id="pendingReqCount">0</b><span>طلبات قيد الانتظار</span></div>
+ </div>
+ <div class="panel"><div class="table-wrap"><table><thead><tr><th>القسم</th><th>العميل</th><th>السيارة</th><th>الصنف</th><th>الكمية</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody id="requestsTbody"></tbody></table></div></div>
+</section>
+
+<section id="accounting" class="section">
+ <div class="titlebar"><div><h2>إدارة الحسابات</h2><p>متابعة كل السيارات المحولة للحسابات من الأقسام المختلفة.</p></div></div>
+ <div class="panel"><div class="table-wrap"><table><thead><tr><th>العميل</th><th>السيارة</th><th>اللوحة</th><th>القسم</th><th>المصنعية</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody id="accountingTbody"></tbody></table></div></div>
+</section>
+
+<section id="returns" class="section">
+ <div class="titlebar"><div><h2>المرتجعات والاستبدالات</h2><p>مراجعة طلبات الإرجاع والاستبدال الواردة من الأقسام.</p></div></div>
+ <div class="panel"><div class="table-wrap"><table><thead><tr><th>القسم</th><th>العميل</th><th>السيارة</th><th>الصنف</th><th>النوع</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody id="returnsTbody"></tbody></table></div></div>
+</section>
+
+<section id="users" class="section">
+ <div class="titlebar"><div><h2>المستخدمون والصلاحيات</h2><p>إدارة حسابات تسجيل الدخول الفعلية وربط الدور والقسم وصلاحيات الوصول.</p></div>
+ <button class="btn orange" onclick="showUserForm()"><i class="fa-solid fa-user-plus"></i> مستخدم جديد</button></div>
+ <div id="userForm" class="panel" style="display:none">
+  <h3>إضافة مستخدم / موظف</h3>
+  <input type="hidden" id="userUid">
+  <div class="form-row">
+   <div><label>الاسم الكامل</label><input id="userName" autocomplete="name" placeholder="اسم الموظف"></div>
+   <div><label>اسم المستخدم</label><input id="userUsername" autocomplete="username" placeholder="اسم الدخول الظاهر"></div>
+  </div>
+  <div class="form-row">
+   <div><label>البريد الإلكتروني للحساب</label><input id="userEmail" type="email" autocomplete="email" placeholder="employee@example.com"></div>
+   <div><label>كلمة المرور <span style="font-weight:400">(6 أحرف على الأقل عند إنشاء حساب جديد)</span></label><input id="userPassword" type="password" autocomplete="new-password" placeholder="اتركها فارغة عند تعديل الصلاحيات"></div>
+  </div>
+  <div class="form-row">
+   <div><label>الوظيفة</label><input id="userJob" placeholder="فني / استقبال / حسابات / مخزن / مدير"></div>
+   <div><label>الصلاحية الأساسية</label><select id="userRole"><option value="employee">موظف</option><option value="supervisor">مشرف</option><option value="accounting">حسابات</option><option value="inventory">مخزن</option><option value="manager">مدير</option></select></div>
+  </div>
+  <div class="form-row">
+   <div><label>القسم (اختيار من الأقسام المسجلة)</label><select id="userDepartment"><option value="">بدون قسم محدد</option></select></div>
+   <div><label>صلاحيات الوصول للأقسام</label><div id="userPermissions" class="dept-grid"></div><small style="color:var(--muted)">حدد الأقسام التي يستطيع الموظف فتحها. صلاحية المدير تسمح بالإدارة الكاملة.</small></div>
+  </div>
+  <button class="btn green" id="saveUserBtn" onclick="saveManagedUser()"><i class="fa-solid fa-floppy-disk"></i> حفظ الحساب والصلاحيات</button>
+  <button class="btn gray" onclick="resetUserForm()">إلغاء</button>
+  <div class="alertbox" style="margin-top:10px">إنشاء حساب تسجيل دخول فعلي يتطلب نشر Cloud Functions وتسجيل دخول المدير بحساب Firebase Authentication. لا تُحفظ كلمات المرور في Firestore.</div>
+ </div>
+ <div class="panel"><div class="table-wrap"><table><thead><tr><th>الاسم</th><th>البريد / اسم المستخدم</th><th>الوظيفة</th><th>القسم</th><th>الصلاحية</th><th>الأقسام المسموحة</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="usersTbody"></tbody></table></div></div>
+</section>
+
+<section id="settings" class="section">
+ <div class="titlebar"><div><h2>إعدادات النظام</h2><p>إعدادات عامة قابلة للتوسع مع باقي أجزاء المنظومة.</p></div></div>
+ <div class="grid2">
+  <div class="panel">
+   <h3>الأقسام والملفات</h3>
+   <div class="kpi"><span>عدد الأقسام المسجلة</span><b id="settingsDeptCount">0</b></div>
+   <div class="kpi"><span>مصدر البيانات</span><b>Firebase Firestore</b></div>
+    <div class="kpi"><span>حفظ الأقسام</span><b id="departmentStorageStatus">سحابي عند توفر الصلاحيات</b></div>
+   <div class="kpi"><span>قاعدة بيانات السيارات</span><b>cars</b></div>
+  </div>
+  <div class="panel">
+   <h3>أدوات الإدارة</h3>
+   <button class="btn blue" onclick="exportSnapshot()"><i class="fa-solid fa-file-export"></i> تصدير ملخص النظام</button>
+   <button class="btn yellow" onclick="alert('هذه الصفحة لا تحذف البيانات تلقائياً. أضف تأكيداً وصلاحية مدير قبل أي عملية حذف جماعي.')"><i class="fa-solid fa-shield"></i> سياسة الحذف الآمن</button>
+  </div>
+ </div>
+</section>
+
+</main>
+</div>
+
+<script>
+
+(function enforceManagerPage(){
+  // اقرأ كل مفاتيح الدور المحتملة؛ لا تجعل قيمة قديمة في أحدها تلغي دور المدير الصحيح في مفتاح آخر.
+  const roles = [
+    localStorage.getItem("currentRolePage"),
+    localStorage.getItem("userRole"),
+    localStorage.getItem("currentUserRole"),
+    localStorage.getItem("role")
+  ].filter(Boolean).map(role => String(role).trim().toLowerCase());
+  const allowedRoles = ["admin","manager","director","مدير","المدير","management","superadmin"];
+  const hasManagerRole = roles.some(role => allowedRoles.some(allowed => role.includes(allowed)));
+  const hasAnyRole = roles.length > 0;
+  if (hasAnyRole && !hasManagerRole) {
+    document.body.innerHTML = '<div style="max-width:600px;margin:15vh auto;padding:30px;text-align:center;background:#fff;border:1px solid #e2e8f0;border-radius:16px;font-family:Segoe UI,Tahoma,Arial"><h2 style="color:#dc2626">غير مصرح</h2><p style="margin:15px 0;color:#64748b">الدور المحفوظ في المتصفح لا يشير إلى مدير. سجّل الدخول بحساب المدير ثم أعد المحاولة.</p><button onclick="history.back()" style="padding:10px 18px;border:0;border-radius:8px;background:#ea580c;color:#fff;font-weight:700">رجوع</button></div>';
+    throw new Error("Manager access required");
+  }
+})();
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAo4cdiLNInZoVPA6kFkDUl1tWaxcLVtKk",
+  authDomain: "auto-non-b841f.firebaseapp.com",
+  projectId: "auto-non-b841f",
+  storageBucket: "auto-non-b841f.firebasestorage.app",
+  messagingSenderId: "512423300329",
+  appId: "1:512423300329:web:190310e1c4b80c9921b478",
+  measurementId: "G-ZG5RQBB3GL"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const functions = firebase.app().functions("us-central1");
+
+const defaultDepartments = [
+ {name:"قسم الميكانيكا",file:"mechanics.html",icon:"fa-screwdriver-wrench",desc:"المحرك والصيانة الميكانيكية"},
+ {name:"قسم السمكرة والدهان",file:"painting.html",icon:"fa-spray-can-sparkles",desc:"السمكرة والدهان والخامات"},
+ {name:"قسم الكاوتش والترصيص",file:"tires.html",icon:"fa-circle-dot",desc:"الإطارات والترصيص"},
+ {name:"قسم السروجي والتنجيد",file:"upholstery.html",icon:"fa-couch",desc:"التنجيد والفرش"},
+ {name:"قسم المغسلة والخدمات",file:"wash.html",icon:"fa-soap",desc:"الغسيل والخدمات"},
+ {name:"قسم الفرامل والعفشة",file:"brakes_suspension.html",icon:"fa-car-burst",desc:"الفرامل والعفشة"},
+ {name:"قسم الكهرباء والبرمجة والتكييف",file:"electricity.html",icon:"fa-bolt",desc:"الكهرباء والبرمجة والتكييف"},
+ {name:"قسم الحسابات",file:"hesabat.html",icon:"fa-calculator",desc:"الحسابات والخزنة"}
+];
+
+const systemFiles = [
+ {name:"الأرشيف",file:"archive.html",icon:"fa-box-archive"},
+ {name:"الفرامل والعفشة",file:"brakes_suspension.html",icon:"fa-car-burst"},
+ {name:"الفحص / Check",file:"check.html",icon:"fa-clipboard-check"},
+ {name:"العملاء",file:"customers.html",icon:"fa-users"},
+ {name:"التشخيص",file:"diagnosis.html",icon:"fa-stethoscope"},
+ {name:"العرض / Display",file:"display.html",icon:"fa-desktop"},
+ {name:"الكهرباء والبرمجة والتكييف",file:"electricity.html",icon:"fa-bolt"},
+ {name:"الحسابات",file:"hesabat.html",icon:"fa-calculator"},
+ {name:"الرئيسية",file:"index.html",icon:"fa-house"},
+ {name:"أمر التشغيل",file:"job_order.html",icon:"fa-file-invoice"},
+ {name:"تسجيل الدخول",file:"login.html",icon:"fa-right-to-bracket"},
+ {name:"الميكانيكا",file:"mechanics.html",icon:"fa-screwdriver-wrench"},
+ {name:"القائمة",file:"menu.html",icon:"fa-bars"},
+ {name:"الموارد / المخزن",file:"mowared.html",icon:"fa-boxes-stacked"},
+ {name:"NON",file:"non.html",icon:"fa-car"},
+ {name:"الدهان",file:"painting.html",icon:"fa-spray-can-sparkles"},
+ {name:"طباعة الباركود",file:"print-barcodes.html",icon:"fa-barcode"},
+ {name:"الإطارات",file:"tires.html",icon:"fa-circle-dot"},
+ {name:"الخزنة",file:"treasury.html",icon:"fa-vault"}
+];
+
+let departments = JSON.parse(localStorage.getItem("non_admin_departments") || "null") || defaultDepartments;
+let departmentsLoadedFromCloud = false;
+async function saveDepartments(){
+  localStorage.setItem("non_admin_departments", JSON.stringify(departments));
+  try {
+    await db.collection("system_settings").doc("departments").set({
+      items: departments,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+    departmentsLoadedFromCloud = true;
+  } catch(e) {
+    console.warn("تعذر حفظ الأقسام سحابياً:", e.message);
+    alert("تم حفظ الأقسام على هذا الجهاز فقط؛ راجع صلاحيات Firestore للكتابة إلى system_settings/departments.");
+  }
+}
+async function loadDepartments(){
+  try {
+    const doc = await db.collection("system_settings").doc("departments").get();
+    if(doc.exists && Array.isArray(doc.data().items)){
+      departments = doc.data().items;
+      departmentsLoadedFromCloud = true;
+      localStorage.setItem("non_admin_departments", JSON.stringify(departments));
+    } else if(!doc.exists) {
+      await db.collection("system_settings").doc("departments").set({
+        items: departments,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+      departmentsLoadedFromCloud = true;
+    }
+  } catch(e) {
+    console.warn("تعذر تحميل الأقسام من Firestore:", e.message);
+  }
+}
+let cars=[], requests=[], accounting=[], returnsData=[], users=[], inventory=[];
+const $=id=>document.getElementById(id);
+
+document.querySelectorAll(".navbtn").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+ btn.classList.add("active"); $(btn.dataset.section).classList.add("active");
+}));
+
+function toggleDarkMode(){document.body.classList.toggle("dark-mode");$("themeIcon").className=document.body.classList.contains("dark-mode")?"fa-solid fa-sun":"fa-solid fa-moon";localStorage.setItem("non_admin_dark",document.body.classList.contains("dark-mode"))}
+if(localStorage.getItem("non_admin_dark")==="true") toggleDarkMode();
+$("loggedUser").textContent=localStorage.getItem("currentUser")||"المدير";
+
+function showAddDepartment(){$("departmentForm").style.display="block";$("newDeptName").focus()}
+function selectedPermissionsSafe(){return [...document.querySelectorAll(".user-permission:checked")].map(x=>x.value)}
+function renderDepartments(){
+ $("departmentsGrid").innerHTML=departments.map((d,i)=>`
+ <div class="dept">
+  <div class="icon"><i class="fa-solid ${d.icon||"fa-gears"}"></i></div>
+  <h4>${escapeHtml(d.name)}</h4><small>${escapeHtml(d.desc||"قسم في المنظومة")}</small>
+  <div class="progress"><span style="width:${Math.max(10,Math.min(100,100/(i+2)*2))}%"></span></div>
+  <div class="dept-actions">
+   <button class="btn blue" onclick="openDept('${escapeAttr(d.file)}')"><i class="fa-solid fa-arrow-up-right-from-square"></i> فتح</button>
+   <button class="btn gray" onclick="renameDept(${i})"><i class="fa-solid fa-pen"></i> تعديل</button>
+   ${i>=defaultDepartments.length?`<button class="btn red" onclick="removeDept(${i})"><i class="fa-solid fa-trash"></i></button>`:""}
+  </div>
+ </div>`).join("");
+ $("settingsDeptCount").textContent=departments.length;
+  if($("userDepartment")){const selected=$("userDepartment").value;syncUserDepartmentOptions(selected);renderPermissionChoices(selectedPermissionsSafe());}
+}
+function addDepartment(){
+ const name=$("newDeptName").value.trim(),file=$("newDeptFile").value.trim(),desc=$("newDeptDesc").value.trim(),icon=$("newDeptIcon").value.trim()||"fa-gears";
+ if(!name||!file){alert("اكتب اسم القسم واسم الملف");return}
+ departments.push({name,file,desc,icon}); saveDepartments();
+ $("departmentForm").style.display="none"; ["newDeptName","newDeptFile","newDeptDesc"].forEach(id=>$(id).value=""); renderDepartments();
+}
+function renameDept(i){const n=prompt("اسم القسم الجديد:",departments[i].name);if(n){departments[i].name=n;saveDepartments();renderDepartments()}}
+function removeDept(i){if(!confirm("حذف القسم من قائمة المدير؟ لن يتم حذف ملف القسم أو بياناته."))return;departments.splice(i,1);saveDepartments();renderDepartments()}
+function openDept(file){location.href=file}
+
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function escapeAttr(v){return escapeHtml(v).replace(/`/g,"&#96;")}
+function statusLabel(s){const map={IN_PROGRESS:"قيد العمل",PENDING_APPROVAL:"معلق / انتظار موافقة",WAITING_FOR_PARTS:"بانتظار قطع غيار",SUSPENDED:"معلق",SENT_TO_TREASURY:"متوجه للحسابات",DONE:"تم الانتهاء"};return map[s]||s||"غير محدد"}
+
+function renderSystemFiles(){
+ const box=$("systemFilesGrid");
+ if(!box) return;
+ box.innerHTML=systemFiles.map(f=>`
+  <div class="file-card">
+   <div style="display:flex;align-items:center;gap:10px;min-width:0">
+    <div class="file-icon"><i class="fa-solid ${escapeAttr(f.icon)}"></i></div>
+    <div class="file-info"><div class="file-name">${escapeHtml(f.name)}</div><small>${escapeHtml(f.file)}</small></div>
+   </div>
+   <button class="btn blue" onclick="openSystemFile('${escapeAttr(f.file)}')"><i class="fa-solid fa-folder-open"></i> فتح</button>
+  </div>`).join("");
+}
+function openSystemFile(file){location.href=file;}
+
+function renderCars(){
+ const q=($("carSearch").value||"").toLowerCase(),f=$("carStatusFilter").value;
+ const data=cars.filter(c=>{
+  const txt=[c.name,c.clientName,c.plate,c.brand,c.model,c.targetDepartment,c.serviceType].join(" ").toLowerCase();
+  return (!q||txt.includes(q))&&(!f||c.status===f);
+ });
+ $("carsTbody").innerHTML=data.length?data.map(c=>`<tr>
+ <td>${escapeHtml(c.name||c.clientName||"-")}</td><td>${escapeHtml((c.brand||"")+" "+(c.model||c.carInfo||""))}</td>
+ <td>${escapeHtml(c.plate||c.carPlate||"-")}</td><td>${escapeHtml(c.targetDepartment||c.serviceType||"-")}</td>
+ <td><span class="badge">${escapeHtml(statusLabel(c.status))}</span></td><td>${escapeHtml(c.assignedTechnician||c.completedByTechnician||"-")}</td>
+ <td><button class="btn blue" style="padding:5px 8px" onclick="focusCar('${escapeAttr(c.id)}')">عرض</button></td>
+ </tr>`).join(""):`<tr><td colspan="7" class="empty">لا توجد سيارات مطابقة.</td></tr>`;
+}
+function focusCar(id){const c=cars.find(x=>x.id===id);if(c)alert(`العميل: ${c.name||c.clientName||"-"}\nالسيارة: ${(c.brand||"")+" "+(c.model||"")}\nالحالة: ${statusLabel(c.status)}\nالقسم: ${c.targetDepartment||c.serviceType||"غير محدد"}`)}
+
+function renderWorkflow(){
+ const active=cars.filter(c=>c.status!=="DONE");
+ const counts={};
+ active.forEach(c=>{const s=statusLabel(c.status);counts[s]=(counts[s]||0)+1});
+ $("workflowList").innerHTML=Object.keys(counts).length?Object.entries(counts).map(([k,v])=>`<div class="kpi"><span>${escapeHtml(k)}</span><b>${v}</b></div>`).join(""):`<div class="empty">لا توجد حركة حالياً.</div>`;
+}
+function renderRequests(){
+ $("requestsTbody").innerHTML=requests.length?requests.slice(0,200).map(r=>`<tr>
+ <td>${escapeHtml(r.department||"-")}</td><td>${escapeHtml(r.clientName||"-")}</td><td>${escapeHtml(r.carInfo||r.carPlate||"-")}</td>
+ <td>${escapeHtml(r.itemName||"-")}</td><td>${escapeHtml(r.qty||1)}</td><td>${escapeHtml(r.status||"-")}</td><td>${escapeHtml(r.dateStr||"-")}</td>
+ </tr>`).join(""):`<tr><td colspan="7" class="empty">لا توجد طلبات.</td></tr>`;
+ $("inventoryCount").textContent=inventory.length;$("pendingReqCount").textContent=requests.filter(r=>r.status==="قيد الانتظار").length;
+}
+function renderAccounting(){
+ $("accountingTbody").innerHTML=accounting.length?accounting.slice(0,200).map(a=>`<tr>
+ <td>${escapeHtml(a.clientName||"-")}</td><td>${escapeHtml(a.carInfo||"-")}</td><td>${escapeHtml(a.carPlate||"-")}</td>
+ <td>${escapeHtml(a.fromDepartment||"-")}</td><td>${Number(a.laborCost||0).toLocaleString("ar-EG")} ج.م</td><td>${escapeHtml(a.status||"-")}</td><td>${escapeHtml(a.dateStr||"-")}</td>
+ </tr>`).join(""):`<tr><td colspan="7" class="empty">لا توجد عمليات للحسابات.</td></tr>`;
+}
+function renderReturns(){
+ $("returnsTbody").innerHTML=returnsData.length?returnsData.slice(0,200).map(r=>`<tr>
+ <td>${escapeHtml(r.department||"-")}</td><td>${escapeHtml(r.clientName||"-")}</td><td>${escapeHtml(r.carInfo||"-")}</td>
+ <td>${escapeHtml(r.itemName||"-")}</td><td>${escapeHtml(r.type||"-")}</td><td>${escapeHtml(r.status||"-")}</td><td>${escapeHtml(r.dateStr||"-")}</td>
+ </tr>`).join(""):`<tr><td colspan="7" class="empty">لا توجد مرتجعات.</td></tr>`;
+}
+const roleLabels={employee:"موظف",supervisor:"مشرف",accounting:"حسابات",inventory:"مخزن",manager:"مدير"};
+function syncUserDepartmentOptions(selected=""){
+ const sel=$("userDepartment"); if(!sel)return;
+ sel.innerHTML='<option value="">بدون قسم محدد</option>'+departments.map(d=>`<option value="${escapeAttr(d.name)}">${escapeHtml(d.name)}</option>`).join("");
+ sel.value=selected;
+}
+function renderPermissionChoices(selected=[]){
+ const box=$("userPermissions"); if(!box)return;
+ const chosen=new Set(selected||[]);
+ box.innerHTML=departments.map((d,i)=>`<label style="display:flex;gap:7px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text)"><input type="checkbox" class="user-permission" value="${escapeAttr(d.name)}" ${chosen.has(d.name)?"checked":""} style="width:auto">${escapeHtml(d.name)}</label>`).join("")||'<small>أضف الأقسام أولاً من قائمة الأقسام.</small>';
+}
+function selectedPermissions(){return [...document.querySelectorAll(".user-permission:checked")].map(x=>x.value)}
+function resetUserForm(){
+ ["userUid","userName","userUsername","userEmail","userPassword","userJob"].forEach(id=>$(id).value="");
+ $("userRole").value="employee";syncUserDepartmentOptions("");renderPermissionChoices([]);
+ $("userEmail").disabled=false;$("userPassword").placeholder="6 أحرف على الأقل";
+ $("saveUserBtn").innerHTML='<i class="fa-solid fa-floppy-disk"></i> إنشاء الحساب وحفظ الصلاحيات';
+ $("userForm").style.display="none";
+}
+function showUserForm(){resetUserForm();syncUserDepartmentOptions();renderPermissionChoices([]);$("userForm").style.display="block"}
+function editManagedUser(uid){
+ const u=users.find(x=>x.uid===uid||x.id===uid);if(!u)return;
+ resetUserForm();
+ $("userUid").value=u.uid||u.id;$("userName").value=u.name||"";$("userUsername").value=u.username||"";
+ $("userEmail").value=u.email||"";$("userEmail").disabled=true;$("userJob").value=u.job||"";
+ $("userRole").value=roleLabels[u.role]?u.role:"employee";syncUserDepartmentOptions(u.department||"");
+ renderPermissionChoices(Array.isArray(u.permissions)?u.permissions:(u.department?[u.department]:[]));
+ $("userPassword").value="";$("userPassword").placeholder="لا تغيّر كلمة المرور من هنا";
+ $("saveUserBtn").innerHTML='<i class="fa-solid fa-shield-halved"></i> تحديث الصلاحيات';
+ $("userForm").style.display="block";$("userForm").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderUsers(){
+ const roleNames={...roleLabels};
+ $("usersTbody").innerHTML=users.length?users.map(u=>{
+  const uid=u.uid||u.id;const active=u.active!==false;
+  const perms=Array.isArray(u.permissions)?u.permissions:(u.department?[u.department]:[]);
+  return `<tr><td>${escapeHtml(u.name||"-")}</td><td>${escapeHtml(u.email||u.username||"-")}<small style="display:block;color:var(--muted)">${escapeHtml(u.username||"")}</small></td><td>${escapeHtml(u.job||"-")}</td><td>${escapeHtml(u.department||"بدون قسم")}</td><td>${escapeHtml(roleNames[u.role]||u.role||"موظف")}</td><td>${escapeHtml(perms.join("، ")||"لا توجد")}</td><td><span class="badge">${active?"نشط":"موقوف"}</span></td><td><div class="actions"><button class="btn blue" onclick="editManagedUser('${escapeAttr(uid)}')">الصلاحيات</button><button class="btn ${active?"red":"green"}" onclick="toggleManagedUser('${escapeAttr(uid)}',${!active})">${active?"إيقاف":"تفعيل"}</button></div></td></tr>`;
+ }).join(""):`<tr><td colspan="8" class="empty">لا توجد حسابات في مجموعة users أو لا تملك صلاحية قراءتها.</td></tr>`;
+}
+async function saveManagedUser(){
+ const uid=$("userUid").value.trim();
+ const data={name:$("userName").value.trim(),username:$("userUsername").value.trim(),email:$("userEmail").value.trim().toLowerCase(),password:$("userPassword").value,job:$("userJob").value.trim(),role:$("userRole").value,department:$("userDepartment").value,permissions:selectedPermissions()};
+ if(!data.name||!data.username||!data.email){alert("الاسم واسم المستخدم والبريد الإلكتروني مطلوبون.");return}
+ if(!uid&&data.password.length<6){alert("كلمة المرور مطلوبة ويجب ألا تقل عن 6 أحرف.");return}
+ if(data.role==="manager" && !confirm("أنت تمنح هذا الحساب صلاحية مدير. هل تريد المتابعة؟"))return;
+ const btn=$("saveUserBtn");btn.disabled=true;
+ try{
+  if(uid){
+   await functions.httpsCallable("updateManagedUserAccess")({uid,name:data.name,username:data.username,job:data.job,role:data.role,department:data.department,permissions:data.permissions});
+   alert("تم تحديث صلاحيات الحساب وربطها بالقسم.");
+  }else{
+   await functions.httpsCallable("createManagedUser")(data);
+   alert("تم إنشاء حساب Firebase وحفظ بياناته وصلاحياته.");
+  }
+  resetUserForm();await loadCollection("users",x=>users=x);renderUsers();
+ }catch(e){console.error(e);alert("تعذر حفظ الحساب: "+(e.message||e));}
+ finally{btn.disabled=false;}
+}
+async function toggleManagedUser(uid,active){
+ if(!confirm(active?"هل تريد تفعيل هذا الحساب؟":"هل تريد إيقاف هذا الحساب ومنعه من تسجيل الدخول؟"))return;
+ try{await functions.httpsCallable("setManagedUserStatus")({uid,active});await loadCollection("users",x=>users=x);renderUsers();alert(active?"تم تفعيل الحساب.":"تم إيقاف الحساب.");}
+ catch(e){alert("تعذر تغيير حالة الحساب: "+(e.message||e));}
+}
+
+function updateDashboard(){
+ $("statCars").textContent=cars.length;
+ $("statActive").textContent=cars.filter(c=>c.status==="IN_PROGRESS").length;
+ $("statSuspended").textContent=cars.filter(c=>["PENDING_APPROVAL","WAITING_FOR_PARTS","SUSPENDED"].includes(c.status)).length;
+ $("statAccounting").textContent=cars.filter(c=>c.status==="SENT_TO_TREASURY").length;
+ $("statRequests").textContent=requests.filter(r=>r.status==="قيد الانتظار").length;
+ $("statReturns").textContent=returnsData.filter(r=>r.status==="قيد المراجعة").length;
+ const statuses={};cars.forEach(c=>{const s=statusLabel(c.status);statuses[s]=(statuses[s]||0)+1});
+ $("statusSummary").innerHTML=Object.entries(statuses).length?Object.entries(statuses).map(([s,n])=>`<div class="kpi"><span>${escapeHtml(s)}</span><b>${n}</b></div>`).join(""):`<div class="empty">لا توجد بيانات.</div>`;
+ const alerts=[];
+ if($("statSuspended").textContent>0) alerts.push("يوجد سيارات معلقة أو بانتظار قطع غيار.");
+ if($("statRequests").textContent>0) alerts.push("يوجد طلبات مخزن تحتاج متابعة.");
+ if($("statAccounting").textContent>0) alerts.push("يوجد سيارات متوجهة للحسابات.");
+ $("alertsBox").innerHTML=alerts.length?alerts.map(x=>`<div class="alertbox"><i class="fa-solid fa-triangle-exclamation"></i> ${x}</div>`).join(""):`<div class="empty">لا توجد تنبيهات حرجة حالياً.</div>`;
+}
+
+async function loadCollection(name,assign,limit=500){
+ try{
+  const snap=await db.collection(name).limit(limit).get(); const arr=[];snap.forEach(d=>arr.push({id:d.id,...d.data()}));assign(arr);
+  }catch(e){console.warn("collection",name,e.message);assign([]); console.error("Firestore read failed for "+name+":",e.message)}
+}
+async function loadAll(){
+ await loadDepartments();
+ await Promise.all([
+  loadCollection("cars",x=>cars=x),
+  loadCollection("dept_requests",x=>requests=x),
+  loadCollection("accounting_queue",x=>accounting=x),
+  loadCollection("returns_exchanges",x=>returnsData=x),
+  loadCollection("users",x=>users=x),
+  loadCollection("inventory",x=>inventory=x)
+ ]);
+ updateDashboard();renderCars();renderWorkflow();renderRequests();renderAccounting();renderReturns();renderUsers();renderDepartments();renderSystemFiles();
+}
+async function refreshAll(){try{await loadAll();alert("تم تحديث لوحة المدير بنجاح")}catch(e){alert("تعذر تحديث البيانات: "+e.message)}}
+function exportSnapshot(){
+ const snapshot={generatedAt:new Date().toISOString(),carsCount:cars.length,requestsCount:requests.length,accountingCount:accounting.length,returnsCount:returnsData.length,departments};
+ const blob=new Blob([JSON.stringify(snapshot,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="non-admin-snapshot.json";a.click();URL.revokeObjectURL(a.href);
+}
+loadAll();
+</script>
+</body>
+</html>
