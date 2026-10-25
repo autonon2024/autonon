@@ -717,7 +717,7 @@
 
   <div class="header-bar no-print">
     <div class="brand">
-      <img src="NON.png" alt="Logo" onerror="this.src='non.jpg'">
+      <img src="non.png" alt="Logo" onerror="this.onerror=null; this.src='non.png'">
       <span>مركز أوتو نون (NON) - قسم الحسابات والخزينة</span>
     </div>
     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -2086,7 +2086,13 @@
             returnedToAccountingBy: loggedUser,
             updatedAt: now
           };
+          // استخدام رقم الفاتورة/معرّفها كمفتاح ثابت يمنع تكرار نفس العميل في قائمة الحسابات.
           await db.collection('accounting_queue').doc(queueId).set(queuePayload, {merge:true});
+          // عند الإرجاع من الأرشيف، تُزال الفاتورة من قائمة أرشيف الفواتير بعد نجاح نقلها للحسابات.
+          const archivedDocId = String(item.id || '').replace(/^archive_/, '');
+          if (archivedDocId && String(item.id || '').startsWith('archive_')) {
+            await db.collection('invoices_archive').doc(archivedDocId).delete().catch(err => console.warn('تعذر حذف نسخة الفاتورة من الأرشيف:', err));
+          }
           currentSelectedQueueItem = queuePayload;
           currentOriginalDepartment = dept;
           updateOriginalDepartmentUI(dept);
@@ -2203,6 +2209,27 @@
       }
     }
 
+    function sendInvoiceWhatsApp() {
+      const item = currentSelectedQueueItem || {};
+      const clientName = document.getElementById('clientName').value || item.clientName || 'عميلنا العزيز';
+      const rawPhone = document.getElementById('clientPhone').value || item.phone || item.clientPhone || '';
+      let phone = String(rawPhone).replace(/\D/g, '');
+      if (phone.startsWith('00')) phone = phone.slice(2);
+      if (phone.startsWith('0') && phone.length === 11) phone = '2' + phone;
+      if (!phone) {
+        alert('من فضلك سجّل رقم هاتف العميل أولاً لإرسال الفاتورة عبر واتساب.');
+        return;
+      }
+      const invoiceNo = document.getElementById('printInvoiceSerial').textContent || item.invoiceSerial || 'سيتم تحديده بعد التحصيل';
+      const total = document.getElementById('grandTotalSum').textContent || item.totalAmount || '0';
+      const paid = document.getElementById('amountPaidInput').value || item.paidAmount || '0';
+      const remaining = document.getElementById('remainingBalanceSum').textContent || item.remainingAmount || '0';
+      const car = document.getElementById('carInfo').value || item.carInfo || '---';
+      const plate = document.getElementById('carPlate').value || item.carPlate || '---';
+      const message = `مرحباً ${clientName}،\nمركز أوتو نون لصيانة السيارات\nتفاصيل الفاتورة: ${invoiceNo}\nالسيارة: ${car}\nرقم اللوحة: ${plate}\nإجمالي الفاتورة: ${total} ج.م\nالمدفوع: ${paid} ج.م\nالمتبقي: ${remaining} ج.م\nشكراً لثقتكم بنا.`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+    }
+
     async function finalizePaymentAndPrint() {
       if (!currentSelectedQueueItem) { alert("الرجاء اختيار عميل أولاً!"); return; }
       const paidAmount = parseFloat(document.getElementById('amountPaidInput').value) || 0;
@@ -2265,7 +2292,21 @@
           };
 
           await db.collection('treasury_transactions').add(invoiceDataObject);
-          await db.collection('invoices_archive').add(invoiceDataObject);
+          const invoiceArchiveRef = await db.collection('invoices_archive').add(invoiceDataObject);
+          // حفظ نسخة ثابتة لكل فاتورة في سجل العملاء الذي تعرضه archive.html، مع منع التكرار عند إعادة المحاولة.
+          const customerArchiveId = String(invoiceDataObject.invoiceSerial || invoiceArchiveRef.id);
+          await db.collection('workshop_archive').doc(customerArchiveId).set({
+            ...invoiceDataObject,
+            archiveInvoiceId: invoiceArchiveRef.id,
+            paymentAmount: invoiceDataObject.paidAmount,
+            notes: `فاتورة حسابات رقم ${invoiceDataObject.invoiceSerial}`,
+            carDetails: invoiceDataObject.carInfo || '',
+            archiveDateTag: invoiceDataObject.dateFormatted,
+            createdAt: invoiceDataObject.dateStr,
+            clientName: invoiceDataObject.clientName,
+            clientPhone: invoiceDataObject.clientPhone,
+            source: 'accounting_invoice_archive'
+          }, {merge:true});
 
           if (paidAmount > 0 && targetTreasuryId) {
             const tRef = db.collection('treasuries').doc(targetTreasuryId);
