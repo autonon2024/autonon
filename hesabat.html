@@ -2230,6 +2230,10 @@
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
     }
 
+    function normalizeArchiveKey(value) {
+      return String(value || '').toUpperCase().replace(/[\s\-_.\/\\]+/g,'').replace(/[أإآ]/g,'ا').trim();
+    }
+
     async function finalizePaymentAndPrint() {
       if (!currentSelectedQueueItem) { alert("الرجاء اختيار عميل أولاً!"); return; }
       const paidAmount = parseFloat(document.getElementById('amountPaidInput').value) || 0;
@@ -2239,120 +2243,182 @@
       const discountReason = document.getElementById('managerDiscountReason').value || '';
       const finalTotal = parseFloat(document.getElementById('grandTotalSum').textContent) || 0;
       const remainingAmount = Math.max(0, finalTotal - paidAmount);
+      const item = currentSelectedQueueItem;
+      const plate = normalizeArchiveKey(item.carPlate || item.plate || '');
+      const clientName = item.clientName || 'عميل غير مصنف';
+      const clientPhone = item.phone || item.clientPhone || '';
 
       if (paidAmount > 0 && !targetTreasuryId) {
         alert("الرجاء تحديد الخزينة المراد إيداع المبلغ المدفوع فيها!");
         return;
       }
 
-      let actualMethod = paymentMethod;
-      if (remainingAmount > 0 && paidAmount > 0) {
-        actualMethod = `${paymentMethod} (متبقي آجل: ${remainingAmount})`;
-      } else if (paidAmount === 0 && finalTotal > 0) {
-        actualMethod = `آجل بالكامل (على الحساب)`;
+      let existingArchiveDoc = null;
+      let existingArchiveData = null;
+      try {
+        const archiveSnap = await db.collection('workshop_archive').get();
+        archiveSnap.forEach(doc => {
+          const d = doc.data() || {};
+          const oldPlate = normalizeArchiveKey(d.carPlate || d.plate || d.licensePlate || '');
+          const samePlate = plate && oldPlate && plate === oldPlate;
+          const sameIdentity = !plate && normalizeArchiveKey(d.clientPhone || d.phone) === normalizeArchiveKey(clientPhone)
+            && normalizeArchiveKey(d.clientName) === normalizeArchiveKey(clientName)
+            && normalizeArchiveKey(d.carInfo || d.carDetails) === normalizeArchiveKey(item.carInfo || '');
+          if (!existingArchiveDoc && (samePlate || sameIdentity)) {
+            existingArchiveDoc = doc;
+            existingArchiveData = d;
+          }
+        });
+      } catch (e) {
+        console.warn('تعذر فحص تكرار الأرشيف:', e);
       }
 
-      if (confirm(`تأكيد تحصيل المدفوع (${paidAmount}) وإصدار الفاتورة وترحيلها للأرشيف؟`)) {
-        try {
-          const invoiceSerial = await getNextInvoiceSerial();
-          const currentDateStr = new Date().toLocaleString('ar-EG');
+      let actualMethod = paymentMethod;
+      if (remainingAmount > 0 && paidAmount > 0) actualMethod = `${paymentMethod} (متبقي آجل: ${remainingAmount})`;
+      else if (paidAmount === 0 && finalTotal > 0) actualMethod = 'آجل بالكامل (على الحساب)';
 
-          document.getElementById('printInvoiceSerial').textContent = invoiceSerial;
-          document.getElementById('printInvoiceDate').textContent = currentDateStr;
-          document.getElementById('printCashierName').textContent = loggedUser;
-          document.getElementById('printAmountPaidSum').textContent = paidAmount;
+      let updateExisting = false;
+      if (existingArchiveDoc) {
+        const oldAmount = Number(existingArchiveData.paidAmount ?? existingArchiveData.paymentAmount ?? 0);
+        const oldTotal = Number(existingArchiveData.totalAmount || 0);
+        const oldSerial = existingArchiveData.invoiceSerial || existingArchiveData.archiveInvoiceId || existingArchiveDoc.id;
+        const yes = confirm(
+          `⚠️ السيارة/العميل مسجل ومحصّل من قبل في الأرشيف.\n` +
+          `رقم السيارة: ${item.carPlate || existingArchiveData.carPlate || 'غير مسجل'}\n` +
+          `العميل: ${existingArchiveData.clientName || clientName}\n` +
+          `المبلغ السابق: ${oldAmount} ج.م\n` +
+          `المبلغ الحالي: ${paidAmount} ج.م\n\n` +
+          `هل تود تعديل المبلغ والبيانات المسجلة بدلاً من إنشاء فاتورة مكررة؟`
+        );
+        if (!yes) return;
+        updateExisting = true;
+      } else if (!confirm(`تأكيد تحصيل المدفوع (${paidAmount}) وإصدار الفاتورة وترحيلها للأرشيف؟`)) {
+        return;
+      }
 
-          const invoiceDataObject = {
-            invoiceSerial: invoiceSerial,
-            clientName: currentSelectedQueueItem.clientName || 'عميل غير مصنف',
-            clientPhone: currentSelectedQueueItem.phone || currentSelectedQueueItem.clientPhone || '',
-            carInfo: currentSelectedQueueItem.carInfo || '',
-            carPlate: currentSelectedQueueItem.carPlate || '',
-            sourceCarId: currentSelectedQueueItem.carId || '',
-            originalDepartment: currentOriginalDepartment || '',
-            requiredParts: JSON.parse(JSON.stringify(currentSelectedQueueItem.requiredParts || [])),
-            quickServicesList: JSON.parse(JSON.stringify(currentSelectedQueueItem.quickServicesList || [])),
-            installationServices: JSON.parse(JSON.stringify(currentSelectedQueueItem.installationServices || [])),
-            partsOnlyTotal: currentPartsOnlySum,
-            partsLaborTotal: currentPartsLaborSum,
-            partsTotal: currentPartsOnlySum + currentPartsLaborSum,
-            quickServicesTotal: currentQuickServicesSum,
-            servicesTotal: currentServicesSum,
-            advancePayment: currentAdvancePayment,
-            managerDiscount: discount,
-            discountReason: discountReason,
-            totalAmount: finalTotal,
-            paidAmount: paidAmount,
-            remainingAmount: remainingAmount,
-            method: actualMethod,
-            treasuryId: targetTreasuryId || '',
-            cashier: loggedUser,
-            dateStr: new Date().toISOString(),
-            dateFormatted: currentDateStr
-          };
+      try {
+        let invoiceSerial = updateExisting
+          ? String(existingArchiveData.invoiceSerial || existingArchiveData.archiveInvoiceId || existingArchiveDoc.id)
+          : await getNextInvoiceSerial();
+        const currentDateStr = new Date().toLocaleString('ar-EG');
+        document.getElementById('printInvoiceSerial').textContent = invoiceSerial;
+        document.getElementById('printInvoiceDate').textContent = currentDateStr;
+        document.getElementById('printCashierName').textContent = loggedUser;
+        document.getElementById('printAmountPaidSum').textContent = paidAmount;
 
-          await db.collection('treasury_transactions').add(invoiceDataObject);
-          const invoiceArchiveRef = await db.collection('invoices_archive').add(invoiceDataObject);
-          // حفظ نسخة ثابتة لكل فاتورة في سجل العملاء الذي تعرضه archive.html، مع منع التكرار عند إعادة المحاولة.
-          const customerArchiveId = String(invoiceDataObject.invoiceSerial || invoiceArchiveRef.id);
-          await db.collection('workshop_archive').doc(customerArchiveId).set({
-            ...invoiceDataObject,
-            archiveInvoiceId: invoiceArchiveRef.id,
-            paymentAmount: invoiceDataObject.paidAmount,
-            notes: `فاتورة حسابات رقم ${invoiceDataObject.invoiceSerial}`,
-            carDetails: invoiceDataObject.carInfo || '',
-            archiveDateTag: invoiceDataObject.dateFormatted,
+        const invoiceDataObject = {
+          invoiceSerial, clientName, clientPhone,
+          carInfo: item.carInfo || '', carPlate: item.carPlate || item.plate || '',
+          sourceCarId: item.carId || item.sourceCarId || '',
+          originalDepartment: currentOriginalDepartment || item.originalDepartment || '',
+          requiredParts: JSON.parse(JSON.stringify(item.requiredParts || [])),
+          quickServicesList: JSON.parse(JSON.stringify(item.quickServicesList || [])),
+          installationServices: JSON.parse(JSON.stringify(item.installationServices || [])),
+          partsOnlyTotal: currentPartsOnlySum, partsLaborTotal: currentPartsLaborSum,
+          partsTotal: currentPartsOnlySum + currentPartsLaborSum,
+          quickServicesTotal: currentQuickServicesSum, servicesTotal: currentServicesSum,
+          advancePayment: currentAdvancePayment, managerDiscount: discount, discountReason,
+          totalAmount: finalTotal, paidAmount, paymentAmount: paidAmount, remainingAmount,
+          method: paymentMethod, paymentMethod, treasuryId: targetTreasuryId || '',
+          cashier: loggedUser, dateStr: new Date().toISOString(), dateFormatted: currentDateStr
+        };
+
+        let invoiceArchiveId = existingArchiveData && existingArchiveData.archiveInvoiceId;
+        if (updateExisting) {
+          // تحديث سجل الفاتورة نفسه بدل إنشاء نسخة مكررة.
+          let invoiceDocRef = invoiceArchiveId ? db.collection('invoices_archive').doc(invoiceArchiveId) : null;
+          if (!invoiceDocRef) {
+            const q = await db.collection('invoices_archive').where('invoiceSerial','==',invoiceSerial).limit(1).get();
+            if (!q.empty) invoiceDocRef = q.docs[0].ref;
+          }
+          if (invoiceDocRef) {
+            await invoiceDocRef.set(invoiceDataObject, {merge:true});
+            invoiceArchiveId = invoiceDocRef.id;
+          } else {
+            const ref = await db.collection('invoices_archive').add(invoiceDataObject);
+            invoiceArchiveId = ref.id;
+          }
+
+          const oldPaid = Number(existingArchiveData.paidAmount ?? existingArchiveData.paymentAmount ?? 0);
+          const oldTreasuryId = existingArchiveData.treasuryId || '';
+          const delta = paidAmount - oldPaid;
+          if (delta !== 0 && oldTreasuryId && oldTreasuryId === targetTreasuryId) {
+            const tr = db.collection('treasuries').doc(targetTreasuryId);
+            const ts = await tr.get();
+            if (ts.exists) await tr.update({balance:(Number(ts.data().balance)||0)+delta,updatedAt:new Date().toISOString()});
+          } else if (delta !== 0 && targetTreasuryId) {
+            // لا نخصم من الخزينة القديمة تلقائياً إذا تغيّرت؛ نضيف الفرق للخزينة المحددة فقط.
+            const tr = db.collection('treasuries').doc(targetTreasuryId);
+            const ts = await tr.get();
+            if (ts.exists) await tr.update({balance:(Number(ts.data().balance)||0)+delta,updatedAt:new Date().toISOString()});
+          }
+          const customerId = existingArchiveDoc.id;
+          await db.collection('workshop_archive').doc(customerId).set({
+            ...existingArchiveData, ...invoiceDataObject,
+            archiveInvoiceId: invoiceArchiveId,
+            paymentAmount: paidAmount,
+            notes: `تم تعديل مبلغ الفاتورة رقم ${invoiceSerial}`,
+            carDetails: invoiceDataObject.carInfo,
+            archiveDateTag: currentDateStr,
             createdAt: invoiceDataObject.dateStr,
-            clientName: invoiceDataObject.clientName,
-            clientPhone: invoiceDataObject.clientPhone,
-            source: 'accounting_invoice_archive'
+            source: 'accounting_invoice_archive',
+            amountUpdatedAt: invoiceDataObject.dateStr
           }, {merge:true});
 
+          const accounts = await db.collection('client_accounts').where('invoiceSerial','==',invoiceSerial).get();
+          if (accounts.empty) {
+            await db.collection('client_accounts').add({
+              clientName,clientPhone,invoiceSerial,carInfo:invoiceDataObject.carInfo,carPlate:invoiceDataObject.carPlate,
+              totalAmount:finalTotal,paidAmount,remainingAmount,paymentMethod:paymentMethod,
+              dateStr:invoiceDataObject.dateStr,dateFormatted:currentDateStr
+            });
+          } else {
+            const batch = db.batch();
+            accounts.docs.forEach(d => batch.set(d.ref,{
+              clientName,clientPhone,invoiceSerial,carInfo:invoiceDataObject.carInfo,carPlate:invoiceDataObject.carPlate,
+              totalAmount:finalTotal,paidAmount,remainingAmount,paymentMethod:paymentMethod,
+              dateStr:invoiceDataObject.dateStr,dateFormatted:currentDateStr
+            },{merge:true}));
+            await batch.commit();
+          }
+        } else {
+          await db.collection('treasury_transactions').add(invoiceDataObject);
+          const invoiceArchiveRef = await db.collection('invoices_archive').add(invoiceDataObject);
+          invoiceArchiveId = invoiceArchiveRef.id;
+          const customerArchiveId = plate ? `car_${plate}` : String(invoiceSerial);
+          await db.collection('workshop_archive').doc(customerArchiveId).set({
+            ...invoiceDataObject, archiveInvoiceId:invoiceArchiveId,
+            paymentAmount:paidAmount, notes:`فاتورة حسابات رقم ${invoiceSerial}`,
+            carDetails:invoiceDataObject.carInfo, archiveDateTag:currentDateStr,
+            createdAt:invoiceDataObject.dateStr, source:'accounting_invoice_archive'
+          },{merge:true});
           if (paidAmount > 0 && targetTreasuryId) {
             const tRef = db.collection('treasuries').doc(targetTreasuryId);
             const tSnap = await tRef.get();
-            if (tSnap.exists) {
-              const currentBal = parseFloat(tSnap.data().balance) || 0;
-              await tRef.update({ balance: currentBal + paidAmount, updatedAt: new Date().toISOString() });
-            }
+            if (tSnap.exists) await tRef.update({balance:(parseFloat(tSnap.data().balance)||0)+paidAmount,updatedAt:new Date().toISOString()});
           }
-
           await db.collection('client_accounts').add({
-            clientName: currentSelectedQueueItem.clientName || 'عميل غير مصنف',
-            clientPhone: currentSelectedQueueItem.phone || '',
-            invoiceSerial: invoiceSerial,
-            carInfo: currentSelectedQueueItem.carInfo || '',
-            carPlate: currentSelectedQueueItem.carPlate || '',
-            totalAmount: finalTotal,
-            paidAmount: paidAmount,
-            remainingAmount: remainingAmount,
-            paymentMethod: actualMethod,
-            dateStr: new Date().toISOString(),
-            dateFormatted: currentDateStr
+            clientName,clientPhone,invoiceSerial,carInfo:invoiceDataObject.carInfo,carPlate:invoiceDataObject.carPlate,
+            totalAmount:finalTotal,paidAmount,remainingAmount,paymentMethod:actualMethod,
+            dateStr:invoiceDataObject.dateStr,dateFormatted:currentDateStr
           });
-
-          if (currentSelectedQueueItem.carId) {
-            await db.collection('cars').doc(currentSelectedQueueItem.carId).set({
-              status: 'DONE',
-              statusLabel: remainingAmount > 0 ? 'تم التسليم (يوجد حساب آجل)' : 'تم الانتهاء والدفع',
-              isPaid: remainingAmount === 0,
-              invoiceSerial: invoiceSerial,
-              paidAmount: paidAmount,
-              remainingAmount: remainingAmount,
-              paymentMethod: actualMethod,
-              showOnDisplay: false
-            }, { merge: true });
-          }
-
-          await db.collection('accounting_queue').doc(currentSelectedQueueItem.id).delete();
-
-          alert(`✅ تمت عملية التحصيل والأرشفة بنجاح برقم فاتورة #${invoiceSerial}.`);
-          // الطباعة تستخدم نفس إعدادات الفاتورة وتملأ ورقة A4 بشكل منسق.
-          window.window.printInvoiceBySize('A4');
-          setTimeout(() => location.reload(), 1200);
-        } catch (err) {
-          alert("خطأ أثناء إتمام العملية: " + err.message);
         }
+
+        if (item.carId) {
+          await db.collection('cars').doc(item.carId).set({
+            status:'DONE', statusLabel:remainingAmount>0?'تم التسليم (يوجد حساب آجل)':'تم الانتهاء والدفع',
+            isPaid:remainingAmount===0,invoiceSerial,paidAmount,remainingAmount,paymentMethod:paymentMethod,showOnDisplay:false
+          },{merge:true});
+        }
+        if (item.id) await db.collection('accounting_queue').doc(item.id).delete().catch(()=>{});
+        alert(updateExisting
+          ? `✅ تم تعديل المبلغ والبيانات داخل ملف السيارة ${item.carPlate || ''} دون إنشاء سجل عميل مكرر. رقم الفاتورة #${invoiceSerial}.`
+          : `✅ تمت عملية التحصيل والأرشفة بنجاح برقم فاتورة #${invoiceSerial}.`);
+        window.window.printInvoiceBySize('A4');
+        setTimeout(() => location.reload(), 1200);
+      } catch (err) {
+        console.error(err);
+        alert("خطأ أثناء إتمام العملية: " + (err.message || err));
       }
     }
 
