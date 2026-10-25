@@ -385,16 +385,20 @@
             };
           }
 
-          clientsMap[clientKey].visitsCount += 1;
-          const paid = parseFloat(data.paymentAmount) || 0;
-          clientsMap[clientKey].totalPaid += paid;
-          
-          clientsMap[clientKey].visits.push({
-            carDetails: data.carDetails || '---',
-            paymentAmount: paid,
-            notes: data.notes || '---',
-            date: data.archiveDateTag || data.createdAt || '---'
-          });
+          const paid = parseFloat(data.paymentAmount ?? data.paidAmount) || 0;
+          const visitId = String(data.invoiceSerial || data.archiveInvoiceId || doc.id);
+          // تجاهل نسخة الفاتورة إذا كانت مسجلة بالفعل في ملف العميل.
+          if (!clientsMap[clientKey].visits.some(visit => visit.visitId === visitId)) {
+            clientsMap[clientKey].visits.push({
+              visitId,
+              carDetails: data.carDetails || data.carInfo || '---',
+              paymentAmount: paid,
+              notes: data.notes || '---',
+              date: data.archiveDateTag || data.dateFormatted || data.createdAt || '---'
+            });
+            clientsMap[clientKey].visitsCount += 1;
+            clientsMap[clientKey].totalPaid += paid;
+          }
         });
 
         renderClientsTable();
