@@ -370,10 +370,11 @@
         
         snapshot.forEach(doc => {
           const data = doc.data();
-          const phoneKey = (data.clientPhone || 'unknown').trim();
+          const phoneKey = (data.clientPhone || data.phone || 'unknown').trim();
           const nameKey = (data.clientName || 'عميل غير معروف').trim();
-          
-          const clientKey = phoneKey !== '---' && phoneKey !== '' ? phoneKey : nameKey;
+          const plateKey = String(data.carPlate || data.plate || data.licensePlate || '').toUpperCase().replace(/[\s\-_.\/\\]+/g,'').replace(/[أإآ]/g,'ا').trim();
+          // ملف موحد لكل سيارة برقم اللوحة.
+          const clientKey = plateKey ? `car:${plateKey}` : (phoneKey !== '---' && phoneKey !== '' && phoneKey !== 'unknown' ? `phone:${phoneKey}` : `name:${nameKey}`);
 
           if (!clientsMap[clientKey]) {
             clientsMap[clientKey] = {
@@ -392,6 +393,7 @@
             clientsMap[clientKey].visits.push({
               visitId,
               carDetails: data.carDetails || data.carInfo || '---',
+              carPlate: data.carPlate || data.plate || data.licensePlate || '---',
               paymentAmount: paid,
               notes: data.notes || '---',
               date: data.archiveDateTag || data.dateFormatted || data.createdAt || '---'
@@ -466,6 +468,7 @@
         visitCard.innerHTML = `
           <p><strong>الزيارة رقم (${idx + 1}) - التاريخ:</strong> ${visit.date}</p>
           <p><strong>تفاصيل السيارة:</strong> ${visit.carDetails}</p>
+          <p><strong>رقم السيارة:</strong> ${visit.carPlate || "---"}</p>
           <p><strong>المبلغ المدفوع:</strong> <span class="badge">${visit.paymentAmount} ج.م</span></p>
           <p><strong>ملاحظات الأرشيف/التشخيص:</strong> ${visit.notes}</p>
         `;
