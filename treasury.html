@@ -285,6 +285,8 @@
                   </div>
                 </div>
 
+                <div class="form-field" id="itemKmValidityWrap" style="display:none;"><label>صلاحية المنتج / موعد التغيير (كيلومتر):</label><input type="number" id="itemKmValidity" min="1" step="1" placeholder="مثال: 5000"></div>
+                <div class="form-field" id="itemKmValidityWrap" style="display:none;"><label>صلاحية المنتج / موعد التغيير (كيلومتر):</label><input type="number" id="itemKmValidity" min="1" step="1" placeholder="مثال: 5000"></div>
                 <div class="form-field"><label>اسم الصنف:</label><input type="text" id="itemName" required placeholder="مثال: تيل فرامل..." onblur="checkItemExistsAlert()"></div>
                 <div class="form-field">
                   <label>الباركود:</label>
@@ -367,6 +369,8 @@
         <button class="tab-btn" id="tTab3" onclick="switchTable('accounts')" style="display:none;">الحسابات والموردين</button>
         <button class="tab-btn" id="tTab5" onclick="switchTable('deptRequests')">طلبات الأقسام</button>
         <button class="tab-btn" id="tTab6" onclick="switchTable('issueOrders')">أذونات الصرف</button>
+        <button class="tab-btn" id="tTabReminders" onclick="switchTable('reminders')">متابعة العملاء</button>
+        <button class="tab-btn" id="tTabReminders" onclick="switchTable('reminders')">متابعة العملاء</button>
         <button class="tab-btn" id="tTab7" onclick="switchTable('returnsTableCard')">المرتجعات والتالف</button>
         <button class="tab-btn" id="tTabServices" onclick="switchTable('services')">خدمات التركيب</button>
       </div>
@@ -384,8 +388,8 @@
         <div class="form-field" style="margin-bottom: 10px;"><input type="text" id="searchInventoryInput" onkeyup="filterInventoryTable()" placeholder="🔍 بحث عن صنف أو باركود أو قسم..."></div>
         <div style="overflow-x: auto;">
           <table id="inventoryTable">
-            <thead><tr><th style="width:30px;"><input type="checkbox" onclick="toggleSelectAllGeneric(this, 'inventory-checkbox')"></th><th>المخزن</th><th>القسم</th><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>مصنعية</th><th>السحب</th><th>الحالة</th><th>إجراء</th></tr></thead>
-            <tbody id="inventoryTbody"><tr><td colspan="12" style="text-align:center;">جاري التحميل...</td></tr></tbody>
+            <thead><tr><th style="width:30px;"><input type="checkbox" onclick="toggleSelectAllGeneric(this, 'inventory-checkbox')"></th><th>المخزن</th><th>القسم</th><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>مصنعية</th><th>صلاحية كم</th><th>السحب</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="inventoryTbody"><tr><td colspan="13" style="text-align:center;">جاري التحميل...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -452,12 +456,34 @@
             <thead>
               <tr>
                 <th style="width:30px;"><input type="checkbox" id="selectAllIssueOrders" onclick="toggleSelectAllIssueOrders(this)"></th>
-                <th>رقم الإذن</th><th>اسم العميل</th><th>سيريال العميل</th><th>نوع السيارة</th><th>القسم</th><th>الأصناف والإجمالي</th><th>المسؤول</th><th>التاريخ</th><th>إجراء</th>
+                <th>رقم الإذن</th><th>اسم العميل</th><th>رقم هاتف العميل</th><th>بيانات السيارة</th><th>القسم</th><th>الأصناف والإجمالي</th><th>المسؤول</th><th>التاريخ</th><th>إجراء</th>
               </tr>
             </thead>
             <tbody id="issueOrdersTbody"><tr><td colspan="10" style="text-align:center;">لا توجد أذونات.</td></tr></tbody>
           </table>
         </div>
+      </div>
+
+      <div class="card-box" id="tableRemindersCard" style="display:none;">
+        <div class="card-title"><span><i class="fa-brands fa-whatsapp"></i> متابعة العملاء وتذكير الصيانة</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn-action-sm btn-blue" onclick="loadCustomerReminders()">تحديث القائمة</button>
+            <button class="btn-action-sm btn-success" onclick="openAllCustomerReminders()">تذكير كل العملاء (واتساب)</button>
+          </div>
+        </div>
+        <p style="margin:6px 0 10px;color:#64748b;">تظهر الأصناف من قسمي فلاتر وزيوت وفرامل التي تم صرفها. يتم احتساب موعد المتابعة من قراءة العداد وقت الصرف + صلاحية الصنف بالكيلومتر.</p>
+        <div style="overflow-x:auto;"><table><thead><tr><th>العميل</th><th>رقم الهاتف</th><th>السيارة</th><th>القسم والصنف</th><th>صرف بتاريخ</th><th>عداد الصرف</th><th>موعد المتابعة عند</th><th>إجراء</th></tr></thead><tbody id="customerRemindersTbody"><tr><td colspan="8">اضغط تحديث القائمة.</td></tr></tbody></table></div>
+      </div>
+
+      <div class="card-box" id="tableRemindersCard" style="display:none;">
+        <div class="card-title"><span><i class="fa-brands fa-whatsapp"></i> متابعة العملاء وتذكير الصيانة</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn-action-sm btn-blue" onclick="loadCustomerReminders()">تحديث القائمة</button>
+            <button class="btn-action-sm btn-success" onclick="openAllCustomerReminders()">تذكير كل العملاء (واتساب)</button>
+          </div>
+        </div>
+        <p style="margin:6px 0 10px;color:#64748b;">تظهر الأصناف من قسمي فلاتر وزيوت وفرامل التي تم صرفها. موعد المتابعة = قراءة العداد وقت الصرف + صلاحية الصنف بالكيلومتر.</p>
+        <div style="overflow-x:auto;"><table><thead><tr><th>العميل</th><th>رقم الهاتف</th><th>السيارة</th><th>القسم والصنف</th><th>صرف بتاريخ</th><th>عداد الصرف</th><th>موعد المتابعة عند</th><th>إجراء</th></tr></thead><tbody id="customerRemindersTbody"><tr><td colspan="8">اضغط تحديث القائمة.</td></tr></tbody></table></div>
       </div>
 
       <div class="card-box" id="tableReturnsCard" style="display: none;">
@@ -571,7 +597,7 @@
 
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; background:#f8fafc; padding:10px; border-radius:6px; font-size:0.85rem; font-weight:700; margin-bottom:15px; border:1px solid #e2e8f0;">
             <div>اسم العميل: <span id="repModalClientName" style="color:#ea580c;"></span></div>
-            <div>سيريال العميل: <span id="repModalClientPhone" style="color:#d97706;"></span></div>
+            <div>رقم هاتف العميل: <span id="repModalClientPhone" style="color:#d97706;"></span></div>
             <div>نوع السيارة واللوحة: <span id="repModalCarType" style="color:#0284c7;"></span></div>
             <div>تاريخ الإذن: <span id="repModalDate"></span></div>
             <div style="grid-column: span 2;">المسؤول / المختص: <span id="repModalUser" style="color:#9333ea; font-weight:bold;"></span></div>
@@ -611,7 +637,7 @@
 
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; background:#f8fafc; padding:10px; border-radius:6px; font-size:0.85rem; font-weight:700; margin-bottom:15px; border:1px solid #e2e8f0;">
             <div>اسم العميل: <span id="storeModalClientName" style="color:#10b981;"></span></div>
-            <div>سيريال العميل: <span id="storeModalClientPhone" style="color:#d97706;"></span></div>
+            <div>رقم هاتف العميل: <span id="storeModalClientPhone" style="color:#d97706;"></span></div>
             <div>نوع السيارة واللوحة: <span id="storeModalCarType" style="color:#0284c7;"></span></div>
             <div>تاريخ الإذن: <span id="storeModalDate"></span></div>
             <div style="grid-column: span 2;">المسؤول / المختص: <span id="storeModalUser" style="color:#9333ea; font-weight:bold;"></span></div>
@@ -679,6 +705,7 @@
       <div class="form-field"><label>سعر الشراء:</label><input type="number" id="editItemBuy" step="any"></div>
       <div class="form-field"><label>سعر البيع:</label><input type="number" id="editItemSell" step="any"></div>
       <div class="form-field"><label>مصنعية:</label><input type="number" id="editItemInstallFee" step="any" placeholder="0"></div>
+      <div class="form-field"><label>صلاحية المنتج بالكيلومتر (لفلاتر وزيوت / فرامل):</label><input type="number" id="editItemKmValidity" min="0" step="1" placeholder="0"></div>
       <div class="form-field"><label>عدد عمليات السحب:</label><input type="text" id="editItemWithdrawCount" readonly style="background:#f1f5f9; font-weight:bold;"></div>
       <div style="display:flex; gap:6px; margin-top:12px;">
         <button onclick="updateInventoryItemSave()" class="btn-action-sm btn-success" style="flex:1;">حفظ التعديلات</button>
@@ -733,6 +760,9 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+      const categorySelect = document.getElementById('itemCategory');
+      if (categorySelect) categorySelect.addEventListener('change', toggleKmValidityField);
+      toggleKmValidityField();
       loadSettingsFromStorage();
       checkLoggedInUser();
       await fetchCarsDataForTreasury();
@@ -990,7 +1020,7 @@
             if(!name) continue;
 
             await addData("inventory", {
-              storeName, category, name, barcode, qty, buyPrice, sellPrice, installationFee, withdrawCount: 0
+              storeName, category, name, barcode, qty, buyPrice, sellPrice, installationFee, kmValidity, withdrawCount: 0
             });
             count++;
           }
@@ -1145,7 +1175,7 @@
     }
 
     function switchTable(type) {
-      ['inventory', 'accounts', 'deptRequests', 'issueOrders', 'returnsTableCard', 'services'].forEach(t => {
+      ['inventory', 'accounts', 'deptRequests', 'issueOrders', 'reminders', 'returnsTableCard', 'services'].forEach(t => {
         let el = document.getElementById(t === 'returnsTableCard' ? 'tableReturnsCard' : (t === 'services' ? 'tableServicesCard' : `table${t.charAt(0).toUpperCase() + t.slice(1)}Card`));
         if(el) el.style.display = (t === type) ? 'block' : 'none';
       });
@@ -1155,6 +1185,7 @@
         'accounts': 'tTab3',
         'deptRequests': 'tTab5',
         'issueOrders': 'tTab6',
+        'reminders': 'tTabReminders',
         'returnsTableCard': 'tTab7',
         'services': 'tTabServices'
       };
@@ -1171,6 +1202,7 @@
       });
 
       if(type === 'deptRequests') loadDeptRequests();
+      if(type === 'reminders') loadCustomerReminders();
       if(type === 'issueOrders') loadIssueOrders();
       if(type === 'returnsTableCard') loadReturnsData();
     }
@@ -1362,6 +1394,7 @@
         let plateNo = matchedCar.plate ? `رقم اللوحة: ${matchedCar.plate}` : 'بدون لوحة';
 
         group.serialNo = serialNo;
+        group.clientPhone = matchedCar.phone || matchedCar.mobile || group.clientPhone || '---';
         group.carDetails = `${carBrandModel} (${plateNo})`;
 
         let itemsSummary = group.items.map(it => `• ${it.itemName} (الكمية: ${it.qty})`).join('<br>');
@@ -1399,12 +1432,14 @@
 
       let orderNo = "NON-ISSUE-" + Math.floor(1000 + Math.random() * 9000);
       currentActiveClientGroup.orderNo = orderNo;
+      const mileageInput = prompt('أدخل قراءة عداد السيارة الحالية بالكيلومتر لحساب موعد التغيير (اتركه فارغًا إذا لم يتوفر):', '');
+      currentActiveClientGroup.odometerAtIssue = mileageInput !== null && mileageInput.trim() !== '' ? Math.max(0, parseInt(mileageInput, 10) || 0) : null;
       let currentDateStr = new Date().toISOString().substring(0, 10);
       let loggedUser = localStorage.getItem('loggedUser') || localStorage.getItem('username') || localStorage.getItem('user') || 'مدير النظام';
 
       document.getElementById('repModalOrderNo').innerText = `رقم الإذن: ${orderNo}`;
       document.getElementById('repModalClientName').innerText = currentActiveClientGroup.clientName;
-      document.getElementById('repModalClientPhone').innerText = currentActiveClientGroup.serialNo || '---';
+      document.getElementById('repModalClientPhone').innerText = currentActiveClientGroup.clientPhone || '---';
       document.getElementById('repModalCarType').innerText = currentActiveClientGroup.carDetails || '---';
       document.getElementById('repModalDate').innerText = currentDateStr;
       document.getElementById('repModalUser').innerText = loggedUser;
@@ -1415,7 +1450,7 @@
         repTbody.innerHTML += `
           <tr>
             <td style="border:1px solid #cbd5e1; padding:6px; text-align:center;">${index + 1}</td>
-            <td style="border:1px solid #cbd5e1; padding:6px;">${item.itemName}</td>
+            <td style="border:1px solid #cbd5e1; padding:6px;">${item.itemName}<br><small>القسم: ${(cachedInventory.find(inv => inv.name.toLowerCase() === String(item.itemName).toLowerCase()) || {}).category || 'غير محدد'}</small></td>
             <td style="border:1px solid #cbd5e1; padding:6px; text-align:center; font-weight:bold;">${item.qty}</td>
           </tr>
         `;
@@ -1423,7 +1458,7 @@
 
       document.getElementById('storeModalOrderNo').innerText = `رقم الإذن: ${orderNo}`;
       document.getElementById('storeModalClientName').innerText = currentActiveClientGroup.clientName;
-      document.getElementById('storeModalClientPhone').innerText = currentActiveClientGroup.serialNo || '---';
+      document.getElementById('storeModalClientPhone').innerText = currentActiveClientGroup.clientPhone || '---';
       document.getElementById('storeModalCarType').innerText = currentActiveClientGroup.carDetails || '---';
       document.getElementById('storeModalDate').innerText = currentDateStr;
       document.getElementById('storeModalUser').innerText = loggedUser;
@@ -1434,7 +1469,7 @@
         storeTbody.innerHTML += `
           <tr>
             <td style="border:1px solid #cbd5e1; padding:6px; text-align:center;">${index + 1}</td>
-            <td style="border:1px solid #cbd5e1; padding:6px;">${item.itemName}</td>
+            <td style="border:1px solid #cbd5e1; padding:6px;">${item.itemName}<br><small>القسم: ${(cachedInventory.find(inv => inv.name.toLowerCase() === String(item.itemName).toLowerCase()) || {}).category || 'غير محدد'}</small></td>
             <td style="border:1px solid #cbd5e1; padding:6px; text-align:center; font-weight:bold;">${item.qty}</td>
           </tr>
         `;
@@ -1462,13 +1497,24 @@
       let itemsDetailsText = currentActiveClientGroup.items.map(i => `${i.itemName} (الكمية: ${i.qty})`).join(' | ');
       let loggedUser = localStorage.getItem('loggedUser') || localStorage.getItem('username') || localStorage.getItem('user') || 'مدير النظام';
 
+      const issuedItems = currentActiveClientGroup.items.map(reqItem => {
+        const inv = cachedInventory.find(x => (x.name || '').toLowerCase() === (reqItem.itemName || '').toLowerCase());
+        const category = inv?.category || 'غير محدد';
+        const kmValidity = ['فلاتر وزيوت', 'فرامل'].includes(category) ? (parseInt(inv?.kmValidity, 10) || 0) : 0;
+        return { itemName: reqItem.itemName, qty: reqItem.qty, category, kmValidity,
+          issueOdometer: currentActiveClientGroup.odometerAtIssue,
+          dueOdometer: kmValidity && currentActiveClientGroup.odometerAtIssue !== null ? currentActiveClientGroup.odometerAtIssue + kmValidity : null };
+      });
       await addData("issue_orders", {
         orderNo: currentActiveClientGroup.orderNo,
         clientName: currentActiveClientGroup.clientName,
-        clientPhone: currentActiveClientGroup.serialNo || currentActiveClientGroup.clientPhone || '---',
+        clientPhone: currentActiveClientGroup.clientPhone || '---',
+        clientSerial: currentActiveClientGroup.serialNo || '---',
         carType: currentActiveClientGroup.carDetails || currentActiveClientGroup.carType || '---',
-        department: 'طلبات الأقسام (مجمع)',
+        department: [...new Set(issuedItems.map(x => x.category))].join('، ') || 'طلبات الأقسام (مجمع)',
         itemsDetails: itemsDetailsText,
+        issuedItems,
+        issueOdometer: currentActiveClientGroup.odometerAtIssue,
         username: loggedUser,
         totalPrice: 0
       });
@@ -1504,6 +1550,68 @@
       loadDeptRequests();
       loadInventoryData();
       loadIssueOrders();
+    }
+
+    function normalizeWhatsAppPhone(phone) {
+      let n = String(phone || '').replace(/[^0-9]/g, '');
+      if (n.startsWith('00')) n = n.slice(2);
+      if (n.startsWith('0') && n.length === 11) n = '2' + n;
+      if (n.length === 10 && n.startsWith('1')) n = '20' + n;
+      return n;
+    }
+
+    function makeReminderMessage(order, item) {
+      const due = item.dueOdometer ? `موعد المتابعة عند ${Number(item.dueOdometer).toLocaleString('en-US')} كم` :
+        (item.kmValidity ? `صلاحية الصنف ${Number(item.kmValidity).toLocaleString('en-US')} كم من تاريخ التركيب، برجاء متابعة عداد السيارة` : 'برجاء التواصل لتحديد موعد المتابعة');
+      return `أهلاً ${order.clientName || 'عميلنا العزيز'}، معك مركز أوتو نون (NON).\nنذكّرك بمتابعة/تغيير ${item.itemName} من قسم ${item.category || 'الصيانة'}.\n${due}\nللحجز أو الاستفسار يسعدنا تواصلك معنا.`;
+    }
+
+    function openWhatsAppReminder(order, item) {
+      const phone = normalizeWhatsAppPhone(order.clientPhone);
+      if (!phone) { alert('رقم هاتف العميل غير مسجل. يرجى إضافة رقم صحيح في بيانات العميل.'); return; }
+      const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(makeReminderMessage(order, item));
+      window.open(url, '_blank', 'noopener');
+    }
+
+    async function loadCustomerReminders() {
+      const tbody = document.getElementById('customerRemindersTbody');
+      if (!tbody) return;
+      const orders = await getData('issue_orders');
+      const reminders = [];
+      orders.forEach(order => (order.issuedItems || []).forEach(item => {
+        if (['فلاتر وزيوت', 'فرامل'].includes(item.category)) reminders.push({order, item});
+      }));
+      tbody.innerHTML = '';
+      if (!reminders.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد أصناف متابعة مسجلة بعد. الأصناف القديمة قبل التحديث قد لا تحتوي على تفاصيل الصلاحية.</td></tr>';
+        return;
+      }
+      reminders.sort((a,b) => String(b.order.dateStr || '').localeCompare(String(a.order.dateStr || '')));
+      reminders.forEach(({order,item}) => {
+        const tr = document.createElement('tr');
+        const values = [order.clientName || '---', order.clientPhone || '---', order.carType || '---',
+          `${item.category}: ${item.itemName}`, String((order.dateStr || '').substring(0,10)),
+          item.issueOdometer == null ? 'غير مسجل' : Number(item.issueOdometer).toLocaleString('en-US') + ' كم',
+          item.dueOdometer == null ? (item.kmValidity ? `بعد ${Number(item.kmValidity).toLocaleString('en-US')} كم` : 'غير محدد') : Number(item.dueOdometer).toLocaleString('en-US') + ' كم'];
+        values.forEach(v => { const td=document.createElement('td'); td.textContent=v; tr.appendChild(td); });
+        const td=document.createElement('td');
+        const btn=document.createElement('button'); btn.className='btn-action-sm btn-success'; btn.innerHTML='<i class="fa-brands fa-whatsapp"></i> تذكير واتساب';
+        btn.onclick=()=>openWhatsAppReminder(order,item); td.appendChild(btn); tr.appendChild(td); tbody.appendChild(tr);
+      });
+    }
+
+    async function openAllCustomerReminders() {
+      const orders = await getData('issue_orders');
+      const tasks = [];
+      orders.forEach(order => (order.issuedItems || []).forEach(item => {
+        if (['فلاتر وزيوت', 'فرامل'].includes(item.category) && normalizeWhatsAppPhone(order.clientPhone)) tasks.push({order,item});
+      }));
+      if (!tasks.length) { alert('لا توجد تذكيرات بأرقام هواتف صالحة.'); return; }
+      const proceed = confirm(`سيتم تجهيز ${tasks.length} رسالة تذكير. قد يمنع المتصفح فتح عدة نوافذ؛ الأفضل إرسالها واحدة تلو الأخرى من القائمة. هل تريد فتح الرسائل الآن؟`);
+      if (!proceed) return;
+      tasks.forEach(({order,item}, index) => {
+        setTimeout(() => openWhatsAppReminder(order,item), index * 900);
+      });
     }
 
     async function loadIssueOrders() {
@@ -1638,6 +1746,24 @@
       }
     }
 
+    function toggleKmValidityField() {
+      const category = document.getElementById('itemCategory')?.value || '';
+      const wrap = document.getElementById('itemKmValidityWrap');
+      const field = document.getElementById('itemKmValidity');
+      const required = ['فلاتر وزيوت', 'فرامل'].includes(category);
+      if (wrap) wrap.style.display = required ? 'flex' : 'none';
+      if (field) { field.required = required; if (!required) field.value = ''; }
+    }
+
+    function toggleKmValidityField() {
+      const category = document.getElementById('itemCategory')?.value || '';
+      const wrap = document.getElementById('itemKmValidityWrap');
+      const field = document.getElementById('itemKmValidity');
+      const required = ['فلاتر وزيوت', 'فرامل'].includes(category);
+      if (wrap) wrap.style.display = required ? 'flex' : 'none';
+      if (field) { field.required = required; if (!required) field.value = ''; }
+    }
+
     async function saveInventoryItem(e) {
       e.preventDefault();
       const storeName = document.getElementById('itemStoreName').value;
@@ -1648,6 +1774,10 @@
       const buyPrice = parseFloat(document.getElementById('itemBuyPrice').value) || 0;
       const sellPrice = parseFloat(document.getElementById('itemSellPrice').value) || 0;
       const installationFee = parseFloat(document.getElementById('itemInstallationFee').value) || 0;
+      const kmValidity = ['فلاتر وزيوت', 'فرامل'].includes(category) ? (parseInt(document.getElementById('itemKmValidity').value, 10) || 0) : 0;
+      if (['فلاتر وزيوت', 'فرامل'].includes(category) && kmValidity <= 0) {
+        alert('أدخل صلاحية المنتج بالكيلومتر لهذا القسم.'); return;
+      }
 
       let existingItem = cachedInventory.find(i => 
         (i.barcode && i.barcode.toLowerCase() === barcode.toLowerCase()) || 
@@ -1656,12 +1786,12 @@
 
       if (existingItem) {
         alert(`تنبيه: هذا الصنف موجود بالفعل! سيتم فتح شاشة التعديل لتحديث بياناته.`);
-        openEditItemModal(existingItem.id, existingItem.name, existingItem.qty, existingItem.buyPrice, existingItem.sellPrice, existingItem.installationFee, existingItem.category, existingItem.storeName, existingItem.withdrawCount);
+        openEditItemModal(existingItem.id, existingItem.name, existingItem.qty, existingItem.buyPrice, existingItem.sellPrice, existingItem.installationFee, existingItem.category, existingItem.storeName, existingItem.withdrawCount, existingItem.kmValidity);
         return;
       }
 
       await addData("inventory", {
-        storeName, category, name, barcode, qty, buyPrice, sellPrice, installationFee, withdrawCount: 0
+        storeName, category, name, barcode, qty, buyPrice, sellPrice, installationFee, kmValidity, withdrawCount: 0
       });
 
       alert("تم حفظ الصنف بنجاح!");
@@ -1672,6 +1802,8 @@
       document.getElementById('itemBuyPrice').value = '';
       document.getElementById('itemSellPrice').value = '';
       document.getElementById('itemInstallationFee').value = '';
+      document.getElementById('itemKmValidity').value = '';
+      toggleKmValidityField();
       generateRandomBarcode();
       document.getElementById('itemName').focus();
       
@@ -1685,7 +1817,7 @@
       tbody.innerHTML = '';
 
       if(cachedInventory.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;">لا توجد أصناف مسجلة في المخزن.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;">لا توجد أصناف مسجلة في المخزن.</td></tr>';
         document.getElementById('statStoreValue').innerText = "0 ج.م";
         document.getElementById('shortageBadgeCount').innerText = "0";
         return;
@@ -1705,7 +1837,7 @@
           shortageCount++;
         }
 
-        let editBtnHtml = settingsConfig.showEditPencil ? `<button class="btn-action-sm btn-primary" style="padding:2px 6px;" onclick="openEditItemModal('${item.id}', '${item.name}', ${item.qty}, ${item.buyPrice}, ${item.sellPrice}, ${item.installationFee || 0}, '${item.category || ''}', '${item.storeName || ''}', ${item.withdrawCount || 0})"><i class="fa-solid fa-pen"></i></button>` : '';
+        let editBtnHtml = settingsConfig.showEditPencil ? `<button class="btn-action-sm btn-primary" style="padding:2px 6px;" onclick="openEditItemModal('${item.id}', '${item.name}', ${item.qty}, ${item.buyPrice}, ${item.sellPrice}, ${item.installationFee || 0}, '${item.category || ''}', '${item.storeName || ''}', ${item.withdrawCount || 0}, ${item.kmValidity || 0})"><i class="fa-solid fa-pen"></i></button>` : '';
         let deleteBtnHtml = settingsConfig.showDelete ? `<button class="btn-action-sm btn-danger global-delete-btn" ${!settingsConfig.enableDelete ? 'disabled style="opacity:0.5;"' : ''} style="padding:2px 6px;" onclick="deleteItem('inventory', '${item.id}')"><i class="fa-solid fa-trash"></i></button>` : '';
 
         tbody.innerHTML += `
@@ -1719,6 +1851,7 @@
             <td>${bp} ج.م</td>
             <td>${item.sellPrice || 0} ج.م</td>
             <td>${item.installationFee || 0} ج.م</td>
+            <td>${item.kmValidity ? Number(item.kmValidity).toLocaleString('en-US') + ' كم' : '---'}</td>
             <td style="font-weight:bold; color:var(--btn-blue);">${item.withdrawCount || 0} مرات</td>
             <td>${statusBadge}</td>
             <td style="display:flex; gap:4px;">
@@ -1734,13 +1867,14 @@
       applySettingsToUI();
     }
 
-    function openEditItemModal(id, name, qty, buy, sell, installFee, category, storeName, withdrawCount) {
+    function openEditItemModal(id, name, qty, buy, sell, installFee, category, storeName, withdrawCount, kmValidity) {
       document.getElementById('editItemId').value = id;
       document.getElementById('editItemName').value = name;
       document.getElementById('editItemQty').value = qty;
       document.getElementById('editItemBuy').value = buy;
       document.getElementById('editItemSell').value = sell;
       document.getElementById('editItemInstallFee').value = installFee;
+      document.getElementById('editItemKmValidity').value = kmValidity || 0;
       document.getElementById('editItemCategory').value = category;
       document.getElementById('editItemStore').value = storeName || 'مخزن المحل الرئيسي';
       document.getElementById('editItemWithdrawCount').value = withdrawCount + " مرات";
@@ -1760,10 +1894,11 @@
       let buyPrice = parseFloat(document.getElementById('editItemBuy').value) || 0;
       let sellPrice = parseFloat(document.getElementById('editItemSell').value) || 0;
       let installationFee = parseFloat(document.getElementById('editItemInstallFee').value) || 0;
+      let kmValidity = ['فلاتر وزيوت', 'فرامل'].includes(category) ? (parseInt(document.getElementById('editItemKmValidity').value, 10) || 0) : 0;
 
       if(useLocalFallback || id.startsWith('local_')) {
         let list = JSON.parse(localStorage.getItem('inventory') || '[]');
-        list = list.map(i => i.id === id ? { ...i, storeName, category, name, qty, buyPrice, sellPrice, installationFee } : i);
+        list = list.map(i => i.id === id ? { ...i, storeName, category, name, qty, buyPrice, sellPrice, installationFee, kmValidity } : i);
         localStorage.setItem('inventory', JSON.stringify(list));
       } else {
         await db.collection("inventory").doc(id).update({
@@ -1812,6 +1947,7 @@
             <td>${bp} ج.م</td>
             <td>${item.sellPrice || 0} ج.م</td>
             <td>${item.installationFee || 0} ج.م</td>
+            <td>${item.kmValidity ? Number(item.kmValidity).toLocaleString('en-US') + ' كم' : '---'}</td>
             <td style="font-weight:bold; color:var(--btn-blue);">${item.withdrawCount || 0} مرات</td>
             <td>${statusBadge}</td>
             <td style="display:flex; gap:4px;">
@@ -1825,4 +1961,4 @@
     }
   </script>
 </body>
-</html>
+</html>              
