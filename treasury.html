@@ -187,130 +187,57 @@
     .supplier-management-card .form-grid{margin:10px 0}.supplier-management-card input,.supplier-management-card select{min-width:0;padding:9px;border:1px solid var(--border-color);border-radius:8px;background:var(--input-bg);color:var(--text-main);font-weight:600}.supplier-management-card .card-title{font-size:1.2rem;border-bottom:2px solid var(--primary-orange);padding-bottom:10px}.supplier-management-card table{min-width:900px}.supplier-management-card th{white-space:nowrap}.supplier-management-card td{vertical-align:top}
   
 
-    /* واجهة احترافية واسعة مع شريط اختصارات علوي */
-    :root { --primary-orange:#f97316; --navy:#172554; --card-bg:#fff; --border-color:#e2e8f0; }
-    html, body { padding: 8px !important; min-height:100%; }
-    body { background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%); }
-    .header-top-bar { position:relative; border-radius:16px; padding:12px 18px; box-shadow:0 8px 24px rgba(15,23,42,.06); border-color:#e5eaf1; }
-    .brand-logo { font-size:1.12rem; }
-    .workspace-nav { position:sticky; top:0; z-index:1000; display:flex; align-items:center; gap:7px; flex-wrap:nowrap; overflow-x:auto; padding:9px 10px; margin:0 0 14px; border:1px solid #dbe3ee; border-radius:14px; background:rgba(255,255,255,.96); box-shadow:0 8px 24px rgba(15,23,42,.08); backdrop-filter:blur(12px); scrollbar-width:thin; }
-    .workspace-nav-label { display:flex; align-items:center; gap:7px; color:#64748b; font-size:.78rem; font-weight:900; white-space:nowrap; padding:0 8px 0 12px; border-left:1px solid #e2e8f0; }
-    .workspace-link { display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center; gap:7px; border:1px solid transparent; border-radius:10px; background:transparent; color:#334155; padding:9px 12px; font-size:.82rem; font-weight:800; white-space:nowrap; cursor:pointer; }
-    .workspace-link i { color:#f97316; font-size:.92rem; }
-    .workspace-link:hover { background:#fff7ed; border-color:#fed7aa; transform:translateY(-1px); }
-    .workspace-link.active { color:#fff; background:linear-gradient(135deg,#f97316,#c2410c); box-shadow:0 5px 12px rgba(234,88,12,.22); }
-    .workspace-link.active i { color:#fff; }
+    .non-nav-group{position:relative;display:flex;flex:1 0 auto}.non-nav-group>.non-nav-btn{width:100%}.non-nav-menu{display:none;position:absolute;z-index:1000;top:100%;right:0;min-width:220px;padding:7px;background:#fff;border:1px solid #d8e3ef;border-top:3px solid #f97316;border-radius:0 0 12px 12px;box-shadow:0 12px 28px #0b1f3830}.non-nav-group:hover .non-nav-menu,.non-nav-group:focus-within .non-nav-menu{display:grid;gap:4px}.non-nav-menu button{border:0;background:#f6f8fb;color:#102944;text-align:right;padding:10px 12px;border-radius:7px;font-weight:750;cursor:pointer}.non-nav-menu button:hover{background:#fff0e4;color:#b84a00}.reminder-frequency-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px;margin:10px 0;background:#f5f8fc;border:1px solid #dbe5f1;border-right:4px solid #f97316;border-radius:10px}.reminder-frequency-bar span{font-weight:800;color:#102944;margin-right:auto}.supplier-management-card{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border-top:4px solid #f97316!important}.supplier-management-card .form-grid input{min-height:42px}.supplier-management-card table thead th{background:#102944;color:#fff}.supplier-management-card tbody tr:nth-child(even){background:#f2f6fb}.supplier-management-card tbody tr:hover{background:#fff0e4}
+    #deptRequestsTable tbody tr{background:#fff7ed;box-shadow:0 3px 10px #0b1f3810;border-right:4px solid #f97316}#deptRequestsTable tbody td{padding:11px 9px;border-bottom:1px solid #f2d6bd}#deptRequestsTable tbody tr:hover{background:#ffeddc}
+    #customerRemindersTbody tr:hover{background:#fff7ed}
+
+    /* واجهة أوتو نون الجديدة: شريط رئيسي وفرعي ثابتان بصرياً مع الحفاظ على وظائف النظام */
+    :root { --primary-orange:#f97316; --win-blue-header:#0b1f38; }
+    html, body { padding: 8px; background:linear-gradient(180deg,#f3f7fc 0%,var(--bg-color) 220px); }
+    .header-top-bar { background:#0b1f38; color:#fff; border:1px solid #203b5c; border-radius:14px; box-shadow:0 8px 24px rgba(5,20,40,.14); padding:12px 18px; margin-bottom:10px; }
+    .header-top-bar .brand-logo { color:#ff8a24; }
+    .header-top-bar #userInfoDisplay { color:#fff; }
+    .header-top-bar .btn-nav { border-radius:9px; box-shadow:0 3px 8px #0002; }
+    .non-primary-nav { display:flex; align-items:stretch; gap:7px; padding:8px; margin:0 0 7px; overflow-x:auto; background:#102944; border:1px solid #244260; border-radius:13px; box-shadow:0 5px 16px #10294418; scrollbar-width:thin; }
+    .non-nav-btn { flex:1 0 auto; min-width:105px; min-height:54px; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 13px; border:1px solid transparent; border-radius:9px; background:transparent; color:#eaf2fc; font-weight:800; cursor:pointer; white-space:nowrap; }
+    .non-nav-btn i { color:#ff8a24; font-size:1.05rem; }
+    .non-nav-btn:hover,.non-nav-btn.active { background:#f97316; color:#fff; border-color:#ffad66; box-shadow:0 4px 12px #f9731638; }
+    .non-nav-btn:hover i,.non-nav-btn.active i { color:#fff; }
+    .non-stock-nav { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:9px 12px; margin-bottom:13px; background:#fff; border:1px solid #dbe5f1; border-right:4px solid #f97316; border-radius:12px; box-shadow:0 4px 14px #0f27450b; }
+    .non-stock-nav strong { color:#0b1f38; padding:7px 12px; margin-left:5px; white-space:nowrap; }
+    .non-stock-nav button { display:inline-flex; align-items:center; gap:7px; border:1px solid #dbe5f1; background:#f7faff; color:#173653; border-radius:8px; padding:9px 11px; font-weight:750; cursor:pointer; white-space:nowrap; }
+    .non-stock-nav button i { color:#f97316; }
+    .non-stock-nav button:hover { background:#fff1e6; border-color:#f97316; transform:translateY(-1px); }
+    #formTabsContainer,#tableTabsContainer,.section-tabs { display:none !important; }
     .stats-grid { gap:12px; margin-bottom:14px; }
-    .stat-card { border-radius:14px; padding:15px 16px; box-shadow:0 5px 16px rgba(15,23,42,.04); }
-    .main-layout { display:grid !important; grid-template-columns:minmax(0,1fr) !important; gap:12px; width:100%; align-items:start; }
-    .main-layout > .no-print { min-width:0; width:100%; }
-    .card-box { border-radius:14px; padding:16px; box-shadow:0 5px 18px rgba(15,23,42,.045); border-color:#e1e8f0; }
-    .card-title { padding-bottom:9px; border-bottom:1px solid #edf1f6; }
-    .form-field input,.form-field select,.form-field textarea { min-height:40px; border-radius:9px; }
-    .btn-action-sm,.tab-btn { border-radius:9px; }
-    table { min-width:640px; }
-    .card-box { overflow-x:auto; }
-    .collapsible-header { border-radius:10px; }
-    body.dark-mode { background:linear-gradient(180deg,#0b1220 0%,#111827 100%); }
-    body.dark-mode .workspace-nav { background:rgba(30,41,59,.97); border-color:#334155; }
-    body.dark-mode .workspace-nav-label { color:#cbd5e1; border-left-color:#475569; }
-    body.dark-mode .workspace-link { color:#e2e8f0; }
-    body.dark-mode .workspace-link:hover { background:#334155; border-color:#475569; }
-    body.dark-mode .workspace-link.active { background:linear-gradient(135deg,#f97316,#c2410c); color:#fff; }
-    @media (max-width:900px) { .workspace-nav { top:0; } .workspace-nav-label { display:none; } .header-top-bar { align-items:flex-start; } .center-nav { justify-content:flex-start; } }
-    @media (max-width:600px) { html,body { padding:5px !important; } .workspace-nav { margin-bottom:9px; padding:7px; gap:5px; } .workspace-link { padding:9px 10px; font-size:.78rem; } .header-top-bar { padding:10px; } .brand-logo { font-size:1rem; } table { font-size:.8rem; } }
+    .stat-card,.card-box { border-radius:13px !important; box-shadow:0 4px 16px rgba(15,39,69,.06) !important; border-color:#dce6f2 !important; }
+    .card-title { border-radius:11px 11px 0 0; }
+    .main-layout { gap:14px; }
+    button, input, select, textarea { transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease; }
+    @media (max-width:900px) { .non-nav-btn { min-width:100px; } .non-stock-nav { flex-wrap:nowrap; overflow-x:auto; } .non-stock-nav strong { position:sticky; right:0; background:#fff; z-index:1; } }
+    @media (max-width:600px) { html,body { padding:5px; } .header-top-bar { padding:10px; } .non-primary-nav { gap:5px; } .non-nav-btn { min-width:95px; padding:8px; font-size:.82rem; } .non-stock-nav button { font-size:.8rem; } }
 
-
-
-    /* تصميم لوحة إدارة عربية RTL مستوحى من لوحة WordPress */
-    html, body { padding: 12px 252px 12px 12px !important; background:#f1f3f5; }
-    .workspace-nav {
-      position:fixed !important; top:0 !important; right:0 !important; bottom:0 !important; left:auto !important;
-      width:232px !important; height:100vh !important; overflow-y:auto !important; overflow-x:hidden !important;
-      display:flex !important; flex-direction:column !important; align-items:stretch !important; flex-wrap:nowrap !important;
-      gap:2px !important; padding:18px 12px !important; margin:0 !important; border:0 !important;
-      border-left:1px solid #d8dde3 !important; border-radius:0 !important; background:#23282d !important;
-      box-shadow:-4px 0 18px rgba(0,0,0,.08) !important; z-index:2000 !important; backdrop-filter:none !important;
-    }
-    .workspace-nav-label { color:#f0f0f1 !important; border:0 !important; border-bottom:1px solid #3c434a !important; padding:8px 10px 16px !important; margin-bottom:8px !important; font-size:.95rem !important; }
-    .workspace-link { width:100% !important; justify-content:flex-start !important; text-align:right !important; color:#c3c4c7 !important;
-      padding:12px 13px !important; border:0 !important; border-radius:3px !important; background:transparent !important;
-      font-size:.9rem !important; font-weight:700 !important; white-space:normal !important; }
-    .workspace-link i { width:22px; text-align:center; color:#a7aaad !important; }
-    .workspace-link:hover { background:#191e23 !important; border:0 !important; transform:none !important; color:#72aee6 !important; }
-    .workspace-link.active { background:#2271b1 !important; color:#fff !important; box-shadow:none !important; }
-    .workspace-link.active i { color:#fff !important; }
-    .header-top-bar { border-radius:4px !important; box-shadow:0 1px 3px rgba(0,0,0,.08) !important; }
-    .main-layout { width:100% !important; }
-    body.dark-mode { background:#111827; }
-    body.dark-mode .workspace-nav { background:#171b20 !important; }
-    body.dark-mode .workspace-link { color:#d1d5db !important; }
-    @media (max-width:900px) {
-      html, body { padding:8px !important; }
-      .workspace-nav { position:sticky !important; top:0 !important; right:auto !important; bottom:auto !important; width:100% !important; height:auto !important;
-        flex-direction:row !important; flex-wrap:nowrap !important; overflow-x:auto !important; padding:8px !important; margin-bottom:12px !important;
-        border-radius:5px !important; border:1px solid #d8dde3 !important; }
-      .workspace-nav-label { display:none !important; }
-      .workspace-link { width:auto !important; flex:0 0 auto !important; padding:10px 12px !important; }
-    }
-
-
-
-    /* واجهة مرنة احترافية: تتكيف تلقائياً مع حجم الشاشة */
-    :root { --primary-orange:#f97316; --card-bg:#ffffff; --border-color:#e2e8f0; --text-main:#172033; }
-    html { width:100%; min-height:100%; overflow-x:hidden; }
-    body { width:auto !important; min-width:0 !important; min-height:100vh; margin:0 !important; padding:18px 250px 24px 20px !important; overflow-x:hidden; background:#f3f6fb !important; color:#172033; }
-    .header-top-bar { width:100%; max-width:none; min-width:0; gap:14px; padding:16px 20px !important; border:1px solid #e4eaf2 !important; border-radius:18px !important; background:rgba(255,255,255,.96); box-shadow:0 8px 28px rgba(15,23,42,.07) !important; }
-    .brand-logo { min-width:0; line-height:1.6; }
-    .brand-logo span { overflow-wrap:anywhere; }
-    .center-nav { gap:8px; }
-    .btn-nav,.btn-nav-sec,.btn-nav-vip { min-height:38px; border-radius:11px; padding:9px 13px; }
-    .workspace-nav { width:222px !important; padding:18px 12px !important; background:#172033 !important; border-left:1px solid #26344b !important; box-shadow:-8px 0 28px rgba(15,23,42,.12) !important; }
-    .workspace-nav-label { font-size:.9rem !important; letter-spacing:.1px; }
-    .workspace-link { min-height:43px; border-radius:10px !important; margin:2px 0; padding:11px 12px !important; gap:10px; }
-    .workspace-link i { flex:0 0 22px; }
-    .workspace-link.active { background:linear-gradient(135deg,#f97316,#ea580c) !important; box-shadow:0 6px 16px rgba(249,115,22,.25) !important; }
-    .stats-grid { grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr)); gap:14px; width:100%; }
-    .stat-card { min-width:0; min-height:84px; padding:17px 18px; border-radius:16px; background:var(--card-bg); }
-    .stat-title { line-height:1.7; }
-    .stat-value { overflow-wrap:anywhere; font-size:1.12rem; }
-    .main-layout { display:grid !important; grid-template-columns:minmax(260px,.78fr) minmax(0,2fr) !important; align-items:start; gap:16px !important; width:100% !important; max-width:none !important; }
-    .main-layout > * { min-width:0; }
-    .main-layout > .no-print { width:auto !important; }
-    .section-tabs { display:flex; gap:7px; flex-wrap:wrap; }
-    .tab-btn { min-width:110px; flex:1 1 auto; padding:11px 13px; border-radius:11px !important; line-height:1.5; }
-    .card-box { min-width:0; margin-bottom:16px; padding:18px !important; border-radius:17px !important; border:1px solid #e2e8f0 !important; background:var(--card-bg); box-shadow:0 8px 25px rgba(15,23,42,.045) !important; }
-    .card-title { gap:12px; line-height:1.7; font-size:1rem; }
-    .collapsible-section { border:1px solid #e5eaf2; border-radius:12px; padding:11px 12px; background:#fbfcfe; }
-    .collapsible-header { min-height:28px; gap:12px; }
-    .form-field { min-width:0; }
-    .form-field input,.form-field select,.form-field textarea { min-width:0; min-height:42px; border-radius:10px; }
-    input:focus,select:focus,textarea:focus { border-color:#f97316 !important; box-shadow:0 0 0 3px rgba(249,115,22,.12); }
-    button { touch-action:manipulation; }
-    .btn-action-sm { min-height:34px; border-radius:9px !important; }
-    .card-box > div[style*="overflow"] { max-width:100%; }
-    table { min-width:680px; border-collapse:separate; border-spacing:0; }
-    th { position:sticky; top:0; z-index:1; background:#fff1e8; }
-    th:first-child { border-top-right-radius:8px; }
-    th:last-child { border-top-left-radius:8px; }
-    tbody tr:nth-child(even) { background:rgba(148,163,184,.055); }
-    tbody tr:hover { background:rgba(249,115,22,.07); }
-    td,th { padding:11px 10px; line-height:1.6; }
-    body.dark-mode { background:#0b1220 !important; color:#e5e7eb; }
-    body.dark-mode .header-top-bar, body.dark-mode .card-box, body.dark-mode .stat-card { background:#172033 !important; border-color:#2b3950 !important; }
-    body.dark-mode .collapsible-section { background:#111a2b; border-color:#2b3950; }
-    body.dark-mode .tab-btn { background:#172033; border-color:#334155; color:#e5e7eb; }
-    body.dark-mode th { background:#332719; }
-    body.dark-mode tbody tr:nth-child(even) { background:rgba(255,255,255,.025); }
-    body.dark-mode tbody tr:hover { background:rgba(249,115,22,.1); }
-    body.dark-mode .form-field input, body.dark-mode .form-field select, body.dark-mode .form-field textarea,
-    body.dark-mode .supplier-management-card input, body.dark-mode .supplier-management-card select { background:#0f172a; border-color:#334155; color:#f8fafc; }
-    @media (min-width:1600px) { body { padding-right:270px !important; padding-left:28px !important; } .workspace-nav { width:242px !important; } .main-layout { grid-template-columns:minmax(300px,.7fr) minmax(0,2.3fr) !important; } }
-    @media (max-width:1100px) { body { padding:12px !important; } .workspace-nav { position:sticky !important; top:8px !important; right:auto !important; bottom:auto !important; left:auto !important; width:100% !important; height:auto !important; max-height:none !important; flex-direction:row !important; flex-wrap:nowrap !important; overflow-x:auto !important; overflow-y:hidden !important; margin:0 0 14px !important; padding:8px !important; border:1px solid #dbe3ee !important; border-radius:14px !important; } .workspace-nav-label { display:none !important; } .workspace-link { flex:0 0 auto !important; width:auto !important; margin:0; } .main-layout { grid-template-columns:minmax(0,1fr) !important; } .main-layout > .no-print { width:100% !important; } }
-    @media (max-width:700px) { body { padding:7px !important; } .header-top-bar { padding:12px !important; align-items:stretch; } .brand-logo { font-size:1rem; } .brand-logo img { width:36px; height:36px; } .center-nav { justify-content:flex-start; } .center-nav button { flex:1 1 auto; } .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .stat-card { padding:12px; } .stat-title { font-size:.75rem; } .stat-value { font-size:.95rem; } .card-box { padding:12px !important; } .section-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .tab-btn { min-width:0; font-size:.78rem; padding:10px 7px; } .card-title { align-items:flex-start; flex-direction:column; } table { min-width:620px; font-size:.78rem; } }
-    @media (max-width:420px) { .stats-grid { grid-template-columns:minmax(0,1fr); } .brand-logo { align-items:flex-start; } .workspace-link { padding:10px !important; font-size:.76rem !important; } }
-
-  </style>
+    .non-inventory-group{position:relative;z-index:1200}
+    .non-inventory-menu{display:none;position:absolute;top:100%;right:0;left:auto;width:min(920px,94vw);max-height:78vh;overflow:auto;padding:12px;background:#fff;border:1px solid #d8e3ef;border-top:4px solid #f97316;border-radius:0 0 14px 14px;box-shadow:0 18px 42px #0b1f3840;grid-template-columns:minmax(210px, .8fr) minmax(300px,1.5fr);gap:12px}
+    .non-inventory-group:hover .non-inventory-menu,.non-inventory-group:focus-within .non-inventory-menu{display:grid}
+    .inventory-menu-links{display:grid;align-content:start;gap:6px}
+    .inventory-menu-links button{border:1px solid #dbe5f1;background:#f6f8fb;color:#102944;text-align:right;padding:11px 12px;border-radius:8px;font-weight:800;cursor:pointer}
+    .inventory-menu-links button:hover{background:#fff0e4;border-color:#f97316;color:#b84a00}
+    .inventory-menu-forms{min-width:0;background:#f7faff;border:1px solid #e1e9f3;border-radius:10px;padding:10px}
+    .inventory-menu-forms .collapsible-section{margin:0 0 8px;background:#fff;border:1px solid #dce6f2;border-radius:9px;overflow:visible}
+    .inventory-menu-forms .collapsible-header{cursor:default;background:#102944;color:#fff;border-radius:8px;padding:10px}
+    .inventory-menu-forms .collapsible-body{display:block!important;padding:10px}
+    .inventory-menu-placeholder{color:#64748b;padding:20px;text-align:center;font-weight:700}
+    .main-layout{display:block!important}
+    @media(max-width:700px){.non-inventory-menu{position:fixed;top:150px;right:8px;left:8px;width:auto;max-height:70vh;grid-template-columns:1fr}.inventory-menu-links{grid-template-columns:1fr 1fr}}
+    .non-top-section-host{position:relative;z-index:5;margin:10px 0 16px;min-height:54px;padding:10px;background:linear-gradient(135deg,#fff 0%,#f4f8ff 100%);border:2px solid #f97316;border-radius:16px;box-shadow:0 12px 28px #0b1f3820;scroll-margin-top:12px}
+    .non-top-section-host:has(>.card-box){padding:12px;background:linear-gradient(135deg,#fff7ed 0%,#eff6ff 100%)}
+    .non-top-section-host>.card-box{margin:0!important;border:2px solid #d8e3f1!important;border-top:5px solid #f97316!important;box-shadow:0 8px 24px #0b1f3817!important;animation:nonTopReveal .22s ease-out}
+    .non-top-section-hint{display:flex;align-items:center;justify-content:center;gap:10px;min-height:32px;color:#102944;font-weight:800;text-align:center}.non-top-section-hint i{color:#f97316;font-size:1.15rem}
+    @keyframes nonTopReveal{from{opacity:.55;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    .non-primary-nav{position:relative;z-index:1300;overflow:visible}.non-nav-group{position:relative;z-index:1301}.non-nav-menu{z-index:1400}.non-inventory-menu{z-index:1500}
+    .non-primary-nav .non-nav-btn{min-height:56px;font-size:.9rem;letter-spacing:.1px}.non-primary-nav .non-nav-btn:hover{transform:translateY(-2px)}
+</style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -337,21 +264,29 @@
     </div>
   </div>
 
-  <nav class="workspace-nav no-print" id="workspaceQuickNav" aria-label="اختصارات النظام">
-    <div class="workspace-nav-label"><i class="fa-solid fa-grip"></i><span>التنقل السريع</span></div>
-    <button type="button" class="workspace-link active" data-workspace="home" onclick="quickNavigate('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-    <button type="button" class="workspace-link" data-workspace="newItem" onclick="quickNavigate('newItem')"><i class="fa-solid fa-barcode"></i><span>تسجيل صنف</span></button>
-    <button type="button" class="workspace-link" data-workspace="movement" onclick="quickNavigate('movement')"><i class="fa-solid fa-right-left"></i><span>حركة مخزن</span></button>
-    <button type="button" class="workspace-link" data-workspace="returns" onclick="quickNavigate('returns')"><i class="fa-solid fa-arrow-rotate-left"></i><span>المرتجعات</span></button>
-    <button type="button" class="workspace-link" data-workspace="stock" onclick="quickNavigate('stock')"><i class="fa-solid fa-boxes-stacked"></i><span>الأصناف والمخزون</span></button>
-    <button type="button" class="workspace-link" data-workspace="deptRequests" onclick="quickNavigate('deptRequests')"><i class="fa-solid fa-clipboard-list"></i><span>طلبات الأقسام</span></button>
-    <button type="button" class="workspace-link" data-workspace="suppliers" onclick="quickNavigate('suppliers')"><i class="fa-solid fa-truck-field"></i><span>التجار والموردون</span></button>
-    <button type="button" class="workspace-link" data-workspace="accounts" onclick="quickNavigate('accounts')"><i class="fa-solid fa-wallet"></i><span>حسابات الموردين</span></button>
-    <button type="button" class="workspace-link" data-workspace="issueOrders" onclick="quickNavigate('issueOrders')"><i class="fa-solid fa-file-invoice"></i><span>أذون الصرف</span></button>
-    <button type="button" class="workspace-link" data-workspace="reminders" onclick="quickNavigate('reminders')"><i class="fa-brands fa-whatsapp"></i><span>التذكيرات</span></button>
-    <button type="button" class="workspace-link" data-workspace="services" onclick="quickNavigate('services')"><i class="fa-solid fa-screwdriver-wrench"></i><span>خدمات التركيب</span></button>
-    <button type="button" class="workspace-link" data-workspace="stores" onclick="quickNavigate('stores')"><i class="fa-solid fa-warehouse"></i><span>إدارة المخازن</span></button>
+  <nav class="non-primary-nav no-print" aria-label="القائمة الرئيسية">
+    <button class="non-nav-btn active" onclick="nonNavigate('home',this)"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+    <div class="non-nav-group non-inventory-group"><button class="non-nav-btn" type="button" aria-haspopup="true"><i class="fa-solid fa-boxes-stacked"></i><span>إدارة المخزن</span><i class="fa-solid fa-chevron-down"></i></button>
+      <div class="non-nav-menu non-inventory-menu" id="inventoryMegaMenu">
+        <div class="inventory-menu-links">
+          <button type="button" onclick="nonOpenInventorySection('secStoreManage')">إضافة أو تعديل مخزن جديد</button>
+          <button type="button" onclick="nonOpenInventorySection('secInstallServices')">إدارة خدمات التركيب</button>
+          <button type="button" onclick="nonOpenInventorySection('secItemSub')">تسجيل صنف جديد وباركود</button>
+          <button type="button" onclick="nonOpenInventorySection('secMovementSub')">تسجيل حركة في المخزن</button>
+          <button type="button" onclick="nonOpenInventorySection('secReturnsSub')">طلب مرتجع / استبدال (للمخزن)</button>
+          <button type="button" onclick="nonNavigate('inventory')">عرض أصناف المخزن</button>
+          <button type="button" onclick="openStoresManagementModal()">إدارة المخازن</button>
+        </div>
+        <div id="inventoryMenuForms" class="inventory-menu-forms"><div class="inventory-menu-placeholder">اختار وظيفة من القائمة لعرض النموذج هنا.</div></div>
+      </div>
+    </div>
+    <div class="non-nav-group"><button class="non-nav-btn" type="button"><i class="fa-solid fa-layer-group"></i><span>طلبات الأقسام</span><i class="fa-solid fa-chevron-down"></i></button><div class="non-nav-menu"><button onclick="nonNavigate('deptRequests')">رسائل طلبات الأقسام</button><button onclick="nonNavigate('returnsTableCard')">طلبات المرتجع والاستبدال</button></div></div>
+    <div class="non-nav-group"><button class="non-nav-btn" type="button"><i class="fa-brands fa-whatsapp"></i><span>متابعة العملاء</span><i class="fa-solid fa-chevron-down"></i></button><div class="non-nav-menu"><button onclick="nonNavigate('reminders')">التذكيرات المستحقة</button><button onclick="showReminderArchive()">أرشيف المتابعة</button></div></div>
+    <button class="non-nav-btn" onclick="nonNavigate('suppliers',this)"><i class="fa-solid fa-truck-field"></i><span>التجار والموردون</span></button>
+    <button class="non-nav-btn" onclick="nonNavigate('accounts',this)"><i class="fa-solid fa-calculator"></i><span>الحسابات</span></button>
   </nav>
+
+  <section id="nonTopSectionHost" class="non-top-section-host" aria-live="polite"><div class="non-top-section-hint"><i class="fa-solid fa-hand-pointer"></i> اختار أي قسم من القائمة العلوية لعرضه هنا في أعلى الصفحة</div></section>
 
   <div class="stats-grid no-print" id="statsGridContainer">
     <div class="stat-card gold" onclick="openStoresManagementModal()" id="statCardStores">
@@ -377,7 +312,6 @@
       </div>
 
       <div class="card-box" id="formInventoryCard">
-        <div class="card-title" onclick="toggleBox('invMainBody')"><span><i class="fa-solid fa-boxes-stacked"></i> <span id="lblSecInventory">إدارة المخزن والبضائع</span></span> <i class="fa-solid fa-chevron-down"></i></div>
         <div id="invMainBody" class="collapsible-body show">
           
           <div class="collapsible-section" id="secStoreManage">
@@ -641,21 +575,15 @@
             <button class="btn-action-sm btn-success" onclick="openAllCustomerReminders()">تذكير كل العملاء (واتساب)</button>
           </div>
         </div>
-        <p style="margin:6px 0 10px;color:#64748b;">تظهر الأصناف من قسمي فلاتر وزيوت وفرامل التي تم صرفها. يتم احتساب موعد المتابعة من قراءة العداد وقت الصرف + صلاحية الصنف بالكيلومتر.</p>
-        <div style="overflow-x:auto;"><table><thead><tr><th>العميل</th><th>رقم الهاتف</th><th>السيارة</th><th>القسم والصنف</th><th>صرف بتاريخ</th><th>عداد الصرف</th><th>موعد المتابعة عند</th><th>إجراء</th></tr></thead><tbody id="customerRemindersTbody"><tr><td colspan="8">اضغط تحديث القائمة.</td></tr></tbody></table></div>
+        <div class="reminder-frequency-bar"><strong>جدولة المتابعة:</strong><button class="btn-action-sm btn-blue" onclick="setReminderFrequency(1)">كل شهر</button><button class="btn-action-sm btn-blue" onclick="setReminderFrequency(6)">كل 6 شهور</button><button class="btn-action-sm btn-blue" onclick="setReminderFrequency(12)">كل سنة</button><span id="reminderFrequencyLabel">الفترة الحالية: كل شهر</span></div>
+        <p style="margin:6px 0 10px;color:#64748b;">تظهر الأصناف من قسمي فلاتر وزيوت وفرامل. اختر فترة التذكير، وبعد فتح رسالة واتساب اضغط «تم التذكير والأرشفة» لنقل العميل إلى أرشيف المتابعة.</p>
+        <div style="overflow-x:auto;"><table><thead><tr><th>العميل</th><th>رقم الهاتف</th><th>السيارة</th><th>القسم والصنف</th><th>صرف بتاريخ</th><th>عداد الصرف</th><th>موعد المتابعة عند</th><th>موعد التذكير حسب الفترة</th><th>إجراء</th></tr></thead><tbody id="customerRemindersTbody"><tr><td colspan="8">اضغط تحديث القائمة.</td></tr></tbody></table></div>
       </div>
 
-      <div class="card-box" id="tableRemindersCardDuplicate" style="display:none !important;">
-        <div class="card-title"><span><i class="fa-brands fa-whatsapp"></i> متابعة العملاء وتذكير الصيانة</span>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="btn-action-sm btn-blue" onclick="loadCustomerReminders()">تحديث القائمة</button>
-            <button class="btn-action-sm btn-success" onclick="openAllCustomerReminders()">تذكير كل العملاء (واتساب)</button>
-          </div>
-        </div>
-        <p style="margin:6px 0 10px;color:#64748b;">تظهر الأصناف من قسمي فلاتر وزيوت وفرامل التي تم صرفها. موعد المتابعة = قراءة العداد وقت الصرف + صلاحية الصنف بالكيلومتر.</p>
-        <div style="overflow-x:auto;"><table><thead><tr><th>العميل</th><th>رقم الهاتف</th><th>السيارة</th><th>القسم والصنف</th><th>صرف بتاريخ</th><th>عداد الصرف</th><th>موعد المتابعة عند</th><th>إجراء</th></tr></thead><tbody id="customerRemindersTbody"><tr><td colspan="8">اضغط تحديث القائمة.</td></tr></tbody></table></div>
+      <div class="card-box" id="reminderArchiveCard" style="display:none;">
+        <div class="card-title"><span><i class="fa-solid fa-box-archive"></i> أرشيف متابعة العملاء</span><button class="btn-action-sm btn-blue" onclick="nonNavigate('reminders')">العودة للتذكيرات</button></div>
+        <div style="overflow:auto"><table><thead><tr><th>العميل</th><th>الهاتف</th><th>السيارة</th><th>الصنف</th><th>فترة المتابعة</th><th>تاريخ الأرشفة</th></tr></thead><tbody id="reminderArchiveTbody"></tbody></table></div>
       </div>
-
       <div class="card-box" id="tableReturnsCard" style="display: none;">
         <div class="card-title">
           <span><i class="fa-solid fa-rotate-left"></i> سجل المرتجعات والتالف (الحركات والهوالك)</span>
@@ -1336,52 +1264,63 @@
       document.getElementById('storesManagementModal').style.display = 'flex';
     }
 
-    function quickNavigate(target) {
-      const layout = document.querySelector('.main-layout');
-      if (!layout) return;
-      const formColumn = layout.children[0];
-      const tableColumn = layout.children[1];
-      document.querySelectorAll('.workspace-link').forEach(b => b.classList.toggle('active', b.dataset.workspace === target));
-      const formTargets = {
-        newItem: ['secItemSub','itemSub'],
-        movement: ['secMovementSub','movementSub'],
-        stores: ['secStoreManage','storeManageSub']
-      };
-      if (target === 'home') {
-        if (formColumn) formColumn.style.display = '';
-        if (tableColumn) tableColumn.style.display = '';
-        document.querySelectorAll('.collapsible-section').forEach(el => el.style.display = '');
-        document.querySelectorAll('.collapsible-body').forEach(el => el.classList.remove('show'));
-        const mainBody = document.getElementById('invMainBody'); if (mainBody) mainBody.classList.add('show');
-        switchForm('inventory'); switchTable('inventory');
-        window.scrollTo({top:0,behavior:'smooth'}); return;
+    const nonTopCardIds = ['tableInventoryCard','tableAccountsCard','tableDeptRequestsCard','tableIssueOrdersCard','tableRemindersCard','tableSuppliersCard','tableReturnsCard','tableServicesCard','reminderArchiveCard'];
+    const nonTopCardPlaceholders = {};
+    function nonRestoreTopCards(){
+      nonTopCardIds.forEach(id=>{const el=document.getElementById(id),mark=nonTopCardPlaceholders[id];if(el&&mark&&mark.parentNode)mark.parentNode.insertBefore(el,mark.nextSibling);});
+    }
+    function nonShowAtTop(targetId){
+      const host=document.getElementById('nonTopSectionHost');if(!host)return;
+      nonRestoreTopCards();
+      const hint=host.querySelector('.non-top-section-hint');if(hint)hint.remove();
+      const target=document.getElementById(targetId);
+      if(target){host.appendChild(target);target.style.display='block';target.classList.add('non-top-highlight');}
+      host.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    function nonNavigate(type, btn) {
+      const map = {inventory:'tableInventoryCard',accounts:'tableAccountsCard',deptRequests:'tableDeptRequestsCard',issueOrders:'tableIssueOrdersCard',reminders:'tableRemindersCard',suppliers:'tableSuppliersCard',returnsTableCard:'tableReturnsCard',services:'tableServicesCard'};
+      const targetId=map[type];
+      if(type==='home'){
+        nonRestoreTopCards();
+        const host=document.getElementById('nonTopSectionHost');if(host){host.innerHTML='<div class="non-top-section-hint"><i class="fa-solid fa-hand-pointer"></i> اختار أي قسم من القائمة العلوية لعرضه هنا في أعلى الصفحة</div>';}
+        document.querySelectorAll('.non-nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+        ['tableInventoryCard','tableAccountsCard','tableDeptRequestsCard','tableIssueOrdersCard','tableRemindersCard','tableSuppliersCard','tableReturnsCard','tableServicesCard'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+        window.scrollTo({top:0,behavior:'smooth'});return;
       }
-      if (formTargets[target]) {
-        if (formColumn) formColumn.style.display = '';
-        if (tableColumn) tableColumn.style.display = 'none';
-        switchForm('inventory');
-        document.querySelectorAll('.collapsible-section').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.collapsible-body').forEach(el => el.classList.remove('show'));
-        const section = document.getElementById(formTargets[target][0]);
-        const body = document.getElementById(formTargets[target][1]);
-        if (section) section.style.display = '';
-        if (body) body.classList.add('show');
-        const mainBody = document.getElementById('invMainBody'); if (mainBody) mainBody.classList.add('show');
-        if (target === 'returns') switchTable('returnsTableCard');
-        if (target === 'stores') { if (typeof openStoresManagementModal === 'function') openStoresManagementModal(); }
-        const focus = section || formColumn;
-        if (focus) focus.scrollIntoView({behavior:'smooth',block:'start'});
-        return;
-      }
-      if (formColumn) formColumn.style.display = 'none';
-      if (tableColumn) tableColumn.style.display = '';
-      const tableMap = { stock:'inventory', deptRequests:'deptRequests', suppliers:'suppliers', accounts:'suppliers', issueOrders:'issueOrders', reminders:'reminders', services:'services', returns:'returnsTableCard' };
-      if (tableMap[target]) {
-        switchTable(tableMap[target]);
-        const cardId = target === 'stock' ? 'tableInventoryCard' : target === 'deptRequests' ? 'tableDeptRequestsCard' : target === 'returns' ? 'tableReturnsCard' : target === 'accounts' ? 'tableSuppliersCard' : target === 'issueOrders' ? 'tableIssueOrdersCard' : target === 'reminders' ? 'tableRemindersCard' : target === 'services' ? 'tableServicesCard' : target === 'suppliers' ? 'tableSuppliersCard' : '';
-        const card = cardId ? document.getElementById(cardId) : null;
-        if (card) card.scrollIntoView({behavior:'smooth',block:'start'});
-      }
+      if(targetId){switchTable(type);nonShowAtTop(targetId);}
+      document.querySelectorAll('.non-nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+    }
+    function nonOpenInventorySection(id) {
+      const menu=document.getElementById('inventoryMenuForms');
+      const section=document.getElementById(id);
+      if(!menu || !section) return;
+      const placeholder=menu.querySelector('.inventory-menu-placeholder');
+      if(placeholder) placeholder.remove();
+      menu.querySelectorAll('.collapsible-section').forEach(el=>{ if(el!==section) el.style.display='none'; });
+      section.style.display='block';
+      const body=section.querySelector('.collapsible-body');
+      if(body) body.classList.add('show');
+      menu.appendChild(section);
+      const first=section.querySelector('input,select,textarea');
+      if(first) setTimeout(()=>first.focus({preventScroll:true}),80);
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      nonTopCardIds.forEach(id=>{const el=document.getElementById(id);if(el&&el.parentNode){const mark=document.createComment('non-top-placeholder-'+id);el.parentNode.insertBefore(mark,el);nonTopCardPlaceholders[id]=mark;}});
+      const target=document.getElementById('inventoryMenuForms');
+      ['secStoreManage','secInstallServices','secItemSub','secMovementSub','secReturnsSub'].forEach(id=>{
+        const el=document.getElementById(id); if(el && target) { el.style.display='none'; target.appendChild(el); }
+      });
+      const oldForm=document.getElementById('formInventoryCard');if(oldForm)oldForm.style.display='none';
+    });
+
+    function nonGoInventoryForm() {
+      const body=document.getElementById('invMainBody');
+      if(body && !body.classList.contains('show')) body.classList.add('show');
+      const form=document.getElementById('formInventoryCard');
+      if(form) { form.style.display='block'; form.scrollIntoView({behavior:'smooth',block:'start'}); }
+      const name=document.getElementById('itemName');
+      if(name) setTimeout(()=>name.focus({preventScroll:true}),350);
+      document.querySelectorAll('.non-nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.includes('المخزن')));
     }
 
     function switchForm(type) {
@@ -1395,6 +1334,7 @@
     }
 
     function switchTable(type) {
+      const archiveCard=document.getElementById('reminderArchiveCard');if(archiveCard)archiveCard.style.display='none';
       ['inventory', 'accounts', 'deptRequests', 'issueOrders', 'reminders', 'returnsTableCard', 'services', 'suppliers'].forEach(t => {
         let el = document.getElementById(t === 'returnsTableCard' ? 'tableReturnsCard' : (t === 'services' ? 'tableServicesCard' : `table${t.charAt(0).toUpperCase() + t.slice(1)}Card`));
         if(el) el.style.display = (t === type) ? 'block' : 'none';
@@ -1781,6 +1721,13 @@
       return n;
     }
 
+    let currentReminderFrequencyMonths = Number(localStorage.getItem('non_reminder_frequency_months') || 1);
+    function setReminderFrequency(months){currentReminderFrequencyMonths=months;localStorage.setItem('non_reminder_frequency_months',String(months));const label=document.getElementById('reminderFrequencyLabel');if(label)label.textContent='الفترة الحالية: '+(months===1?'كل شهر':months===6?'كل 6 شهور':'كل سنة');loadCustomerReminders();}
+    function reminderArchiveRead(){try{return JSON.parse(localStorage.getItem('non_customer_reminder_archive')||'[]')}catch(e){return []}}
+    function archiveCustomerReminder(order,item){const arr=reminderArchiveRead();const key=String(order.id||order.orderNo||order.dateStr)+'|'+String(item.id||item.itemId||item.itemName)+'|'+currentReminderFrequencyMonths;if(!arr.some(x=>x.key===key)){arr.unshift({key,clientName:order.clientName||'—',phone:order.clientPhone||'—',car:order.carType||'—',itemName:item.itemName||'—',frequency:currentReminderFrequencyMonths===1?'شهري':currentReminderFrequencyMonths===6?'كل 6 شهور':'سنوي',archivedAt:new Date().toLocaleString('ar-EG')});localStorage.setItem('non_customer_reminder_archive',JSON.stringify(arr));}showReminderArchive();}
+    function showReminderArchive(){document.querySelectorAll('.non-nav-btn').forEach(b=>b.classList.remove('active'));['tableInventoryCard','tableAccountsCard','tableDeptRequestsCard','tableIssueOrdersCard','tableRemindersCard','tableSuppliersCard','tableReturnsCard','tableServicesCard'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'});const c=document.getElementById('reminderArchiveCard');if(c)c.style.display='block';const tb=document.getElementById('reminderArchiveTbody');if(tb){const a=reminderArchiveRead();tb.innerHTML=a.map(x=>`<tr><td>${escapeHtmlSafe(x.clientName)}</td><td>${escapeHtmlSafe(x.phone)}</td><td>${escapeHtmlSafe(x.car)}</td><td>${escapeHtmlSafe(x.itemName)}</td><td>${escapeHtmlSafe(x.frequency)}</td><td>${escapeHtmlSafe(x.archivedAt)}</td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center">الأرشيف فارغ حتى الآن</td></tr>'};nonShowAtTop('reminderArchiveCard')}
+    function escapeHtmlSafe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
     function makeReminderMessage(order, item) {
       const due = item.dueOdometer ? `موعد المتابعة عند ${Number(item.dueOdometer).toLocaleString('en-US')} كم` :
         (item.kmValidity ? `صلاحية الصنف ${Number(item.kmValidity).toLocaleString('en-US')} كم من تاريخ التركيب، برجاء متابعة عداد السيارة` : 'برجاء التواصل لتحديد موعد المتابعة');
@@ -1804,20 +1751,21 @@
       }));
       tbody.innerHTML = '';
       if (!reminders.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد أصناف متابعة مسجلة بعد. الأصناف القديمة قبل التحديث قد لا تحتوي على تفاصيل الصلاحية.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">لا توجد أصناف متابعة مسجلة بعد. الأصناف القديمة قبل التحديث قد لا تحتوي على تفاصيل الصلاحية.</td></tr>';
         return;
       }
       reminders.sort((a,b) => String(b.order.dateStr || '').localeCompare(String(a.order.dateStr || '')));
       reminders.forEach(({order,item}) => {
         const tr = document.createElement('tr');
+        const issueDate=new Date(order.dateStr || order.date || Date.now());const nextDate=new Date(issueDate);nextDate.setMonth(nextDate.getMonth()+currentReminderFrequencyMonths);const dueDateLabel=Number.isNaN(nextDate.getTime())?'غير محدد':nextDate.toLocaleDateString('ar-EG');
         const values = [order.clientName || '---', order.clientPhone || '---', order.carType || '---',
           `${item.category}: ${item.itemName}`, String((order.dateStr || '').substring(0,10)),
           item.issueOdometer == null ? 'غير مسجل' : Number(item.issueOdometer).toLocaleString('en-US') + ' كم',
-          item.dueOdometer == null ? (item.kmValidity ? `بعد ${Number(item.kmValidity).toLocaleString('en-US')} كم` : 'غير محدد') : Number(item.dueOdometer).toLocaleString('en-US') + ' كم'];
+          item.dueOdometer == null ? (item.kmValidity ? `بعد ${Number(item.kmValidity).toLocaleString('en-US')} كم` : 'غير محدد') : Number(item.dueOdometer).toLocaleString('en-US') + ' كم',dueDateLabel];
         values.forEach(v => { const td=document.createElement('td'); td.textContent=v; tr.appendChild(td); });
         const td=document.createElement('td');
         const btn=document.createElement('button'); btn.className='btn-action-sm btn-success'; btn.innerHTML='<i class="fa-brands fa-whatsapp"></i> تذكير واتساب';
-        btn.onclick=()=>openWhatsAppReminder(order,item); td.appendChild(btn); tr.appendChild(td); tbody.appendChild(tr);
+        btn.onclick=()=>openWhatsAppReminder(order,item); td.appendChild(btn); const archived=document.createElement('button');archived.className='btn-action-sm btn-primary';archived.style.marginTop='5px';archived.textContent='تم التذكير والأرشفة';archived.onclick=()=>{if(confirm('هل تم إرسال/فتح التذكير لهذا العميل؟ سيتم نقله إلى أرشيف المتابعة.'))archiveCustomerReminder(order,item)};td.appendChild(document.createElement('br'));td.appendChild(archived); tr.appendChild(td); tbody.appendChild(tr);
       });
     }
 
