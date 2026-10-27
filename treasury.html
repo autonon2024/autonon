@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مركز أوتو نون لصيانه السيارات  (NON) - اداره مخزن </title>
+  <title>مركز أوتو نون (NON) - النسخة الشاملة والمحدثة مع لوحة التحكم الشاملة</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -235,7 +235,6 @@
     .non-top-section-host>.card-box{margin:0!important;border:2px solid #d8e3f1!important;border-top:5px solid #f97316!important;box-shadow:0 8px 24px #0b1f3817!important;animation:nonTopReveal .22s ease-out}
     .non-top-section-hint{display:flex;align-items:center;justify-content:center;gap:10px;min-height:32px;color:#102944;font-weight:800;text-align:center}.non-top-section-hint i{color:#f97316;font-size:1.15rem}
     @keyframes nonTopReveal{from{opacity:.55;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-    .warehouse-report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:12px 0}.warehouse-report-btn{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:right;padding:18px;border:1px solid #dbe5f1;border-right:5px solid #f97316;border-radius:13px;background:linear-gradient(135deg,#fff,#f3f7fc);color:#102944;cursor:pointer}.warehouse-report-btn i{font-size:1.4rem;color:#f97316}.warehouse-report-btn b{font-size:1rem}.warehouse-report-btn small{color:#64748b;line-height:1.6}.warehouse-report-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px #0b1f3820}.warehouse-report-summary{padding:12px;border-radius:10px;background:#f8fafc;border:1px solid #dbe5f1;color:#102944;font-weight:700;line-height:1.9}
     .non-primary-nav{position:relative;z-index:1300;overflow:visible}.non-nav-group{position:relative;z-index:1301}.non-nav-menu{z-index:1400}.non-inventory-menu{z-index:1500}
     .non-primary-nav .non-nav-btn{min-height:56px;font-size:.9rem;letter-spacing:.1px}.non-primary-nav .non-nav-btn:hover{transform:translateY(-2px)}
 </style>
@@ -480,17 +479,6 @@
         <button class="btn-action-sm btn-gold" onclick="sendShortagesToSupplier()">إرسال النواقص واتساب</button>
       </div>
 
-      <div class="card-box" id="tableAccountsCard" style="display:none;">
-        <div class="card-title"><span><i class="fa-solid fa-chart-column"></i> الحسابات وتقارير المخزن</span><button class="btn-action-sm btn-blue" onclick="refreshWarehouseReports()">تحديث التقارير</button></div>
-        <p style="margin:0 0 12px;color:#64748b">تقارير مبنية على الأصناف وحركات المخزن وأذونات الصرف المسجلة في النظام.</p>
-        <div class="warehouse-report-grid">
-          <button class="warehouse-report-btn" onclick="printWarehouseReport('stock')"><i class="fa-solid fa-warehouse"></i><b>تقرير المخزن والأرصدة</b><small>الكميات والقيمة حسب المخزن والقسم</small></button>
-          <button class="warehouse-report-btn" onclick="printWarehouseReport('best')"><i class="fa-solid fa-chart-line"></i><b>الأصناف الأكثر مبيعًا / سحبًا</b><small>ترتيب الأصناف حسب عدد مرات السحب المسجلة</small></button>
-          <button class="warehouse-report-btn" onclick="printWarehouseReport('moves')"><i class="fa-solid fa-arrow-right-arrow-left"></i><b>سجل حركات المخزن</b><small>الإضافة والصرف والتالف والجرد إن كانت مسجلة</small></button>
-          <button class="warehouse-report-btn" onclick="printWarehouseReport('issues')"><i class="fa-solid fa-file-invoice"></i><b>تقرير أذونات الصرف</b><small>الأذونات والعملاء والتواريخ والأقسام</small></button>
-        </div>
-        <div id="warehouseReportsSummary" class="warehouse-report-summary">اضغط تحديث التقارير لعرض ملخص المخزن.</div>
-      </div>
       <div class="card-box" id="tableInventoryCard">
         <div class="card-title">
           <span><i class="fa-solid fa-boxes-stacked"></i> المخازن والأصناف (عدد عمليات السحب)</span>
@@ -499,6 +487,9 @@
             <button class="btn-action-sm btn-danger global-delete-btn" id="btnDeleteInv" onclick="deleteSelectedItemsGeneric('inventory')"><i class="fa-solid fa-trash"></i> حذف المحدد</button>
             <button class="btn-action-sm btn-gold" onclick="filterShortagesOnly()"><i class="fa-solid fa-triangle-exclamation"></i> النواقص (<span id="shortageBadgeCount">0</span>)</button>
             <button class="btn-action-sm btn-excel" onclick="exportTableToExcel('#inventoryTable', 'Inventory_NON.xlsx')"><i class="fa-solid fa-file-excel"></i> Excel</button>
+            <button class="btn-action-sm btn-blue" onclick="printInventoryList('buy')"><i class="fa-solid fa-print"></i> طباعة بسعر الشراء</button>
+            <button class="btn-action-sm btn-success" onclick="printInventoryList('sell')"><i class="fa-solid fa-print"></i> طباعة بسعر البيع</button>
+            <button class="btn-action-sm btn-purple" onclick="printInventoryList('none')"><i class="fa-solid fa-print"></i> طباعة بدون أسعار</button>
           </div>
         </div>
         <div class="form-field" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap"><input style="flex:1;min-width:220px" type="text" id="searchInventoryInput" onkeyup="filterInventoryTable()" placeholder="🔍 بحث عن صنف أو باركود أو قسم..."><button type="button" class="btn-action-sm btn-blue" onclick="printProductsBySearch()"><i class="fa-solid fa-print"></i> طباعة نتائج البحث</button></div>
@@ -508,6 +499,16 @@
             <tbody id="inventoryTbody"><tr><td colspan="13" style="text-align:center;">جاري التحميل...</td></tr></tbody>
           </table>
         </div>
+      </div>
+
+      <div class="card-box" id="tableAccountsCard" style="display:none;">
+        <div class="card-title"><span><i class="fa-solid fa-chart-line"></i> تقارير المخزن والحسابات</span><button class="btn-action-sm btn-blue" onclick="refreshWarehouseReports()">تحديث التقارير</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn-action-sm btn-primary" onclick="showWarehouseReport('summary')">تقرير المخزن</button>
+          <button class="btn-action-sm btn-success" onclick="showWarehouseReport('best')">الأصناف الأكثر مبيعًا</button>
+          <button class="btn-action-sm btn-blue" onclick="showWarehouseReport('moves')">سجل حركات المخزن</button>
+          <button class="btn-action-sm btn-gold" onclick="showWarehouseReport('issues')">أذونات الصرف</button>
+        </div><div id="warehouseReportsContent"><p>اختار نوع التقرير لعرض البيانات.</p></div>
       </div>
 
       <div class="card-box" id="tableServicesCard" style="display: none;">
@@ -1373,7 +1374,6 @@
         }
       });
 
-      if(type === 'accounts') refreshWarehouseReports();
       if(type === 'deptRequests') loadDeptRequests();
       if(type === 'reminders') loadCustomerReminders();
       if(type === 'issueOrders') loadIssueOrders();
@@ -1690,8 +1690,10 @@
         issuedItems,
         issueOdometer: currentActiveClientGroup.odometerAtIssue,
         username: loggedUser,
-        totalPrice: 0
+        totalPrice: 0,
+        dateStr: new Date().toISOString().slice(0,10)
       });
+      for(const it of issuedItems){await addData("inventory_movements",{date:new Date().toISOString(),type:'صرف بإذن',itemName:it.itemName,qty:it.qty,storeName:(cachedInventory.find(x=>String(x.name||'').toLowerCase()===String(it.itemName||'').toLowerCase())||{}).storeName||'مخزن المحل الرئيسي',notes:'إذن رقم '+currentActiveClientGroup.orderNo,clientName:currentActiveClientGroup.clientName,orderNo:currentActiveClientGroup.orderNo});}
 
       for(let reqItem of currentActiveClientGroup.items) {
         let targetInventoryItem = cachedInventory.find(inv => inv.name.toLowerCase().includes(reqItem.itemName.toLowerCase()) || reqItem.itemName.toLowerCase().includes(inv.name.toLowerCase()));
@@ -1928,41 +1930,37 @@
       }
     }
 
-    async function refreshWarehouseReports(){
-      try{cachedInventory=await getData("inventory");}catch(e){cachedInventory=cachedInventory||[];}
-      const orders=await getData("issue_orders").catch(()=>[]);
-      const moves=await getData("inventory_movements").catch(()=>[]);
-      const returns=await getData("returns_log").catch(()=>[]);
-      const totalQty=(cachedInventory||[]).reduce((n,x)=>n+Number(x.qty||0),0);
-      const totalValue=(cachedInventory||[]).reduce((n,x)=>n+Number(x.qty||0)*Number(x.buyPrice||0),0);
-      const el=document.getElementById('warehouseReportsSummary');
-      if(el)el.innerHTML=`عدد الأصناف: ${cachedInventory.length} | إجمالي الكمية: ${totalQty.toLocaleString('en-US')} | قيمة المخزون بسعر الشراء: ${totalValue.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} ج.م | أذونات الصرف: ${orders.length} | الحركات المسجلة: ${moves.length+returns.length}`;
-    }
-    async function printWarehouseReport(type){
-      const items=await getData("inventory").catch(()=>cachedInventory||[]);cachedInventory=items||[];
-      const orders=await getData("issue_orders").catch(()=>[]);
-      const moves=await getData("inventory_movements").catch(()=>[]);
-      const returns=await getData("returns_log").catch(()=>[]);
-      let title='',rows='',headers='',summary='';
-      if(type==='stock'){
-        title='تقرير المخزن والأرصدة';headers='<th>م</th><th>المخزن</th><th>القسم</th><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>شراء</th><th>قيمة الرصيد</th>';
-        rows=items.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.storeName||'مخزن المحل الرئيسي')}</td><td>${escSupplier(x.category||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${escSupplier(x.barcode||'—')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${(Number(x.qty||0)*Number(x.buyPrice||0)).toFixed(2)}</td></tr>`).join('');
-        summary=`عدد الأصناف: ${items.length} | إجمالي الكمية: ${items.reduce((n,x)=>n+Number(x.qty||0),0)} | قيمة المخزون: ${items.reduce((n,x)=>n+Number(x.qty||0)*Number(x.buyPrice||0),0).toFixed(2)} ج.م`;
-      }else if(type==='best'){
-        title='الأصناف الأكثر مبيعًا / سحبًا';headers='<th>الترتيب</th><th>الصنف</th><th>الباركود</th><th>القسم</th><th>مرات السحب المسجلة</th><th>الكمية الحالية</th>';
-        const sorted=items.slice().sort((a,b)=>Number(b.withdrawCount||0)-Number(a.withdrawCount||0));rows=sorted.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.name||'')}</td><td>${escSupplier(x.barcode||'—')}</td><td>${escSupplier(x.category||'—')}</td><td>${Number(x.withdrawCount||0)}</td><td>${Number(x.qty||0)}</td></tr>`).join('');summary='يعتمد الترتيب على حقل مرات السحب المسجل لكل صنف، وليس على إجمالي مبيعات نقدية.';
-      }else if(type==='moves'){
-        title='سجل حركات المخزن';const all=[...(moves||[]),...(returns||[])].sort((a,b)=>String(b.dateStr||b.date||'').localeCompare(String(a.dateStr||a.date||'')));
-        headers='<th>م</th><th>التاريخ</th><th>المخزن</th><th>نوع الحركة</th><th>الصنف</th><th>الكمية</th><th>البيان / السبب</th>';
-        rows=all.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.dateStr||x.date||'—')}</td><td>${escSupplier(x.storeName||'—')}</td><td>${escSupplier(x.type||x.movType||x.requestType||'—')}</td><td>${escSupplier(x.itemName||x.name||x.item||'—')}</td><td>${Number(x.qty||x.quantity||0)}</td><td>${escSupplier(x.notes||x.reason||'—')}</td></tr>`).join('');summary=`عدد الحركات المعروضة: ${all.length}.`;
-      }else{
-        title='تقرير أذونات الصرف';headers='<th>م</th><th>رقم الإذن</th><th>العميل</th><th>الهاتف</th><th>السيارة</th><th>القسم</th><th>التاريخ</th><th>الأصناف والإجمالي</th>';
-        rows=orders.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.orderNo||x.id||'—')}</td><td>${escSupplier(x.clientName||'—')}</td><td>${escSupplier(x.clientPhone||'—')}</td><td>${escSupplier(x.carType||'—')}</td><td>${escSupplier(x.department||'—')}</td><td>${escSupplier(x.dateStr||x.date||'—')}</td><td>${escSupplier(typeof x.items==='string'?x.items:(Array.isArray(x.items)?x.items.map(z=>z.name||z.itemName||'').join('، '):x.total||'—'))}</td></tr>`).join('');summary=`عدد أذونات الصرف: ${orders.length}.`;
-      }
-      printHtmlReport(title,`<div class="summary">${summary}</div><table><thead><tr>${headers}</tr></thead><tbody>${rows||`<tr><td colspan="${(headers.match(/<th>/g)||[]).length}" style="text-align:center">لا توجد بيانات مسجلة لهذا التقرير.</td></tr>`}</tbody></table>`);
-    }
-
     function printHtmlReport(title,body){let w=window.open('','_blank');if(!w){alert('اسمح بفتح النوافذ المنبثقة للطباعة');return;}w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escSupplier(title)}</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:22px;color:#111}h1,h2{text-align:center;margin:6px 0 14px}table{width:100%;border-collapse:collapse;margin-top:15px}th,td{border:1px solid #555;padding:8px;text-align:right}th{background:#eee}.summary{font-weight:bold;margin:14px 0;padding:10px;border:1px solid #aaa}footer{display:flex;justify-content:space-between;margin-top:45px}@media print{button{display:none}}</style></head><body><h1>مركز أوتو نون (NON)</h1><h2>${escSupplier(title)}</h2>${body}<footer><span>إعداد: ................</span><span>مراجعة: ................</span><span>اعتماد: ................</span></footer><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();}
+function printInventoryList(mode){
+ const list=(cachedInventory||[]).slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar'));
+ const labels={buy:'قائمة المخزن - بسعر الشراء',sell:'قائمة المخزن - بسعر البيع',none:'قائمة المخزن - بدون أسعار'};
+ const priceHead=mode==='buy'?'<th>سعر الشراء</th>':mode==='sell'?'<th>سعر البيع</th>':'';
+ const priceCell=x=>mode==='buy'?`<td>${Number(x.buyPrice||0).toFixed(2)} ج.م</td>`:mode==='sell'?`<td>${Number(x.sellPrice||0).toFixed(2)} ج.م</td>`:'';
+ const rows=list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.storeName||'مخزن المحل الرئيسي')}</td><td>${escSupplier(x.category||'عام')}</td><td>${escSupplier(x.name||'')}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${Number(x.qty||0)}</td>${priceCell(x)}</tr>`).join('');
+ const totalQty=list.reduce((n,x)=>n+Number(x.qty||0),0);
+ const body=`<div class="summary">عدد الأصناف: ${list.length} | إجمالي الكميات: ${totalQty} | تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}</div><table><thead><tr><th>م</th><th>المخزن</th><th>القسم</th><th>اسم الصنف</th><th>الباركود</th><th>الكمية</th>${priceHead}</tr></thead><tbody>${rows||'<tr><td colspan="7">لا توجد أصناف</td></tr>'}</tbody></table>`;
+ printHtmlReport(labels[mode]||labels.none,body);
+}
+async function refreshWarehouseReports(){await Promise.all([loadInventoryData(),loadIssueOrders(),loadReturnsData()]);showWarehouseReport('summary');}
+async function showWarehouseReport(type){
+ const box=document.getElementById('warehouseReportsContent');if(!box)return;
+ const inv=cachedInventory||[];let orders=await getData('issue_orders');let moves=await getData('inventory_movements');let returns=await getData('returns_log');
+ const money=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ج.م';
+ if(type==='summary'){
+  const qty=inv.reduce((n,x)=>n+Number(x.qty||0),0),buy=inv.reduce((n,x)=>n+Number(x.qty||0)*Number(x.buyPrice||0),0),sell=inv.reduce((n,x)=>n+Number(x.qty||0)*Number(x.sellPrice||0),0);
+  box.innerHTML=`<div class="stats-grid"><div class="stat-card blue"><div class="stat-title">عدد الأصناف</div><div class="stat-value">${inv.length}</div></div><div class="stat-card green"><div class="stat-title">إجمالي الكميات</div><div class="stat-value">${qty}</div></div><div class="stat-card orange"><div class="stat-title">قيمة المخزون بسعر الشراء</div><div class="stat-value">${money(buy)}</div></div><div class="stat-card gold"><div class="stat-title">القيمة المتوقعة بسعر البيع</div><div class="stat-value">${money(sell)}</div></div></div><button class="btn-action-sm btn-blue" onclick="printInventoryList('buy')">طباعة تقرير المخزن</button>`;
+ }else if(type==='best'){
+  const totals={};orders.forEach(o=>(o.issuedItems||[]).forEach(i=>{let k=i.itemName||'غير معروف';totals[k]=(totals[k]||0)+Number(i.qty||0)}));
+  const sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]);box.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>الترتيب</th><th>الصنف</th><th>إجمالي الكمية المصروفة</th></tr></thead><tbody>${sorted.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x[0])}</td><td>${x[1]}</td></tr>`).join('')||'<tr><td colspan="3">لا توجد بيانات صرف مسجلة بعد</td></tr>'}</tbody></table></div>`;
+ }else if(type==='issues'){
+  box.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>رقم الإذن</th><th>العميل</th><th>السيارة</th><th>القسم</th><th>الأصناف</th><th>التاريخ</th><th>المسؤول</th></tr></thead><tbody>${orders.slice().reverse().map(o=>`<tr><td>${escSupplier(o.orderNo||'—')}</td><td>${escSupplier(o.clientName||'—')}</td><td>${escSupplier(o.carType||'—')}</td><td>${escSupplier(o.department||'—')}</td><td>${escSupplier(o.itemsDetails||'')}</td><td>${escSupplier(o.dateStr||o.date||'—')}</td><td>${escSupplier(o.username||'—')}</td></tr>`).join('')||'<tr><td colspan="7">لا توجد أذونات صرف</td></tr>'}</tbody></table></div><button class="btn-action-sm btn-blue" onclick="printWarehouseCurrentReport('issues')">طباعة أذونات الصرف</button>`;
+ }else{
+  const all=[...moves.map(x=>({...x,kind:x.kind||x.type||'حركة مخزن'})),...orders.map(o=>({date:o.dateStr||o.date||'',type:'صرف بإذن',itemName:o.itemsDetails||'',qty:(o.issuedItems||[]).reduce((n,i)=>n+Number(i.qty||0),0),notes:'إذن رقم '+(o.orderNo||''),clientName:o.clientName||''})),...returns.map(x=>({...x,kind:x.kind||x.type||'مرتجع/تالف'}))].sort((a,b)=>String(b.date||b.createdAt||'').localeCompare(String(a.date||a.createdAt||'')));
+  box.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>التاريخ</th><th>نوع الحركة</th><th>الصنف / البيان</th><th>الكمية</th><th>المخزن</th><th>ملاحظات / العميل</th></tr></thead><tbody>${all.map(x=>`<tr><td>${escSupplier(x.date||x.createdAt||'—')}</td><td>${escSupplier(x.kind||x.type||'حركة')}</td><td>${escSupplier(x.itemName||x.name||x.itemsDetails||'—')}</td><td>${Number(x.qty||0)}</td><td>${escSupplier(x.storeName||'—')}</td><td>${escSupplier(x.notes||x.clientName||x.reason||'')}</td></tr>`).join('')||'<tr><td colspan="6">لا توجد حركات مسجلة في السجل بعد</td></tr>'}</tbody></table></div><button class="btn-action-sm btn-blue" onclick="printWarehouseCurrentReport('moves')">طباعة سجل الحركات</button>`;
+ }
+}
+function printWarehouseCurrentReport(type){const box=document.getElementById('warehouseReportsContent');if(!box)return;printHtmlReport(type==='issues'?'أذونات الصرف':'سجل حركات المخزن',box.innerHTML);}
+
 function printProductsBySearch(){let q=(document.getElementById('searchInventoryInput')?.value||'').trim().toLocaleLowerCase('ar');if(!q){alert('اكتب اسم الصنف أو جزءاً منه في خانة البحث أولاً، مثلاً: زيت');return;}let list=(cachedInventory||[]).filter(i=>[i.name,i.barcode,i.code,i.category].some(v=>String(v||'').toLocaleLowerCase('ar').includes(q)));if(!list.length){alert('لا توجد منتجات مطابقة للبحث.');return;}let body='<div class="summary">عبارة البحث: '+escSupplier(q)+' | عدد النتائج: '+list.length+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.sellPrice||0).toFixed(2)} ج.م</td></tr>`).join('')+'</tbody></table>';printHtmlReport('قائمة المنتجات المطابقة للبحث',body);}
 function viewStoreItems(storeName){storeName=decodeURIComponent(storeName);let list=(cachedInventory||[]).filter(i=>(i.storeName||'مخزن المحل الرئيسي')===storeName);let body='<div class="summary">المخزن: '+escSupplier(storeName)+' | عدد الأصناف: '+list.length+' | إجمالي الكمية: '+list.reduce((n,x)=>n+Number(x.qty||0),0)+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${Number(x.sellPrice||0).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';document.getElementById('generalLogModalTitle').textContent='أصناف '+storeName;document.getElementById('generalLogTableContainer').innerHTML=body;let btn=document.querySelector('#generalLogModal button[onclick*="generalLogModal"]');if(btn){document.getElementById('printStoreListBtn')?.remove();btn.insertAdjacentHTML('beforebegin','<button id="printStoreListBtn" class="btn-action-sm btn-success" style="width:100%;margin-bottom:8px" onclick="printStoreItems(\''+String(storeName).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">طباعة قائمة المخزن</button>');}document.getElementById('generalLogModal').style.display='flex';}
 function printStoreItems(storeName){storeName=decodeURIComponent(storeName);let list=(cachedInventory||[]).filter(i=>(i.storeName||'مخزن المحل الرئيسي')===storeName);let body='<div class="summary">المخزن: '+escSupplier(storeName)+' | عدد الأصناف: '+list.length+' | إجمالي الكمية: '+list.reduce((n,x)=>n+Number(x.qty||0),0)+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${Number(x.sellPrice||0).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';printHtmlReport('أصناف المخزن: '+storeName,body);}
