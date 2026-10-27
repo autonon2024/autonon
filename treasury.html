@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مركز أوتو نون (NON) - النسخة الشاملة والمحدثة مع لوحة التحكم الشاملة</title>
+  <title>مركز أوتو نون لصيانه السيارات  (NON) - اداره مخزن </title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -235,6 +235,7 @@
     .non-top-section-host>.card-box{margin:0!important;border:2px solid #d8e3f1!important;border-top:5px solid #f97316!important;box-shadow:0 8px 24px #0b1f3817!important;animation:nonTopReveal .22s ease-out}
     .non-top-section-hint{display:flex;align-items:center;justify-content:center;gap:10px;min-height:32px;color:#102944;font-weight:800;text-align:center}.non-top-section-hint i{color:#f97316;font-size:1.15rem}
     @keyframes nonTopReveal{from{opacity:.55;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    .warehouse-report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:12px 0}.warehouse-report-btn{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:right;padding:18px;border:1px solid #dbe5f1;border-right:5px solid #f97316;border-radius:13px;background:linear-gradient(135deg,#fff,#f3f7fc);color:#102944;cursor:pointer}.warehouse-report-btn i{font-size:1.4rem;color:#f97316}.warehouse-report-btn b{font-size:1rem}.warehouse-report-btn small{color:#64748b;line-height:1.6}.warehouse-report-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px #0b1f3820}.warehouse-report-summary{padding:12px;border-radius:10px;background:#f8fafc;border:1px solid #dbe5f1;color:#102944;font-weight:700;line-height:1.9}
     .non-primary-nav{position:relative;z-index:1300;overflow:visible}.non-nav-group{position:relative;z-index:1301}.non-nav-menu{z-index:1400}.non-inventory-menu{z-index:1500}
     .non-primary-nav .non-nav-btn{min-height:56px;font-size:.9rem;letter-spacing:.1px}.non-primary-nav .non-nav-btn:hover{transform:translateY(-2px)}
 </style>
@@ -479,6 +480,17 @@
         <button class="btn-action-sm btn-gold" onclick="sendShortagesToSupplier()">إرسال النواقص واتساب</button>
       </div>
 
+      <div class="card-box" id="tableAccountsCard" style="display:none;">
+        <div class="card-title"><span><i class="fa-solid fa-chart-column"></i> الحسابات وتقارير المخزن</span><button class="btn-action-sm btn-blue" onclick="refreshWarehouseReports()">تحديث التقارير</button></div>
+        <p style="margin:0 0 12px;color:#64748b">تقارير مبنية على الأصناف وحركات المخزن وأذونات الصرف المسجلة في النظام.</p>
+        <div class="warehouse-report-grid">
+          <button class="warehouse-report-btn" onclick="printWarehouseReport('stock')"><i class="fa-solid fa-warehouse"></i><b>تقرير المخزن والأرصدة</b><small>الكميات والقيمة حسب المخزن والقسم</small></button>
+          <button class="warehouse-report-btn" onclick="printWarehouseReport('best')"><i class="fa-solid fa-chart-line"></i><b>الأصناف الأكثر مبيعًا / سحبًا</b><small>ترتيب الأصناف حسب عدد مرات السحب المسجلة</small></button>
+          <button class="warehouse-report-btn" onclick="printWarehouseReport('moves')"><i class="fa-solid fa-arrow-right-arrow-left"></i><b>سجل حركات المخزن</b><small>الإضافة والصرف والتالف والجرد إن كانت مسجلة</small></button>
+          <button class="warehouse-report-btn" onclick="printWarehouseReport('issues')"><i class="fa-solid fa-file-invoice"></i><b>تقرير أذونات الصرف</b><small>الأذونات والعملاء والتواريخ والأقسام</small></button>
+        </div>
+        <div id="warehouseReportsSummary" class="warehouse-report-summary">اضغط تحديث التقارير لعرض ملخص المخزن.</div>
+      </div>
       <div class="card-box" id="tableInventoryCard">
         <div class="card-title">
           <span><i class="fa-solid fa-boxes-stacked"></i> المخازن والأصناف (عدد عمليات السحب)</span>
@@ -1361,6 +1373,7 @@
         }
       });
 
+      if(type === 'accounts') refreshWarehouseReports();
       if(type === 'deptRequests') loadDeptRequests();
       if(type === 'reminders') loadCustomerReminders();
       if(type === 'issueOrders') loadIssueOrders();
@@ -1915,9 +1928,43 @@
       }
     }
 
+    async function refreshWarehouseReports(){
+      try{cachedInventory=await getData("inventory");}catch(e){cachedInventory=cachedInventory||[];}
+      const orders=await getData("issue_orders").catch(()=>[]);
+      const moves=await getData("inventory_movements").catch(()=>[]);
+      const returns=await getData("returns_log").catch(()=>[]);
+      const totalQty=(cachedInventory||[]).reduce((n,x)=>n+Number(x.qty||0),0);
+      const totalValue=(cachedInventory||[]).reduce((n,x)=>n+Number(x.qty||0)*Number(x.buyPrice||0),0);
+      const el=document.getElementById('warehouseReportsSummary');
+      if(el)el.innerHTML=`عدد الأصناف: ${cachedInventory.length} | إجمالي الكمية: ${totalQty.toLocaleString('en-US')} | قيمة المخزون بسعر الشراء: ${totalValue.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} ج.م | أذونات الصرف: ${orders.length} | الحركات المسجلة: ${moves.length+returns.length}`;
+    }
+    async function printWarehouseReport(type){
+      const items=await getData("inventory").catch(()=>cachedInventory||[]);cachedInventory=items||[];
+      const orders=await getData("issue_orders").catch(()=>[]);
+      const moves=await getData("inventory_movements").catch(()=>[]);
+      const returns=await getData("returns_log").catch(()=>[]);
+      let title='',rows='',headers='',summary='';
+      if(type==='stock'){
+        title='تقرير المخزن والأرصدة';headers='<th>م</th><th>المخزن</th><th>القسم</th><th>الصنف</th><th>الباركود</th><th>الكمية</th><th>شراء</th><th>قيمة الرصيد</th>';
+        rows=items.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.storeName||'مخزن المحل الرئيسي')}</td><td>${escSupplier(x.category||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${escSupplier(x.barcode||'—')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${(Number(x.qty||0)*Number(x.buyPrice||0)).toFixed(2)}</td></tr>`).join('');
+        summary=`عدد الأصناف: ${items.length} | إجمالي الكمية: ${items.reduce((n,x)=>n+Number(x.qty||0),0)} | قيمة المخزون: ${items.reduce((n,x)=>n+Number(x.qty||0)*Number(x.buyPrice||0),0).toFixed(2)} ج.م`;
+      }else if(type==='best'){
+        title='الأصناف الأكثر مبيعًا / سحبًا';headers='<th>الترتيب</th><th>الصنف</th><th>الباركود</th><th>القسم</th><th>مرات السحب المسجلة</th><th>الكمية الحالية</th>';
+        const sorted=items.slice().sort((a,b)=>Number(b.withdrawCount||0)-Number(a.withdrawCount||0));rows=sorted.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.name||'')}</td><td>${escSupplier(x.barcode||'—')}</td><td>${escSupplier(x.category||'—')}</td><td>${Number(x.withdrawCount||0)}</td><td>${Number(x.qty||0)}</td></tr>`).join('');summary='يعتمد الترتيب على حقل مرات السحب المسجل لكل صنف، وليس على إجمالي مبيعات نقدية.';
+      }else if(type==='moves'){
+        title='سجل حركات المخزن';const all=[...(moves||[]),...(returns||[])].sort((a,b)=>String(b.dateStr||b.date||'').localeCompare(String(a.dateStr||a.date||'')));
+        headers='<th>م</th><th>التاريخ</th><th>المخزن</th><th>نوع الحركة</th><th>الصنف</th><th>الكمية</th><th>البيان / السبب</th>';
+        rows=all.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.dateStr||x.date||'—')}</td><td>${escSupplier(x.storeName||'—')}</td><td>${escSupplier(x.type||x.movType||x.requestType||'—')}</td><td>${escSupplier(x.itemName||x.name||x.item||'—')}</td><td>${Number(x.qty||x.quantity||0)}</td><td>${escSupplier(x.notes||x.reason||'—')}</td></tr>`).join('');summary=`عدد الحركات المعروضة: ${all.length}.`;
+      }else{
+        title='تقرير أذونات الصرف';headers='<th>م</th><th>رقم الإذن</th><th>العميل</th><th>الهاتف</th><th>السيارة</th><th>القسم</th><th>التاريخ</th><th>الأصناف والإجمالي</th>';
+        rows=orders.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.orderNo||x.id||'—')}</td><td>${escSupplier(x.clientName||'—')}</td><td>${escSupplier(x.clientPhone||'—')}</td><td>${escSupplier(x.carType||'—')}</td><td>${escSupplier(x.department||'—')}</td><td>${escSupplier(x.dateStr||x.date||'—')}</td><td>${escSupplier(typeof x.items==='string'?x.items:(Array.isArray(x.items)?x.items.map(z=>z.name||z.itemName||'').join('، '):x.total||'—'))}</td></tr>`).join('');summary=`عدد أذونات الصرف: ${orders.length}.`;
+      }
+      printHtmlReport(title,`<div class="summary">${summary}</div><table><thead><tr>${headers}</tr></thead><tbody>${rows||`<tr><td colspan="${(headers.match(/<th>/g)||[]).length}" style="text-align:center">لا توجد بيانات مسجلة لهذا التقرير.</td></tr>`}</tbody></table>`);
+    }
+
     function printHtmlReport(title,body){let w=window.open('','_blank');if(!w){alert('اسمح بفتح النوافذ المنبثقة للطباعة');return;}w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escSupplier(title)}</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:22px;color:#111}h1,h2{text-align:center;margin:6px 0 14px}table{width:100%;border-collapse:collapse;margin-top:15px}th,td{border:1px solid #555;padding:8px;text-align:right}th{background:#eee}.summary{font-weight:bold;margin:14px 0;padding:10px;border:1px solid #aaa}footer{display:flex;justify-content:space-between;margin-top:45px}@media print{button{display:none}}</style></head><body><h1>مركز أوتو نون (NON)</h1><h2>${escSupplier(title)}</h2>${body}<footer><span>إعداد: ................</span><span>مراجعة: ................</span><span>اعتماد: ................</span></footer><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();}
 function printProductsBySearch(){let q=(document.getElementById('searchInventoryInput')?.value||'').trim().toLocaleLowerCase('ar');if(!q){alert('اكتب اسم الصنف أو جزءاً منه في خانة البحث أولاً، مثلاً: زيت');return;}let list=(cachedInventory||[]).filter(i=>[i.name,i.barcode,i.code,i.category].some(v=>String(v||'').toLocaleLowerCase('ar').includes(q)));if(!list.length){alert('لا توجد منتجات مطابقة للبحث.');return;}let body='<div class="summary">عبارة البحث: '+escSupplier(q)+' | عدد النتائج: '+list.length+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.sellPrice||0).toFixed(2)} ج.م</td></tr>`).join('')+'</tbody></table>';printHtmlReport('قائمة المنتجات المطابقة للبحث',body);}
-function viewStoreItems(storeName){storeName=decodeURIComponent(storeName);let list=(cachedInventory||[]).filter(i=>(i.storeName||'مخزن المحل الرئيسي')===storeName);let body='<div class="summary">المخزن: '+escSupplier(storeName)+' | عدد الأصناف: '+list.length+' | إجمالي الكمية: '+list.reduce((n,x)=>n+Number(x.qty||0),0)+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${Number(x.sellPrice||0).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';document.getElementById('generalLogModalTitle').textContent='أصناف '+storeName;document.getElementById('generalLogTableContainer').innerHTML=body;let btn=document.querySelector('#generalLogModal button[onclick*="generalLogModal"]');if(btn){btn.insertAdjacentHTML('beforebegin','<button id="printStoreListBtn" class="btn-action-sm btn-success" style="width:100%;margin-bottom:8px" onclick="printStoreItems(\''+String(storeName).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">طباعة قائمة المخزن</button>');}document.getElementById('generalLogModal').style.display='flex';}
+function viewStoreItems(storeName){storeName=decodeURIComponent(storeName);let list=(cachedInventory||[]).filter(i=>(i.storeName||'مخزن المحل الرئيسي')===storeName);let body='<div class="summary">المخزن: '+escSupplier(storeName)+' | عدد الأصناف: '+list.length+' | إجمالي الكمية: '+list.reduce((n,x)=>n+Number(x.qty||0),0)+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${Number(x.sellPrice||0).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';document.getElementById('generalLogModalTitle').textContent='أصناف '+storeName;document.getElementById('generalLogTableContainer').innerHTML=body;let btn=document.querySelector('#generalLogModal button[onclick*="generalLogModal"]');if(btn){document.getElementById('printStoreListBtn')?.remove();btn.insertAdjacentHTML('beforebegin','<button id="printStoreListBtn" class="btn-action-sm btn-success" style="width:100%;margin-bottom:8px" onclick="printStoreItems(\''+String(storeName).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">طباعة قائمة المخزن</button>');}document.getElementById('generalLogModal').style.display='flex';}
 function printStoreItems(storeName){storeName=decodeURIComponent(storeName);let list=(cachedInventory||[]).filter(i=>(i.storeName||'مخزن المحل الرئيسي')===storeName);let body='<div class="summary">المخزن: '+escSupplier(storeName)+' | عدد الأصناف: '+list.length+' | إجمالي الكمية: '+list.reduce((n,x)=>n+Number(x.qty||0),0)+'</div><table><thead><tr><th>م</th><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th></tr></thead><tbody>'+list.map((x,i)=>`<tr><td>${i+1}</td><td>${escSupplier(x.barcode||x.code||'—')}</td><td>${escSupplier(x.name||'')}</td><td>${Number(x.qty||0)}</td><td>${Number(x.buyPrice||0).toFixed(2)}</td><td>${Number(x.sellPrice||0).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';printHtmlReport('أصناف المخزن: '+storeName,body);}
 function supplierAccountStatement(id){let sup=supplierRead('suppliers_list').find(x=>x.id===id);if(!sup)return;let from=prompt('من تاريخ (YYYY-MM-DD) — اتركه فارغاً لعرض كل الفترات','');if(from===null)return;let to=prompt('إلى تاريخ (YYYY-MM-DD) — اتركه فارغاً حتى اليوم','');if(to===null)return;let start=from?new Date(from+'T00:00:00'):new Date('2000-01-01T00:00:00'),end=to?new Date(to+'T23:59:59'):new Date();if(isNaN(start)||isNaN(end)||start>end){alert('صيغة التاريخ غير صحيحة أو الفترة غير سليمة. استخدم YYYY-MM-DD.');return;}let events=[];supplierRead('supplier_issue_orders').filter(o=>o.supplierId===id).forEach(o=>{let d=new Date(o.date);if(d>=start&&d<=end)events.push({date:o.date,type:'توريد',desc:(o.lines||[]).map(l=>l.name+' × '+l.qty).join('، '),debit:Number(o.total||0),credit:0,ref:o.orderNo});if(Number(o.paid||0)>0){let payDate=(supplierRead('supplier_ledger').filter(l=>l.supplierId===id&&l.orderNo===o.orderNo&&l.type==='سداد'));payDate.forEach(p=>{let pd=new Date(p.date);if(pd>=start&&pd<=end)events.push({date:p.date,type:'سداد',desc:p.notes||'سداد مورد',debit:0,credit:Number(p.value||0),ref:o.orderNo});});}});supplierRead('supplier_returns').filter(r=>r.supplierId===id).forEach(r=>{let d=new Date(r.date);if(d>=start&&d<=end)events.push({date:r.date,type:r.type||'مرتجع',desc:(r.itemName||'')+' × '+r.qty,debit:0,credit:Number(r.value||0),ref:r.id});});events.sort((a,b)=>a.date.localeCompare(b.date));let running=0;let rows=events.map((e,i)=>{running+=e.debit-e.credit;return `<tr><td>${i+1}</td><td>${new Date(e.date).toLocaleDateString('ar-EG')}</td><td>${escSupplier(e.ref)}</td><td>${escSupplier(e.type)}</td><td>${escSupplier(e.desc)}</td><td>${e.debit.toFixed(2)}</td><td>${e.credit.toFixed(2)}</td><td>${running.toFixed(2)}</td></tr>`}).join('');let totals=events.reduce((a,e)=>({debit:a.debit+e.debit,credit:a.credit+e.credit}),{debit:0,credit:0});let body=`<div class="summary">المورد: ${escSupplier(sup.name)} | الكود: ${escSupplier(sup.code||'')} | من ${escSupplier(from||'بداية التعامل')} إلى ${escSupplier(to||new Date().toISOString().slice(0,10))}<br>إجمالي التوريدات: ${totals.debit.toFixed(2)} ج.م | إجمالي السداد والمرتجعات: ${totals.credit.toFixed(2)} ج.م | صافي الفترة: ${(totals.debit-totals.credit).toFixed(2)} ج.م</div><table><thead><tr><th>م</th><th>التاريخ</th><th>رقم المرجع</th><th>نوع الحركة</th><th>البيان / الصنف</th><th>مدين</th><th>دائن</th><th>الرصيد التراكمي</th></tr></thead><tbody>${rows||'<tr><td colspan="8">لا توجد حركات في الفترة المحددة</td></tr>'}</tbody></table>`;printHtmlReport('كشف حساب المورد',body);}
 function findSupplierReturnItem(){let q=(document.getElementById('supplierReturnItem')?.value||'').trim().toLocaleLowerCase('ar'),it=(cachedInventory||[]).find(x=>String(x.barcode||x.code||'').toLocaleLowerCase('ar')===q||String(x.name||'').toLocaleLowerCase('ar')===q);let n=document.getElementById('supplierReturnItemName');if(n)n.value=it?.name||'';}
