@@ -182,7 +182,7 @@
 
   <div class="header-top-bar">
     <div class="brand-logo-container">
-      <img src="NON.png" alt="NON Logo" class="brand-logo-img" onerror="this.src='non.png'">
+      <img src="NON.png" alt="NON Logo" class="brand-logo-img" onerror="this.src='non.jpg'">
       <div class="brand-logo">
         <i class="fa-solid fa-gears"></i>
         <span>مركز أوتو نون (NON) - قسم الميكانيكا والتشخيص</span>
@@ -1036,38 +1036,42 @@
         return;
       }
       document.getElementById('testDriveStatus').value = statusText;
-      
-      let itemStatusValue = 'قيد العمل';
+      const tester = document.getElementById('testDriveTester').value || loggedUser || 'فني غير محدد';
+      const notes = document.getElementById('testDriveNotes').value || '';
+
+      let itemStatusValue = document.getElementById('detailItemStatus').value || 'قيد العمل';
       if (statusText === 'تم الاختبار وتم الإصلاح بنجاح') {
         itemStatusValue = 'تم الانتهاء';
-        document.getElementById('detailItemStatus').value = 'تم الانتهاء';
+        document.getElementById('detailItemStatus').value = itemStatusValue;
       } else if (statusText === 'ما زال العطل مستمرا ويحتاج إعادة ضبط') {
         itemStatusValue = 'قيد العمل';
-        document.getElementById('detailItemStatus').value = 'قيد العمل';
+        document.getElementById('detailItemStatus').value = itemStatusValue;
       }
 
       try {
         await db.collection('cars').doc(currentSelectedCarId).set({
           testDriveStatus: statusText,
+          testDriveTester: tester,
+          testDriveNotes: notes,
           mechanicsItemStatus: itemStatusValue,
-          showOnDisplay: true
+          showOnDisplay: true,
+          testDriveUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
         document.getElementById('displayToggleCheckbox').checked = true;
         document.getElementById('displayStatusLabel').textContent = 'ON (معروضة)';
         document.getElementById('displayStatusLabel').style.color = 'var(--btn-green)';
-
         renderCarsList();
-        alert(`🚗 تم تحديث حالة الاختبار إلى: "${statusText}" وتم تحديث شاشة العرض تلقائياً.`);
+        alert(`✅ تم حفظ حالة الاختبار: "${statusText}" وستظهر على شاشة العرض تلقائياً.`);
       } catch (err) {
+        console.error('خطأ في تحديث حالة الاختبار:', err);
         alert("خطأ أثناء تحديث حالة الاختبار: " + err.message);
       }
     }
 
+    // حفظ كل اختيار فوراً في Firebase، وليس فقط حالة "تحت الاختبار".
     function onTestDriveStatusChange(val) {
-      if (val === 'السيارة تحت الاختبار') {
-        setTestDriveQuickStatus(val);
-      }
+      setTestDriveQuickStatus(val);
     }
 
     function addInstallationServiceItem() {
@@ -1519,7 +1523,7 @@
       const itemStatus = document.getElementById('detailItemStatus').value;
       const techNotes = document.getElementById('detailTechNotes').value;
       const isDisplayed = document.getElementById('displayToggleCheckbox').checked;
-      const techName = loggedUser || document.getElementById('testDriveTester').value || 'فني غير محدد';
+      const techName = document.getElementById('testDriveTester').value || loggedUser || 'فني غير محدد';
       const testDriveStatusVal = document.getElementById('testDriveStatus').value;
 
       try {
