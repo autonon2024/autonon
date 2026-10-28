@@ -756,6 +756,7 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       <button class="btn-action btn-green" data-quick="expenses" onclick="openExpensesModal()"><i class="fa-solid fa-money-bill-wave"></i> المصاريف</button>
       <button class="btn-action btn-purple" data-quick="workers" onclick="openWorkersModal()"><i class="fa-solid fa-users-gear"></i> العمال والأقسام</button>
       <button class="btn-action btn-green" data-quick="clients" onclick="openClientAccountsModal()"><i class="fa-solid fa-address-book"></i> كشف العملاء</button>
+      <button class="btn-action btn-green" data-quick="collections" onclick="openCollectionsModal()"><i class="fa-solid fa-hand-holding-dollar"></i> التحصيلات</button>
       <button class="btn-action btn-blue" data-quick="archive" onclick="openArchiveModal()"><i class="fa-solid fa-box-archive"></i> الأرشيف</button>
       <button class="btn-action btn-orange" data-quick="suppliers" onclick="openServiceModal('suppliersServiceModal')"><i class="fa-solid fa-truck-field"></i> الموردون والتجار</button>
       <button class="btn-action btn-blue" data-quick="invoices" onclick="openServiceModal('invoicesServiceModal')"><i class="fa-solid fa-file-invoice-dollar"></i> الفواتير</button>
@@ -1935,16 +1936,16 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       try {
         const res = await db.runTransaction(async transaction => {
           const doc = await transaction.get(counterRef);
-          let newSerial = 1001;
+          let newSerial = 100;
           if (doc.exists) {
-            newSerial = (doc.data().lastSerial || 1000) + 1;
+            newSerial = (doc.data().lastSerial || 99) + 1;
           }
           transaction.set(counterRef, { lastSerial: newSerial }, { merge: true });
           return newSerial;
         });
         return res;
       } catch (e) {
-        return Math.floor(100000 + Math.random() * 900000);
+        return 100 + Math.floor(Math.random() * 900000);
       }
     }
 
@@ -4081,5 +4082,118 @@ window.addEventListener('load', function () {
 })();
 </script>
 
+<div id="collectionsModal" class="non-service-overlay no-print" aria-hidden="true">
+ <div class="non-service-window">
+  <div class="non-service-window-head"><h2><i class="fa-solid fa-hand-holding-dollar"></i> تحصيلات العملاء الآجل</h2><button class="non-service-close" onclick="closeCollectionsModal()">إغلاق ✕</button></div>
+  <div class="card-box">
+   <div class="form-field" style="margin-bottom:12px"><label for="collectionSearch">بحث باسم العميل أو رقم التليفون أو رقم السيارة</label><input id="collectionSearch" placeholder="اكتب الاسم أو الهاتف أو اللوحة..." oninput="renderCollectionCustomers()"></div>
+   <div id="collectionCustomerResults" style="max-height:260px;overflow:auto"></div>
+   <div id="collectionSelectedPanel" style="display:none;margin-top:14px">
+    <div class="card-box" style="background:var(--bg-color)">
+     <div class="card-title">بيانات العميل والمديونية</div>
+     <div class="form-grid">
+      <div class="form-field"><label>اسم العميل</label><input id="collectionClientName" readonly></div>
+      <div class="form-field"><label>رقم الهاتف</label><input id="collectionClientPhone" readonly></div>
+      <div class="form-field"><label>السيارات / أرقام اللوحات</label><input id="collectionCarInfo" readonly></div>
+      <div class="form-field"><label>إجمالي المديونية المتبقية</label><input id="collectionOutstanding" readonly></div>
+      <div class="form-field"><label>مبلغ التحصيل (جنيه)</label><input id="collectionAmount" type="number" min="0.01" step="0.01" placeholder="اكتب المبلغ"></div>
+      <div class="form-field"><label>إيداع المبلغ في الخزينة</label><select id="collectionTreasury"><option value="">جاري تحميل الخزن...</option></select></div>
+      <div class="form-field"><label>طريقة السداد</label><select id="collectionMethod"><option>نقدي (كاش)</option><option>انستا باي / تحويل</option><option>بطاقة ائتمان</option><option>شيك</option></select></div>
+      <div class="form-field"><label>ملاحظات</label><input id="collectionNotes" placeholder="اختياري"></div>
+     </div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn-action btn-green" onclick="saveClientCollection('partial')"><i class="fa-solid fa-coins"></i> تحصيل جزء</button>
+      <button class="btn-action btn-purple" onclick="saveClientCollection('full')"><i class="fa-solid fa-check-double"></i> سداد كامل</button>
+      <button class="btn-action btn-blue" onclick="printCollectionReceipt()"><i class="fa-solid fa-print"></i> إصدار / طباعة فاتورة سداد</button>
+      <button class="btn-action btn-green" onclick="sendCollectionWhatsApp()"><i class="fa-brands fa-whatsapp"></i> رسالة واتساب</button>
+     </div>
+     <small style="display:block;margin-top:8px;color:#64748b">يتم تسجيل التحصيل في حساب العميل وحركة الخزينة، مع تحديث المديونية المتبقية.</small>
+    </div>
+   </div>
+   <div id="collectionHistory" style="margin-top:12px"></div>
+  </div>
+ </div>
+</div>
+<script id="client-collections-feature">
+(function(){
+ const $=id=>document.getElementById(id), num=v=>Math.max(0,Number(v)||0);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=v=>num(v).toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2});
+ let customers=[], selected=null, lastReceipt=null;
+ window.openCollectionsModal=async function(){
+  $('collectionsModal').classList.add('is-open'); $('collectionsModal').setAttribute('aria-hidden','false');
+  $('collectionSearch').value=''; $('collectionSelectedPanel').style.display='none'; selected=null; lastReceipt=null;
+  try{
+   const [snap,ts]=await Promise.all([db.collection('client_accounts').get(),db.collection('treasuries').get()]);
+   const map={};
+   snap.forEach(doc=>{const d=doc.data(), rem=num(d.remainingAmount); if(rem<=0)return;
+    const key=String(d.clientPhone||'').trim()+'|'+String(d.clientName||'عميل').trim();
+    if(!map[key])map[key]={key,name:d.clientName||'عميل',phone:d.clientPhone||'',docs:[],remaining:0,paid:0,total:0,cars:new Set()};
+    const c=map[key]; c.docs.push({id:doc.id,...d});c.remaining+=rem;c.paid+=num(d.paidAmount);c.total+=num(d.totalAmount);if(d.carInfo)c.cars.add(d.carInfo);if(d.carPlate)c.cars.add(d.carPlate);
+   });
+   customers=Object.values(map).map(c=>({...c,cars:[...c.cars]})).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+   const select=$('collectionTreasury');select.innerHTML='<option value="">اختر الخزينة...</option>';
+   ts.forEach(doc=>{const t=doc.data();select.insertAdjacentHTML('beforeend',`<option value="${esc(doc.id)}">${esc(t.name||'خزينة')} — الرصيد: ${money(t.balance)}</option>`)});
+   renderCollectionCustomers();
+  }catch(e){$('collectionCustomerResults').innerHTML='<p style="color:#dc2626">تعذر تحميل البيانات: '+esc(e.message)+'</p>'}
+ };
+ window.closeCollectionsModal=function(){$('collectionsModal').classList.remove('is-open');$('collectionsModal').setAttribute('aria-hidden','true')};
+ window.renderCollectionCustomers=function(){
+  const q=($('collectionSearch').value||'').trim().toLowerCase();
+  const list=customers.filter(c=>[c.name,c.phone,...c.cars].some(v=>String(v).toLowerCase().includes(q)));
+  $('collectionCustomerResults').innerHTML=list.length?list.map(c=>`<button type="button" class="queue-item" style="width:100%;text-align:right" onclick="selectCollectionCustomer('${encodeURIComponent(c.key)}')"><b>${esc(c.name)}</b> — ${esc(c.phone||'بدون هاتف')}<br><small>السيارة/اللوحة: ${esc(c.cars.join('، ')||'غير مسجلة')}</small><span style="float:left;color:#dc2626;font-weight:bold">متبقي ${money(c.remaining)} ج.م</span></button>`).join(''):'<p style="padding:12px;color:#64748b">لا يوجد عملاء عليهم مديونية مطابقة للبحث.</p>';
+ };
+ window.selectCollectionCustomer=function(encoded){
+  const key=decodeURIComponent(encoded);selected=customers.find(c=>c.key===key);if(!selected)return;
+  $('collectionSelectedPanel').style.display='block';$('collectionClientName').value=selected.name;$('collectionClientPhone').value=selected.phone;
+  $('collectionCarInfo').value=selected.cars.join('، ')||'---';$('collectionOutstanding').value=money(selected.remaining)+' ج.م';
+  $('collectionAmount').value=selected.remaining.toFixed(2);$('collectionAmount').max=selected.remaining;
+  $('collectionHistory').innerHTML=`<div class="card-box"><b>ملخص العميل:</b> إجمالي المديونية ${money(selected.total)} ج.م — المسدد سابقاً ${money(selected.paid)} ج.م — المتبقي ${money(selected.remaining)} ج.م</div>`;
+ };
+ async function nextReceiptSerial(){
+  const ref=db.collection('settings').doc('invoice_counter');
+  return await db.runTransaction(async tx=>{const d=await tx.get(ref);const n=d.exists?Math.max(99,Number((d.data()||{}).lastSerial)||99)+1:100;tx.set(ref,{lastSerial:n},{merge:true});return n;});
+ }
+ window.saveClientCollection=async function(mode){
+  if(!selected){alert('اختر العميل أولاً');return}
+  const amount=num($('collectionAmount').value), treasuryId=$('collectionTreasury').value, method=$('collectionMethod').value;
+  if(!treasuryId){alert('اختر الخزينة التي ستستقبل المبلغ');return}
+  if(amount<=0){alert('أدخل مبلغاً صحيحاً');return}
+  if(amount>selected.remaining+0.001){alert('مبلغ التحصيل أكبر من المديونية المتبقية');return}
+  if(mode==='full' && Math.abs(amount-selected.remaining)>0.01){if(!confirm('المبلغ المدخل أقل من إجمالي المتبقي. هل تريد تحصيل المبلغ المدخل فقط؟'))return}
+  if(mode==='full') $('collectionAmount').value=selected.remaining.toFixed(2);
+  const paid=mode==='full'?selected.remaining:amount;
+  const treasury=$('collectionTreasury'), treasuryName=treasury.options[treasury.selectedIndex]?.text.split(' — ')[0]||'الخزينة';
+  const receipt={invoiceSerial:null,date:new Date().toISOString(),dateFormatted:new Date().toLocaleString('ar-EG'),clientName:selected.name,clientPhone:selected.phone,carInfo:selected.cars.join('، '),totalAmount:selected.remaining,paidAmount:paid,remainingAmount:Math.max(0,selected.remaining-paid),method,treasuryId,treasuryName,notes:$('collectionNotes').value,type:'تحصيل من حساب عميل',direction:'in',cashier:(JSON.parse(localStorage.getItem('currentUser')||'{}').name||'مسؤول الحسابات')};
+  try{
+   receipt.invoiceSerial=await nextReceiptSerial();
+   const batch=db.batch();
+   let remainingToApply=paid;
+   const docs=[...selected.docs].sort((a,b)=>String(a.date||a.timestamp||'').localeCompare(String(b.date||b.timestamp||'')));
+   for(const d of docs){if(remainingToApply<=0)break;const rem=num(d.remainingAmount);if(rem<=0)continue;const part=Math.min(rem,remainingToApply);batch.update(db.collection('client_accounts').doc(d.id),{paidAmount:num(d.paidAmount)+part,remainingAmount:Math.max(0,rem-part),updatedAt:new Date().toISOString(),lastCollectionSerial:receipt.invoiceSerial});remainingToApply-=part;}
+   const tRef=db.collection('treasuries').doc(treasuryId);batch.update(tRef,{balance:firebase.firestore.FieldValue.increment(paid),updatedAt:new Date().toISOString()});
+   batch.set(db.collection('treasury_transactions').doc(),{...receipt,amount:paid,paidAmount:paid,remainingAmount:receipt.remainingAmount});
+   batch.set(db.collection('client_collection_receipts').doc(String(receipt.invoiceSerial)),receipt);
+   await batch.commit();lastReceipt=receipt;
+   alert('تم تسجيل التحصيل بنجاح. رقم فاتورة السداد: '+receipt.invoiceSerial);
+   await window.openCollectionsModal();$('collectionSearch').value=receipt.clientName;window.renderCollectionCustomers();
+   const match=customers.find(c=>c.name===receipt.clientName&&c.phone===receipt.clientPhone);if(match)window.selectCollectionCustomer(encodeURIComponent(match.key));
+   printCollectionReceipt();
+  }catch(e){alert('تعذر حفظ التحصيل: '+e.message)}
+ };
+ window.printCollectionReceipt=function(){
+  const r=lastReceipt;if(!r){alert('سجل التحصيل أولاً لإصدار فاتورة سداد');return}
+  const w=window.open('','_blank','width=800,height=700');if(!w){alert('اسمح بفتح النوافذ المنبثقة لطباعة الفاتورة');return}
+  w.document.write(`<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>فاتورة سداد ${r.invoiceSerial}</title><style>body{font-family:Tahoma,Arial;padding:28px;color:#17283a}h2{text-align:center;border-bottom:2px solid #17283a;padding-bottom:12px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.line{padding:10px;border:1px solid #ddd}strong{color:#10243a}.paid{text-align:center;font-size:24px;font-weight:bold;margin:25px;padding:20px;border:2px solid #17856f}footer{margin-top:35px;display:flex;justify-content:space-between}@media print{button{display:none}}</style><h2>مركز أوتو نون لصيانة السيارات<br><small>فاتورة سداد حساب عميل</small></h2><div class="meta"><div class="line">رقم الفاتورة: <strong>${esc(r.invoiceSerial)}</strong></div><div class="line">التاريخ: ${esc(r.dateFormatted)}</div><div class="line">اسم العميل: ${esc(r.clientName)}</div><div class="line">رقم الهاتف: ${esc(r.clientPhone||'---')}</div><div class="line">السيارة / اللوحة: ${esc(r.carInfo||'---')}</div><div class="line">الخزينة: ${esc(r.treasuryName)}</div><div class="line">طريقة السداد: ${esc(r.method)}</div></div><div class="paid">المبلغ المستلم: ${money(r.paidAmount)} جنيه</div><div class="meta"><div class="line">المتبقي بعد السداد: <strong>${money(r.remainingAmount)} جنيه</strong></div><div class="line">مسؤول التحصيل: ${esc(r.cashier||'---')}</div></div><p>ملاحظات: ${esc(r.notes||'لا يوجد')}</p><footer><span>توقيع المحاسب: ....................</span><span>توقيع العميل: ....................</span></footer><script>window.onload=()=>window.print()<\/script></html>`);w.document.close();
+ };
+ window.sendCollectionWhatsApp=function(){
+  if(!selected){alert('اختر العميل أولاً');return}
+  let phone=String(selected.phone||'').replace(/\D/g,'');if(phone.startsWith('0'))phone='2'+phone;else if(phone.startsWith('1')&&phone.length===10)phone='20'+phone;
+  if(!phone){alert('لا يوجد رقم هاتف مسجل للعميل');return}
+  const r=lastReceipt;const msg=r&&r.clientName===selected.name?`أهلاً ${selected.name}، تم استلام مبلغ ${money(r.paidAmount)} جنيه، رقم فاتورة السداد ${r.invoiceSerial}، والمتبقي من حسابك ${money(r.remainingAmount)} جنيه. شكراً لتعاملك مع مركز أوتو نون.`:`أهلاً ${selected.name}، نذكرك بأن المبلغ المتبقي على حسابك لدى مركز أوتو نون هو ${money(selected.remaining)} جنيه. شكراً لتعاملك معنا.`;
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank','noopener');
+ };
+})();
+</script>
 </body>
 </html>
