@@ -568,6 +568,12 @@
       if(el) el.textContent=value;
     }
 
+    function escapeDisplayText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
     db.collection('cars').onSnapshot((snapshot) => {
       const grid = document.getElementById('displayGrid');
       grid.innerHTML = '';
@@ -590,7 +596,9 @@
         let isTreasury = car.status === 'SENT_TO_TREASURY' || car.status === 'IN_TREASURY' || car.status === 'COMPLETED' || car.clientStatus === 'COMPLETED' || car.clientStatus === 'جاري الدفع (العميل في الحسابات)';
         let isPaused = car.status === 'SUSPENDED' || car.isSuspended === true || car.isPaused === true || car.status === 'PENDING_APPROVAL' || car.status === 'WAITING_FOR_PARTS' || car.status === 'paused';
         let isWash = car.targetDepartment === 'مغسلة السيارات' || car.serviceType === 'مغسلة' || car.workshop === 'مغسلة أوتو نون' || car.department === 'wash';
-        let isTesting = car.status === 'TESTING' || car.status === 'تحت الاختبار' || car.isTesting === true || car.clientStatus === 'تحت الاختبار';
+        const testDriveStatus = car.testDriveStatus || 'لم يتم الاختبار بعد';
+        const testDriveIsActive = testDriveStatus === 'السيارة تحت الاختبار';
+        let isTesting = testDriveIsActive || car.status === 'TESTING' || car.status === 'تحت الاختبار' || car.isTesting === true || car.clientStatus === 'تحت الاختبار';
 
         displayCars.push({ ...car, isPaused, isTreasury, isWash, isTesting });
 
@@ -653,6 +661,9 @@
         let plateClass = isTreasury ? 'car-plate-container treasury' : (isWash ? 'car-plate-container wash' : (isTesting ? 'car-plate-container testing' : (isPaused ? 'car-plate-container paused' : 'car-plate-container')));
         let statusContainerClass = isTreasury ? 'status-container treasury' : (isWash ? 'status-container wash' : (isTesting ? 'status-container testing' : (isPaused ? 'status-container paused' : 'status-container')));
         let statusTextClass = isTreasury ? 'status-text treasury' : (isWash ? 'status-text wash' : (isTesting ? 'status-text testing' : (isPaused ? 'status-text paused' : 'status-text')));
+        const testDriveStatusStyle = car.testDriveStatus === 'تم الاختبار وتم الإصلاح بنجاح'
+          ? 'color:#16a34a;' : (car.testDriveStatus === 'ما زال العطل مستمرا ويحتاج إعادة ضبط'
+          ? 'color:#ef4444;' : (car.testDriveStatus === 'لم يتم الاختبار بعد' ? 'color:#f59e0b;' : ''));
         
         let stampHtml = '';
         if (isTreasury || car.clientStatus === 'جاري الدفع (العميل في الحسابات)') {
@@ -665,9 +676,17 @@
           stampHtml = `<div class="suspended-stamp">معلق ⏸️️</div>`;
         }
 
+        const testDriveStatusLabels = {
+          'لم يتم الاختبار بعد': '⏳ لم يتم الاختبار بعد',
+          'السيارة تحت الاختبار': '🚗 السيارة تحت الاختبار الآن',
+          'تم الاختبار وتم الإصلاح بنجاح': '✅ تم الاختبار وتم الإصلاح بنجاح',
+          'ما زال العطل مستمرا ويحتاج إعادة ضبط': '⚠️ ما زال العطل مستمراً'
+        };
+        const hasTestDriveResult = !!car.testDriveStatus && car.testDriveStatus !== 'لم يتم الاختبار بعد';
         let operationalStatusMsg = (car.clientStatus === 'جاري الدفع (العميل في الحسابات)' || isTreasury)
-          ? `جاري الدفع (العميل في الحسابات) 🟣` 
-          : (isWash ? `جاري الغسيل والتطهير في المغسلة 🫧` : (isTesting ? `السيارة تحت الاختبار والصيانة 🔍` : (isPaused ? `معلقة (${car.suspendReason || 'بانتظار إجراء'}) ⏸️` : (car.statusLabel || `${sectionName} 🛠`))));
+          ? `جاري الدفع (العميل في الحسابات) 🟣`
+          : (hasTestDriveResult ? (testDriveStatusLabels[car.testDriveStatus] || car.testDriveStatus)
+          : (isWash ? `جاري الغسيل والتطهير في المغسلة 🫧` : (isTesting ? `السيارة تحت الاختبار والصيانة 🔍` : (isPaused ? `معلقة (${car.suspendReason || 'بانتظار إجراء'}) ⏸️` : (car.statusLabel || `${sectionName} 🛠`)))));
 
         grid.innerHTML += `
           <div class="${cardClass}">
@@ -689,11 +708,13 @@
               <div><i class="fa-solid fa-id-card" style="color:var(--accent)"></i> السيريال نمبر: <strong style="color:var(--accent);">${serialNumber}</strong></div>
               <div><i class="fa-solid fa-warehouse" style="color:var(--accent)"></i> المركز والورشة: <strong style="color:var(--accent);">${workshopName}</strong></div>
               <div><i class="fa-solid fa-screwdriver-wrench" style="color:var(--accent)"></i> القسم الحالي: <strong style="color:var(--accent);">${sectionName}</strong></div>
+              ${car.testDriveStatus ? `<div><i class="fa-solid fa-user-gear" style="color:var(--accent)"></i> فني الاختبار: <strong>${escapeDisplayText(car.testDriveTester || car.assignedTechnician || 'غير محدد')}</strong></div>` : ''}
+              ${car.testDriveNotes ? `<div><i class="fa-solid fa-clipboard-check" style="color:var(--accent)"></i> ملاحظات الفحص: <strong>${escapeDisplayText(car.testDriveNotes)}</strong></div>` : ''}
             </div>
 
             <div class="${statusContainerClass}">
               <div class="status-title">الحالة التشغيلية الحالية</div>
-              <div class="${statusTextClass}">${operationalStatusMsg}</div>
+              <div class="${statusTextClass}" style="${testDriveStatusStyle}">${operationalStatusMsg}</div>
             </div>
 
             <button class="btn-delete-card" onclick="removeCarFromDisplay('${car.docId}')">
