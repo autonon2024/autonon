@@ -400,18 +400,6 @@
             <div class="image-upload-container" id="uploadedImagesContainer"></div>
           </div>
 
-          <div style="border:1px solid var(--btn-green); background:rgba(34,197,94,0.03); border-radius:8px; padding:12px; margin-bottom:12px;">
-            <div style="font-weight:bold; color:var(--btn-green); font-size:0.9rem; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-              <span><i class="fa-solid fa-camera-retro"></i> تصوير السيارة بعد الإصلاح وإرسالها للعميل واتساب:</span>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <input type="file" id="afterRepairCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleAfterRepairImageSelected(event)">
-              <button type="button" class="btn-action-sm btn-primary" style="background:var(--btn-green);" onclick="document.getElementById('afterRepairCameraInput').click()"><i class="fa-solid fa-camera"></i> التقاط صورة بعد الإصلاح</button>
-              <button type="button" class="btn-action-sm btn-whatsapp" style="flex:1;" onclick="sendAfterRepairPhotoWhatsApp()"><i class="fa-brands fa-whatsapp"></i> إرسال الصورة للعميل واتساب</button>
-            </div>
-            <div class="image-upload-container" id="afterRepairImagesContainer" style="margin-top:10px;"></div>
-            <div id="afterRepairUploadStatus" class="photo-upload-status"><i class="fa-solid fa-circle-info"></i> الصورة ستُرفع للمخزن السحابي قبل فتح واتساب، حتى يستطيع العميل فتحها.</div>
-          </div>
 
           <div style="display:flex; gap:8px; margin-top:10px;">
             <button type="button" class="btn-action-sm" style="flex:1; background: #0ea5e9; color: white;" onclick="updateClientDataInSystem()"><i class="fa-solid fa-floppy-disk"></i> تحديث بيانات العميل بالسيستم</button>
@@ -580,7 +568,6 @@
     let archiveCarsLocalData = [];
     let workshopArchiveLocalData = [];
     let uploadedImagesArr = [];
-    let afterRepairImagesArr = [];
     let liftsLocalData = [];
     let searchResultsLocalData = [];
 
@@ -698,12 +685,34 @@
 
     window.sendDirectWashCall = async function(type) {
       if (!currentSelectedCarDocId) {
-        alert("يرجى اختيار سيارة أولاً لتوجيهها للمغسلة!");
+        alert("يرجى اختيار سيارة أولاً!");
         return;
       }
-      const labelText = type === 'مستعجل' ? '🚨 غسيل مستعجل للغاية بالمغسلة' : '🚿 غسيل فوري بالمغسلة';
       try {
-        await db.collection("cars").doc(currentSelectedCarDocId).update({
+        const carRef = db.collection("cars").doc(currentSelectedCarDocId);
+        const carDoc = await carRef.get();
+        if (!carDoc.exists) {
+          alert("السيارة غير موجودة في قائمة السيارات الحالية.");
+          return;
+        }
+        const carData = carDoc.data() || {};
+
+        // الضغط على الاستدعاء الفوري مرة أخرى والسيارة بالمغسلة يعيدها للتشخيص.
+        if (type === 'فوري' && carData.status === 'IN_WASH') {
+          await carRef.update({
+            status: 'IN_DIAGNOSIS',
+            targetDepartment: 'diagnosis',
+            serviceType: '',
+            statusLabel: 'عادت من المغسلة — جاري التشخيص',
+            displayStatus: 'IN_DIAGNOSIS',
+            updatedAt: new Date().toISOString()
+          });
+          alert("↩️ تم إرجاع السيارة من المغسلة إلى التشخيص بنجاح.");
+          return;
+        }
+
+        const labelText = type === 'مستعجل' ? '🚨 غسيل مستعجل للغاية بالمغسلة' : '🚿 غسيل فوري بالمغسلة';
+        await carRef.update({
           status: 'IN_WASH',
           targetDepartment: 'wash',
           serviceType: type === 'مستعجل' ? 'غسيل مستعجل' : 'غسيل فوري',
@@ -714,7 +723,7 @@
         alert(`✅ تم إرسال طلب ${labelText} بنجاح.`);
       } catch(e) {
         console.error(e);
-        alert("حدث خطأ أثناء إرسال طلب المغسلة.");
+        alert("حدث خطأ أثناء تحويل السيارة للمغسلة أو إرجاعها للتشخيص.");
       }
     };
 
@@ -979,11 +988,20 @@
             statusLabel: 'مؤرشف ومسلم',
             archivedAt: new Date().toISOString()
           });
-          if (carData.assignedLiftId) {
+          const liftIdToRelease = carData.assignedLiftId || document.getElementById('diagLiftSelect').value;
+          if (liftIdToRelease) {
             try {
-              await db.collection('lifts').doc(carData.assignedLiftId).update({
-                status:'idle', carId:null, carClientName:null, busySince:null, lastUpdatedAt:new Date().toISOString()
-              });
+              const liftRef = db.collection('lifts').doc(liftIdToRelease);
+              const liftDoc = await liftRef.get();
+              if (liftDoc.exists) {
+                const liftData = liftDoc.data() || {};
+                // حرر الكوريك المرتبط بهذه السيارة فقط، مع دعم البيانات القديمة.
+                if (!liftData.carId || liftData.carId === currentSelectedCarDocId || liftData.id === liftIdToRelease) {
+                  await liftRef.update({
+                    status:'idle', carId:null, carClientName:null, busySince:null, lastUpdatedAt:new Date().toISOString()
+                  });
+                }
+              }
             } catch(releaseErr) { console.warn('تعذر تحرير الكوريك:', releaseErr); }
           }
           await carRef.delete();
@@ -1186,73 +1204,6 @@
         `;
       });
       container.innerHTML = html;
-    }
-
-    function handleAfterRepairImageSelected(event) {
-      const files = event.target.files;
-      if (!files || files.length === 0) return;
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          afterRepairImagesArr.push({ url: e.target.result, file: files[i], title: 'صورة بعد الإصلاح' });
-          renderAfterRepairImages();
-        };
-        reader.readAsDataURL(files[i]);
-      }
-    }
-
-    function renderAfterRepairImages() {
-      const container = document.getElementById('afterRepairImagesContainer');
-      if (!container) return;
-      let html = '';
-      afterRepairImagesArr.forEach((img, idx) => {
-        html += `
-          <div class="image-preview-card">
-            <img src="${img.url}" alt="بعد الإصلاح">
-            <input type="text" value="${img.title}" oninput="afterRepairImagesArr[${idx}].title = this.value">
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    async function sendAfterRepairPhotoWhatsApp() {
-      const phone = document.getElementById('diagPhone').value;
-      const client = document.getElementById('diagClientName').value || 'عميلنا العزيز';
-      const statusEl = document.getElementById('afterRepairUploadStatus');
-      if (!phone) { alert("رقم هاتف العميل غير متوفر حالياً!"); return; }
-      if (afterRepairImagesArr.length === 0) { alert("يرجى التقاط أو إرفاق صورة واحدة على الأقل للسيارة بعد الإصلاح!"); return; }
-      const img = afterRepairImagesArr[afterRepairImagesArr.length - 1];
-      if (!img.file && !img.url) { alert('الصورة غير صالحة.'); return; }
-      
-      const waWindow = window.open('about:blank', '_blank');
-      try {
-        if(statusEl){ statusEl.className='photo-upload-status'; statusEl.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> جاري رفع صورة السيارة...'; }
-        let publicUrl = img.downloadUrl || '';
-        if (!publicUrl) {
-          const blob = img.file || await (await fetch(img.url)).blob();
-          const ext = (blob.type && blob.type.split('/')[1]) || 'jpg';
-          const path = `after-repair/${currentSelectedCarDocId || 'general'}/${Date.now()}.${ext}`;
-          const ref = storage.ref().child(path);
-          await ref.put(blob, {contentType: blob.type || 'image/jpeg'});
-          publicUrl = await ref.getDownloadURL();
-          img.downloadUrl = publicUrl;
-          if (currentSelectedCarDocId) {
-            await db.collection('cars').doc(currentSelectedCarDocId).update({ afterRepairImages: firebase.firestore.FieldValue.arrayUnion({url:publicUrl,title:img.title || 'صورة بعد الإصلاح', uploadedAt:new Date().toISOString()}) });
-          }
-        }
-        const cleanPhone = normalizeEgyptPhone(phone);
-        const msg = `مرحباً بك يا ${client} من مركز أوتو نون (NON).\nتم بحمد الله الانتهاء من إصلاح سيارتك.\nصورة السيارة بعد الإصلاح:\n${publicUrl}\nنتمنى لك قيادة آمنة!`;
-        if(statusEl){ statusEl.className='photo-upload-status ok'; statusEl.innerHTML='<i class="fa-solid fa-circle-check"></i> تم رفع الصورة بنجاح — جاري فتح واتساب...'; }
-        const waUrl=`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-        if(waWindow && !waWindow.closed){ waWindow.location.href=waUrl; }
-        else { window.open(waUrl, '_blank'); }
-      } catch(e) {
-        console.error(e);
-        if(waWindow && !waWindow.closed){ try{waWindow.close();}catch(_){} }
-        if(statusEl){ statusEl.className='photo-upload-status err'; statusEl.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i> تعذر رفع الصورة. تأكد من صلاحيات Firebase Storage ثم حاول مرة أخرى.'; }
-        alert('تعذر رفع الصورة وإرسال رابطها عبر واتساب.');
-      }
     }
 
     window.activateAndSaveSerial = function() {
