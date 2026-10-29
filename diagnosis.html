@@ -297,8 +297,9 @@
         <div class="feature-panel">
           <div class="feature-head">
             <span><i class="fa-solid fa-microchip"></i> جهاز كشف الأعطال الخارجي</span>
-            <span style="font-size:.72rem;color:#64748b;font-weight:700">Android Diagnostic App</span>
+            <button type="button" id="toggleExternalDiagnosticBtn" class="btn-action-sm" style="background:#64748b;color:#fff" onclick="toggleExternalDiagnosticPanel()" aria-expanded="true"><i class="fa-solid fa-eye-slash"></i> إخفاء</button>
           </div>
+          <div id="externalDiagnosticBody">
           <div class="form-grid">
             <div class="form-field">
               <label>رابط/مخطط تشغيل التطبيق</label>
@@ -315,6 +316,7 @@
             <button type="button" class="btn-action-sm" style="background:#0ea5e9;color:#fff" onclick="copyDiagnosticVin()"><i class="fa-regular fa-copy"></i> نسخ VIN</button>
           </div>
           <div id="diagnosticAppStatus" class="app-status">سيتم إرسال رقم VIN/السيريال الحالي للتطبيق الخارجي عند فتحه. يجب أن يكون التطبيق مثبتاً ويدعم Deep Link أو Intent.</div>
+          </div>
         </div>
 
         <div class="feature-panel">
@@ -488,7 +490,11 @@
     <div>
       <div class="card-box" id="carDeliveryPanel">
         <div class="card-title"><span><i class="fa-solid fa-key"></i> تسليم السيارة بإذن الاستلام</span></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="deliveryReceiptSearch" type="text" placeholder="ابحث برقم إذن الاستلام OUT-..." style="flex:1;min-width:220px;padding:10px;border:1px solid var(--border-color);border-radius:8px" onkeydown="if(event.key==='Enter')searchCarDeliveryReceipt()"><button class="btn-action-sm btn-primary" onclick="searchCarDeliveryReceipt()">بحث برقم الإذن</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span id="deliveryReceiptPrefix" style="padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-color);font-weight:900;white-space:nowrap;direction:ltr">OUT-2026-</span>
+          <input id="deliveryReceiptSearch" type="text" inputmode="numeric" placeholder="اكتب الرقم التسلسلي أو رقم الإذن كاملًا" style="flex:1;min-width:220px;padding:10px;border:1px solid var(--border-color);border-radius:8px" onkeydown="if(event.key==='Enter')searchCarDeliveryReceipt()">
+          <button class="btn-action-sm btn-primary" onclick="searchCarDeliveryReceipt()">بحث برقم الإذن</button>
+        </div>
         <div id="deliveryReceiptResult" style="margin-top:10px"></div>
       </div>
       <div class="card-box suspended-alert">
@@ -582,6 +588,8 @@
     document.addEventListener("DOMContentLoaded", () => {
       enforceEngineerLogin();
       loadDiagnosticAppSettings();
+      loadExternalDiagnosticPanelVisibility();
+      updateDeliveryReceiptPrefix();
       initRealtimeCarsListener();
       initRealtimeArchiveListener();
       initRealtimeLiftsListener();
@@ -702,18 +710,25 @@
           return;
         }
         const carData = carDoc.data() || {};
+        const clientName = carData.clientName || carData.name || document.getElementById('diagClientName').value || 'عميلنا العزيز';
+        const phone = carData.phone || carData.clientPhone || document.getElementById('diagPhone').value || '';
 
-        // الضغط على الاستدعاء الفوري مرة أخرى والسيارة بالمغسلة يعيدها للتشخيص.
+        // الضغط على زر الاستدعاء الفوري مرة أخرى والسيارة بالمغسلة يعيدها للتشخيص ويرسل رسالة انتهاء الغسيل.
         if (type === 'فوري' && carData.status === 'IN_WASH') {
           await carRef.update({
             status: 'IN_DIAGNOSIS',
             targetDepartment: 'diagnosis',
             serviceType: '',
-            statusLabel: 'عادت من المغسلة — جاري التشخيص',
+            statusLabel: 'عادت من المغسلة — جاري استكمال العمل',
             displayStatus: 'IN_DIAGNOSIS',
             updatedAt: new Date().toISOString()
           });
-          alert("↩️ تم إرجاع السيارة من المغسلة إلى التشخيص بنجاح.");
+          if (phone) {
+            const cleanPhone = normalizeEgyptPhone(phone);
+            const msg = `أهلاً ${clientName}، تم الانتهاء من الغسيل وجاري استكمال العمل على سيارتكم.\nمركز أوتو نون (NON).`;
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+          }
+          alert("↩️ تم إرجاع السيارة من المغسلة إلى التشخيص، وتم تجهيز رسالة واتساب للعميل.");
           return;
         }
 
@@ -726,6 +741,13 @@
           displayStatus: type === 'مستعجل' ? 'URGENT_WASH' : 'WASH',
           updatedAt: new Date().toISOString()
         });
+        if (phone) {
+          const cleanPhone = normalizeEgyptPhone(phone);
+          const msg = `أهلاً ${clientName}، تم ارسال سيارتكم الي المغسله.\nمركز أوتو نون (NON).`;
+          window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        } else {
+          alert("تم تحويل السيارة إلى المغسلة، لكن رقم هاتف العميل غير متوفر لإرسال رسالة واتساب.");
+        }
         alert(`✅ تم إرسال طلب ${labelText} بنجاح.`);
       } catch(e) {
         console.error(e);
@@ -1020,11 +1042,47 @@
       } catch(e) { console.error(e); alert("حدث خطأ أثناء الأرشفة."); }
     }
 
+    function currentDeliveryReceiptPrefix() {
+      return `OUT-${new Date().getFullYear()}-`;
+    }
+
+    function updateDeliveryReceiptPrefix() {
+      const el = document.getElementById('deliveryReceiptPrefix');
+      if (el) el.textContent = currentDeliveryReceiptPrefix();
+    }
+
     window.searchCarDeliveryReceipt = async function(){
-      const q=(document.getElementById('deliveryReceiptSearch').value||'').trim().toUpperCase(); const out=document.getElementById('deliveryReceiptResult');
-      if(!q){out.innerHTML='<span style="color:#dc2626">اكتب رقم إذن الاستلام أولاً.</span>';return;}
+      const raw=(document.getElementById('deliveryReceiptSearch').value||'').trim().toUpperCase();
+      const out=document.getElementById('deliveryReceiptResult');
+      if(!raw){out.innerHTML='<span style="color:#dc2626">اكتب الرقم التسلسلي أو رقم إذن الاستلام أولاً.</span>';return;}
+      // يقبل الرقم التسلسلي فقط مع بادئة السنة الحالية، أو رقم إذن كامل مثل OUT-2026-00001.
+      const q = /^OUT-\d{4}-\d+$/i.test(raw) ? raw : currentDeliveryReceiptPrefix() + raw.replace(/^OUT-\d{4}-?/i,'').replace(/[^0-9]/g,'');
+      if (!/^OUT-\d{4}-\d+$/.test(q)) { out.innerHTML='<span style="color:#dc2626">رقم الإذن غير صحيح. اكتب الرقم التسلسلي بعد البادئة الظاهرة.</span>'; return; }
       try{const snap=await db.collection('cars').where('carReceiptNo','==',q).limit(1).get();if(snap.empty){out.innerHTML='<span style="color:#dc2626">لم يتم العثور على سيارة بهذا الإذن أو أنها سُلّمت بالفعل.</span>';return;}const doc=snap.docs[0],c=doc.data();out.innerHTML=`<div class="client-info-box"><b>${escapeHtml(c.clientName||c.name||'')}</b> — ${escapeHtml(c.carInfo||((c.brand||'')+' '+(c.model||'')))} — اللوحة: ${escapeHtml(c.carPlate||c.plate||'')}<br>إذن الاستلام: <b>${escapeHtml(c.carReceiptNo)}</b><br><button class="btn-action-sm btn-primary" onclick="deliverPaidCar('${doc.id}')">تم التسليم وطباعة إذن الخروج</button></div>`;}catch(e){out.textContent='تعذر البحث: '+(e.message||e);}
     };
+
+    window.toggleExternalDiagnosticPanel = function() {
+      const body = document.getElementById('externalDiagnosticBody');
+      const btn = document.getElementById('toggleExternalDiagnosticBtn');
+      if (!body || !btn) return;
+      const willHide = body.style.display !== 'none';
+      body.style.display = willHide ? 'none' : '';
+      btn.innerHTML = willHide ? '<i class="fa-solid fa-eye"></i> إظهار' : '<i class="fa-solid fa-eye-slash"></i> إخفاء';
+      btn.setAttribute('aria-expanded', String(!willHide));
+      localStorage.setItem('autonon_external_diagnostic_hidden', willHide ? '1' : '0');
+    };
+
+    function loadExternalDiagnosticPanelVisibility() {
+      if (localStorage.getItem('autonon_external_diagnostic_hidden') === '1') {
+        const body = document.getElementById('externalDiagnosticBody');
+        const btn = document.getElementById('toggleExternalDiagnosticBtn');
+        if (body && btn) {
+          body.style.display = 'none';
+          btn.innerHTML = '<i class="fa-solid fa-eye"></i> إظهار';
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      }
+    }
     window.deliverPaidCar = async function(carId){
       if(!confirm('تأكيد تسليم السيارة للعميل؟ سيتم أرشفتها وإزالتها من الأقسام وطباعة إذن خروج من الجراج.'))return;
       try{const ref=db.collection('cars').doc(carId),snap=await ref.get();if(!snap.exists){alert('السيارة غير موجودة أو تم تسليمها.');return;}const c=snap.data();if(c.status!=='PAID_AWAITING_DELIVERY'){alert('السيارة ليست في حالة انتظار التسليم بعد الدفع.');return;}
