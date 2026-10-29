@@ -180,6 +180,7 @@
     .btn-print { background: #0284c7; color: white; }
     .btn-hold { background: #f59e0b; color: white; }
 
+    .paid-pop-bubble{display:inline-block;margin-top:5px;padding:7px 10px;border-radius:12px 12px 3px 12px;background:#dcfce7;color:#166534;border:1px solid #86efac;box-shadow:0 3px 10px #0001;font-size:.78rem;font-weight:700}
     .engineer-session { background:linear-gradient(135deg,#0f766e,#0ea5e9); color:#fff; padding:8px 14px; border-radius:20px; font-weight:800; display:flex; align-items:center; gap:8px; box-shadow:0 6px 18px rgba(14,165,233,.2); }
     .header-tools { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     .btn-lift { background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff; }
@@ -485,6 +486,11 @@
     </div>
 
     <div>
+      <div class="card-box" id="carDeliveryPanel">
+        <div class="card-title"><span><i class="fa-solid fa-key"></i> تسليم السيارة بإذن الاستلام</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="deliveryReceiptSearch" type="text" placeholder="ابحث برقم إذن الاستلام OUT-..." style="flex:1;min-width:220px;padding:10px;border:1px solid var(--border-color);border-radius:8px" onkeydown="if(event.key==='Enter')searchCarDeliveryReceipt()"><button class="btn-action-sm btn-primary" onclick="searchCarDeliveryReceipt()">بحث برقم الإذن</button></div>
+        <div id="deliveryReceiptResult" style="margin-top:10px"></div>
+      </div>
       <div class="card-box suspended-alert">
         <div class="card-title" style="color:#ef4444;">
           <span><i class="fa-solid fa-triangle-exclamation"></i> السيارات المعلقة (في انتظار قطع الغيار/الموافقة)</span>
@@ -787,7 +793,10 @@
           const status = car.status || 'QUEUED';
           const dept = car.targetDepartment || car.department || 'عام';
 
-          if (status === 'SUSPENDED' || car.isSuspended) {
+          if (status === 'PAID_AWAITING_DELIVERY') {
+            suspendedCount++;
+            suspendedHtml += `<tr><td><b>${queueNo}</b></td><td>${escapeHtml(clientName)}<br><div class="paid-pop-bubble">💬 العميل دفع — برجاء تسليم السيارة. رقم الإذن: <b>${escapeHtml(car.carReceiptNo||'غير مسجل')}</b></div></td><td>${escapeHtml(brandModel)} (${escapeHtml(plate)})</td><td><span style="color:#059669;font-weight:bold">تم الدفع - في انتظار التسليم</span></td><td><button class="btn-action-sm btn-primary" onclick="deliverPaidCar('${car.id}')">تم التسليم وطباعة إذن الخروج</button></td></tr>`;
+          } else if (status === 'SUSPENDED' || car.isSuspended) {
             suspendedCount++;
             suspendedHtml += `
               <tr>
@@ -1010,6 +1019,22 @@
         }
       } catch(e) { console.error(e); alert("حدث خطأ أثناء الأرشفة."); }
     }
+
+    window.searchCarDeliveryReceipt = async function(){
+      const q=(document.getElementById('deliveryReceiptSearch').value||'').trim().toUpperCase(); const out=document.getElementById('deliveryReceiptResult');
+      if(!q){out.innerHTML='<span style="color:#dc2626">اكتب رقم إذن الاستلام أولاً.</span>';return;}
+      try{const snap=await db.collection('cars').where('carReceiptNo','==',q).limit(1).get();if(snap.empty){out.innerHTML='<span style="color:#dc2626">لم يتم العثور على سيارة بهذا الإذن أو أنها سُلّمت بالفعل.</span>';return;}const doc=snap.docs[0],c=doc.data();out.innerHTML=`<div class="client-info-box"><b>${escapeHtml(c.clientName||c.name||'')}</b> — ${escapeHtml(c.carInfo||((c.brand||'')+' '+(c.model||'')))} — اللوحة: ${escapeHtml(c.carPlate||c.plate||'')}<br>إذن الاستلام: <b>${escapeHtml(c.carReceiptNo)}</b><br><button class="btn-action-sm btn-primary" onclick="deliverPaidCar('${doc.id}')">تم التسليم وطباعة إذن الخروج</button></div>`;}catch(e){out.textContent='تعذر البحث: '+(e.message||e);}
+    };
+    window.deliverPaidCar = async function(carId){
+      if(!confirm('تأكيد تسليم السيارة للعميل؟ سيتم أرشفتها وإزالتها من الأقسام وطباعة إذن خروج من الجراج.'))return;
+      try{const ref=db.collection('cars').doc(carId),snap=await ref.get();if(!snap.exists){alert('السيارة غير موجودة أو تم تسليمها.');return;}const c=snap.data();if(c.status!=='PAID_AWAITING_DELIVERY'){alert('السيارة ليست في حالة انتظار التسليم بعد الدفع.');return;}
+        const deliveredAt=new Date().toISOString();await db.collection('workshop_archive').doc(carId).set({...c,status:'ARCHIVED',statusLabel:'تم التسليم للعميل',deliveredAt,archivedAt:deliveredAt,deliveryReceiptNo:c.carReceiptNo,source:'garage_delivery'},{merge:true});
+        await db.collection('archive').doc(carId).set({...c,status:'ARCHIVED',statusLabel:'تم التسليم للعميل',deliveredAt,archivedAt:deliveredAt,deliveryReceiptNo:c.carReceiptNo},{merge:true}); await ref.delete();
+        const w=window.open('','_blank');if(w){w.document.write(`<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>إذن خروج سيارة</title><style>body{font-family:Tahoma,Arial;padding:28px;color:#111}h2{text-align:center;border-bottom:2px solid #111;padding-bottom:12px}.box{border:1px solid #777;padding:12px;margin:10px 0;font-size:16px}.sign{display:flex;justify-content:space-between;margin-top:60px}@media print{button{display:none}}</style><h2>مركز أوتو نون لصيانة السيارات<br>إذن خروج سيارة من الجراج</h2><div class="box">رقم إذن الاستلام: <b>${escapeHtml(c.carReceiptNo||'—')}</b></div><div class="box">رقم الفاتورة: <b>${escapeHtml(c.invoiceSerial||'—')}</b></div><div class="box">اسم العميل: <b>${escapeHtml(c.clientName||c.name||'—')}</b></div><div class="box">السيارة: <b>${escapeHtml(c.carInfo||((c.brand||'')+' '+(c.model||''))||'—')}</b></div><div class="box">رقم اللوحة: <b>${escapeHtml(c.carPlate||c.plate||'—')}</b></div><div class="box">تاريخ ووقت التسليم: <b>${new Date(deliveredAt).toLocaleString('ar-EG')}</b></div><p>أقر باستلام السيارة من مركز أوتو نون.</p><div class="sign"><span>توقيع مسؤول التسليم: ................</span><span>توقيع العميل: ................</span></div><script>window.onload=()=>window.print()<\/script></html>`);w.document.close();}
+        const liftId=c.assignedLiftId;if(liftId){try{await db.collection('lifts').doc(liftId).update({status:'idle',carId:null,carClientName:null,busySince:null,lastUpdatedAt:deliveredAt});}catch(e){}}
+        document.getElementById('deliveryReceiptResult').innerHTML='';document.getElementById('deliveryReceiptSearch').value='';if(currentSelectedCarDocId===carId)currentSelectedCarDocId=null;alert('تم تسليم السيارة وأرشفتها بنجاح.');
+      }catch(e){console.error(e);alert('تعذر إتمام التسليم: '+(e.message||e));}
+    };
 
     window.toggleCarHoldStatus = async function() {
       if (!currentSelectedCarDocId) { alert("اختر سيارة أولاً!"); return; }
