@@ -773,7 +773,13 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
   <div class="main-grid">
     <div class="no-print">
       <div class="card-box">
-        <div class="card-title"><span><i class="fa-solid fa-chart-pie"></i> الملخص المالي للخزينة</span></div>
+        <div class="card-title">
+          <span><i class="fa-solid fa-chart-pie"></i> الملخص المالي للخزينة</span>
+          <span id="firebaseConnectionStatus" role="status" title="سيتم فحص اتصال قاعدة البيانات عند فتح الصفحة"
+                style="font-size:12px;padding:5px 9px;border-radius:8px;background:#e5e7eb;color:#374151;">
+            جاري فحص اتصال قاعدة البيانات...
+          </span>
+        </div>
         <div class="financial-stats-grid">
           <div class="stat-mini-card" onclick="showStatDetails('drawer')">
             <span>إجمالي الدرج (كاش)</span>
@@ -1626,6 +1632,7 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
 
     window.addEventListener('DOMContentLoaded', () => {
       loadFinancialStats();
+      testDatabaseConnection();
       loadQuickServicesData();
       loadTreasuriesData();
       loadExpensesData();
@@ -2495,56 +2502,100 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       const modal = document.getElementById('detailedMovementsModal');
       const titleEl = document.getElementById('detailedModalTitle');
       const tbody = document.getElementById('detailedTableBody');
+      const money = value => {
+        const n = Number(value) || 0;
+        return n.toLocaleString('ar-EG', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ج.م';
+      };
+      const safe = value => String(value == null || value === '' ? '---' : value)
+        .replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
       tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">جاري تحميل الحركات...</td></tr>`;
       modal.style.display = 'flex';
 
       try {
-        if (type === 'drawer' || type === 'transfers' || type === 'treasury' || type === 'deferred') {
-          const snap = await db.collection('treasury_transactions').get();
-          tbody.innerHTML = '';
-          let items = [];
+        let items = [];
+        let total = 0;
 
+        if (type === 'treasury') {
+          // الملخص العام يعرض مجموع أرصدة الخزن الحالية؛ لذلك يعرض الكشف نفس الأرصدة خزنةً بخزنة.
+          titleEl.textContent = 'كشف تفصيلي: أرصدة الخزائن الحالية';
+          const snap = await db.collection('treasuries').get();
           snap.forEach(doc => {
-            const d = doc.data();
-            const paid = parseFloat(d.paidAmount) || 0;
-            const rem = parseFloat(d.remainingAmount) || 0;
-            const method = String(d.method || '');
-
-            if (type === 'drawer' && !method.includes('انستا باي') && !method.includes('تحويل')) {
-              items.push({ date: d.dateFormatted || d.dateStr, type: 'تحصيل نقدي', desc: `${d.clientName} - ${method}`, amount: paid, cashier: d.cashier });
-            } else if (type === 'transfers' && (method.includes('انستا باي') || method.includes('تحويل'))) {
-              items.push({ date: d.dateFormatted || d.dateStr, type: 'تحويل بنكي / انستا باي', desc: `${d.clientName}`, amount: paid, cashier: d.cashier });
-            } else if (type === 'treasury') {
-              items.push({ date: d.dateFormatted || d.dateStr, type: `حركة (${method})`, desc: `${d.clientName}`, amount: paid, cashier: d.cashier });
-            } else if (type === 'deferred' && rem > 0) {
-              items.push({ date: d.dateFormatted || d.dateStr, type: 'مديونية آجل', desc: `${d.clientName}`, amount: rem, cashier: d.cashier });
-            }
+            const d = doc.data() || {};
+            const balance = Number(d.balance) || 0;
+            total += balance;
+            items.push({
+              date: d.updatedAt ? new Date(d.updatedAt).toLocaleString('ar-EG') : '---',
+              type: 'رصيد خزينة',
+              desc: d.name || doc.id,
+              amount: balance,
+              cashier: d.updatedBy || d.cashier || '---'
+            });
           });
+        } else {
+          const snap = await db.collection('treasury_transactions').get();
 
           if (type === 'drawer') titleEl.textContent = 'كشف تفصيلي: إجمالي الدرج (كاش)';
           if (type === 'transfers') titleEl.textContent = 'كشف تفصيلي: إجمالي التحويلات';
-          if (type === 'treasury') titleEl.textContent = 'كشف تفصيلي: إجمالي الخزينة العام';
           if (type === 'deferred') titleEl.textContent = 'كشف تفصيلي: إجمالي الآجل (المديونيات)';
 
-          if (items.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد بيانات مسجلة.</td></tr>`;
-            return;
-          }
+          snap.forEach(doc => {
+            const d = doc.data() || {};
+            const paid = Number(d.paidAmount ?? d.amountPaid ?? d.paymentAmount ?? 0) || 0;
+            const rem = Number(d.remainingAmount ?? 0) || 0;
+            const method = String(d.method || d.paymentMethod || '');
+            const normalizedMethod = method.toLowerCase();
+            const direction = String(d.direction || '').toLowerCase();
+            const movementType = String(d.type || '').toLowerCase();
+            const isOutgoing = direction === 'out' || /سداد مورد|مصروف|صرف|مرتجع|تالف/.test(movementType);
+            if (isOutgoing) return;
 
-          items.forEach(it => {
-            tbody.innerHTML += `
-              <tr>
-                <td>${it.date}</td>
-                <td><b>${it.type}</b></td>
-                <td>${it.desc}</td>
-                <td style="color:var(--treasury-purple); font-weight:bold;">${it.amount}</td>
-                <td>${it.cashier || '---'}</td>
-              </tr>
-            `;
+            const isTransfer = /انستا.?باي|تحويل|بطاق|visa|mastercard/i.test(normalizedMethod);
+            const date = d.dateFormatted || d.dateStr || d.createdAt || '---';
+            const client = d.clientName || d.name || d.description || 'حركة بدون اسم';
+            let item = null;
+
+            if (type === 'drawer' && !isTransfer && paid > 0) {
+              item = {date, type:'تحصيل نقدي', desc:`${client} - ${method || 'نقدي'}`, amount:paid, cashier:d.cashier};
+            } else if (type === 'transfers' && isTransfer && paid > 0) {
+              item = {date, type:'تحويل / بطاقة / انستا باي', desc:`${client} - ${method}`, amount:paid, cashier:d.cashier};
+            } else if (type === 'deferred' && rem > 0) {
+              item = {date, type:'مديونية آجل', desc:client, amount:rem, cashier:d.cashier};
+            }
+
+            if (item) {
+              total += item.amount;
+              items.push(item);
+            }
           });
         }
+
+        items.sort((a,b) => {
+          const da = Date.parse(a.date) || 0, dbb = Date.parse(b.date) || 0;
+          return dbb - da;
+        });
+
+        if (!items.length) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#64748b;">لا توجد بيانات مسجلة.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(it => `
+          <tr>
+            <td>${safe(it.date)}</td>
+            <td><b>${safe(it.type)}</b></td>
+            <td>${safe(it.desc)}</td>
+            <td style="color:var(--treasury-purple);font-weight:900;white-space:nowrap;">${money(it.amount)}</td>
+            <td>${safe(it.cashier)}</td>
+          </tr>
+        `).join('') + `
+          <tr style="background:rgba(147,51,234,.10);font-weight:900;">
+            <td colspan="3">إجمالي المبلغ الظاهر في الكشف</td>
+            <td style="color:var(--treasury-purple);white-space:nowrap;">${money(total)}</td>
+            <td>—</td>
+          </tr>`;
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red;">خطأ: ${safe(e.message || e)}</td></tr>`;
       }
     }
 
@@ -2787,32 +2838,94 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       }
     }
 
+    function formatFinancialAmount(value) {
+      const amount = Number(value) || 0;
+      return amount.toLocaleString('ar-EG', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' ج.م';
+    }
+
     async function loadFinancialStats() {
+      const drawerEl = document.getElementById('statDrawerTotal');
+      const transfersEl = document.getElementById('statTransfersTotal');
+      const treasuryEl = document.getElementById('statTreasuryTotal');
+      const deferredEl = document.getElementById('statDeferredTotal');
+
       try {
-        const snap = await db.collection('treasury_transactions').get();
+        const [transactionsSnap, treasuriesSnap] = await Promise.all([
+          db.collection('treasury_transactions').get(),
+          db.collection('treasuries').get()
+        ]);
+
         let drawerTotal = 0;
         let transfersTotal = 0;
         let deferredTotal = 0;
+        let treasuryBalanceTotal = 0;
 
-        snap.forEach(doc => {
-          const d = doc.data();
-          const paid = parseFloat(d.paidAmount) || 0;
-          const rem = parseFloat(d.remainingAmount) || 0;
-          const method = String(d.method || '');
-
-          if (method.includes('انستا باي') || method.includes('تحويل')) {
-            transfersTotal += paid;
-          } else {
-            drawerTotal += paid;
-          }
-          deferredTotal += rem;
+        treasuriesSnap.forEach(doc => {
+          const data = doc.data() || {};
+          treasuryBalanceTotal += Number(data.balance) || 0;
         });
 
-        document.getElementById('statDrawerTotal').textContent = drawerTotal;
-        document.getElementById('statTransfersTotal').textContent = transfersTotal;
-        document.getElementById('statTreasuryTotal').textContent = drawerTotal + transfersTotal;
-        document.getElementById('statDeferredTotal').textContent = deferredTotal;
-      } catch (e) { console.log(e); }
+        transactionsSnap.forEach(doc => {
+          const d = doc.data() || {};
+          const paid = Number(d.paidAmount ?? d.amountPaid ?? 0) || 0;
+          const rem = Number(d.remainingAmount ?? 0) || 0;
+          const method = String(d.method || d.paymentMethod || '').toLowerCase();
+          const direction = String(d.direction || '').toLowerCase();
+          const type = String(d.type || '').toLowerCase();
+
+          // لا تُحسب حركات الصرف وسداد الموردين ضمن المقبوضات.
+          const isOutgoing = direction === 'out' ||
+            /سداد مورد|مصروف|صرف|مرتجع|تالف/.test(type);
+          if (!isOutgoing) {
+            if (/انستا.?باي|تحويل|بطاق|visa|mastercard/.test(method)) {
+              transfersTotal += paid;
+            } else {
+              drawerTotal += paid;
+            }
+            deferredTotal += rem;
+          }
+        });
+
+        if (drawerEl) drawerEl.textContent = formatFinancialAmount(drawerTotal);
+        if (transfersEl) transfersEl.textContent = formatFinancialAmount(transfersTotal);
+        // إجمالي الخزينة يعرض الأرصدة الحالية من سجل الخزن، وليس مجموع المقبوضات التاريخية.
+        if (treasuryEl) treasuryEl.textContent = formatFinancialAmount(treasuryBalanceTotal);
+        if (deferredEl) deferredEl.textContent = formatFinancialAmount(deferredTotal);
+      } catch (e) {
+        console.error('تعذر تحميل الملخص المالي للخزينة:', e);
+        [drawerEl, transfersEl, treasuryEl, deferredEl].forEach(el => {
+          if (el) el.textContent = 'تعذر التحميل';
+        });
+      }
+    }
+
+    async function testDatabaseConnection() {
+      const status = document.getElementById('firebaseConnectionStatus');
+      if (!status) return;
+      status.textContent = 'جاري فحص اتصال قاعدة البيانات...';
+      status.style.background = '#e5e7eb';
+      status.style.color = '#374151';
+
+      try {
+        // اختبار قراءة فقط؛ لا تتم إضافة أو تعديل أو حذف أي بيانات.
+        await Promise.all([
+          db.collection('treasuries').limit(1).get(),
+          db.collection('treasury_transactions').limit(1).get()
+        ]);
+        status.textContent = 'قاعدة البيانات متصلة';
+        status.title = 'نجح اختبار القراءة من treasuries و treasury_transactions';
+        status.style.background = '#dcfce7';
+        status.style.color = '#166534';
+      } catch (e) {
+        console.error('فشل اختبار اتصال Firebase/Firestore:', e);
+        status.textContent = 'فشل اتصال قاعدة البيانات';
+        status.title = String(e && e.message ? e.message : e);
+        status.style.background = '#fee2e2';
+        status.style.color = '#991b1b';
+      }
     }
 
     async function openTreasuryManagementModal() {
