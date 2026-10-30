@@ -182,6 +182,17 @@
     #pdfPrintTemplate table { width: 100%; border-collapse: collapse; position: relative; z-index: 2; }
     #pdfPrintTemplate th { background-color: #0f172a !important; color: #ffffff !important; padding: 8px; font-size: 0.8rem; border: 1px solid #0f172a; }
     #pdfPrintTemplate td { padding: 8px; border: 1px solid #cbd5e1; color: #000000 !important; font-size: 0.78rem; font-weight: 600; background: rgba(255,255,255,0.85); }
+
+    .archive-search-panel{background:var(--table-header);border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0 14px}
+    .archive-search-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .archive-search-grid input{width:100%;padding:9px;border:1px solid var(--border);border-radius:7px;background:var(--card-bg);color:var(--text)}
+    .archive-bubbles{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .archive-bubble{border:1px solid var(--accent);background:var(--card-bg);color:var(--text);border-radius:18px;padding:8px 12px;cursor:pointer;text-align:right;box-shadow:0 2px 6px #0001}
+    .archive-bubble:hover{background:var(--accent);color:white}
+    .serial-head{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+    .serial-head input{width:135px;min-width:100px;padding:6px;border:1px solid var(--accent);border-radius:6px;font-weight:bold;direction:ltr}
+    @media(max-width:600px){.archive-search-grid{grid-template-columns:1fr}.serial-head input{width:110px}}
+
   </style>
 
   <!-- Firebase SDKs (Compat v10) -->
@@ -255,10 +266,25 @@
     <div class="card">
       <h3 id="formTitle">
         <span><i class="fa-solid fa-circle-plus"></i> إدخال واستعلام السيارة</span>
+        <span class="serial-head"><label for="serialNo" style="margin:0;font-size:.8rem"><i class="fa-solid fa-barcode"></i> السيريال نمبر:</label>
+          <input type="text" id="serialNo" readonly oninput="checkSerialAuto()" placeholder="S/N-000000" aria-label="السيريال نمبر">
+          <label style="font-size:.7rem;cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:normal"><input type="checkbox" id="autoSerialToggle" checked onchange="toggleAutoSerialInput()"> تلقائي</label>
+          <button type="button" onclick="startCameraScanner()" class="btn btn-warning" title="مسح باركود السيريال" style="padding:5px 8px"><i class="fa-solid fa-camera"></i></button>
+        </span>
         <button type="button" onclick="cancelEditMode()" id="cancelEditBtn" class="btn btn-danger" style="display:none; padding: 3px 8px; font-size:0.75rem;"><i class="fa-solid fa-xmark"></i> إلغاء التعديل</button>
         <button type="button" onclick="clearForm()" class="btn btn-outline" style="padding: 3px 8px; font-size:0.75rem;"><i class="fa-solid fa-eraser"></i> تفريغ الحقول</button>
       </h3>
 
+      <div class="archive-search-panel">
+        <strong><i class="fa-solid fa-magnifying-glass"></i> البحث في أرشيف العملاء والسيارات</strong>
+        <div class="archive-search-grid" style="margin-top:8px">
+          <input id="archiveSearchPlate" placeholder="رقم اللوحة المعدنية" oninput="searchArchiveBubbles()">
+          <input id="archiveSearchName" placeholder="اسم العميل" oninput="searchArchiveBubbles()">
+          <input id="archiveSearchPhone" placeholder="رقم الهاتف (واتساب)" oninput="searchArchiveBubbles()">
+          <input id="archiveSearchSerial" placeholder="السيريال نمبر (S/N-)" oninput="searchArchiveBubbles()">
+        </div>
+        <div id="archiveSearchResults" class="archive-bubbles"></div>
+      </div>
       <form id="receptionForm">
         <input type="hidden" id="editingDocId" value="">
         <!-- البحث والاستعلام باللوحة مع دعم التنقل والترحيل الخلفي للأمام -->
@@ -362,26 +388,10 @@
           </div>
         </div>
 
-        <!-- الشاسيه والسيريال مع المربع الصغير للتوليد التلقائي -->
-        <div class="form-row">
-          <div class="form-group">
-            <label><i class="fa-solid fa-car"></i> رقم الشاسيه (VIN):</label>
-            <input type="text" id="chassisNo" placeholder="رقم شاسيه السيارة (اختياري)">
-          </div>
-          <div class="form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-              <label style="margin-bottom:0;"><i class="fa-solid fa-barcode"></i> السيريال نمبر:</label>
-              <label style="font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;">
-                <input type="checkbox" id="autoSerialToggle" checked onchange="toggleAutoSerialInput()"> توليـد تلقائي
-              </label>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <input type="text" id="serialNo" readonly oninput="checkSerialAuto()" style="background-color: var(--table-header); font-weight:bold; color:var(--accent);" placeholder="أدخل السيريال يدوياً أو تلقائي...">
-              <button type="button" onclick="startCameraScanner()" class="btn btn-warning" title="فتح الكاميرا لمسح باركود سيريال" style="padding: 0 12px; white-space:nowrap;">
-                <i class="fa-solid fa-camera"></i>
-              </button>
-            </div>
-          </div>
+        <!-- رقم الشاسيه -->
+        <div class="form-group">
+          <label><i class="fa-solid fa-car"></i> رقم الشاسيه (VIN):</label>
+          <input type="text" id="chassisNo" placeholder="رقم شاسيه السيارة (اختياري)">
         </div>
 
         <div class="form-group">
@@ -460,6 +470,17 @@
     </div>
   </div>
 
+  <div id="archiveClientModal" class="modal" style="display:none" onclick="if(event.target===this)closeArchiveClientModal()">
+    <div class="modal-content" style="max-width:650px;text-align:right;max-height:90vh;overflow:auto">
+      <h3 style="margin-bottom:12px">بيانات العميل من الأرشيف</h3>
+      <div id="archiveClientDetails"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:15px">
+        <button class="btn btn-success" type="button" onclick="registerNewFaultFromArchive()"><i class="fa-solid fa-plus"></i> تسجيل جديد / عطل جديد</button>
+        <button class="btn btn-outline" type="button" onclick="closeArchiveClientModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
   <!-- قالب الطباعة للـ PDF -->
   <div id="pdfPrintTemplate">
     <img id="pdfWatermarkImg" src="NON.png" class="pdf-watermark" alt="Watermark">
@@ -519,6 +540,7 @@
         snapshot.forEach(doc => {
           archiveDataCache.push({ id: doc.id, ...doc.data() });
         });
+        if (typeof searchArchiveBubbles === 'function') searchArchiveBubbles();
       } catch (error) {
         console.error("خطأ في جلب بيانات الأرشيف للاستقبال: ", error);
       }
@@ -555,6 +577,135 @@
       } catch (error) {
         console.error("خطأ في البحث داخل الأرشيف:", error);
       }
+    }
+
+
+    let selectedArchivedClient = null;
+    function archiveValue(item, keys) {
+      for (const key of keys) if (item && item[key] != null && String(item[key]).trim()) return String(item[key]).trim();
+      return '';
+    }
+    function archivePlate(item) {
+      return archiveValue(item, ['plate','plateNumber','licensePlate']) ||
+        ((item.carDetails || '').match(/لوحة\s*:\s*([^|]+)/i) || [,''])[1].trim();
+    }
+    function archiveSerial(item) {
+      return archiveValue(item, ['serialNo','serial','serialNumber']) ||
+        ((item.carDetails || '').match(/سيريال\s*:\s*([^|]+)/i) || [,''])[1].trim();
+    }
+    function searchArchiveBubbles() {
+      const q = {
+        plate: document.getElementById('archiveSearchPlate').value.trim().toLowerCase().replace(/\s/g,''),
+        name: document.getElementById('archiveSearchName').value.trim().toLowerCase(),
+        phone: document.getElementById('archiveSearchPhone').value.trim().replace(/\s/g,''),
+        serial: document.getElementById('archiveSearchSerial').value.trim().toLowerCase().replace(/\s/g,'')
+      };
+      const hasQuery = Object.values(q).some(Boolean);
+      const box = document.getElementById('archiveSearchResults');
+      if (!hasQuery) { box.innerHTML = ''; return; }
+      const matches = archiveDataCache.filter(item => {
+        const plate = archivePlate(item).toLowerCase().replace(/\s/g,'');
+        const name = archiveValue(item,['clientName','name']).toLowerCase();
+        const phone = archiveValue(item,['clientPhone','phone']).replace(/\s/g,'');
+        const serial = archiveSerial(item).toLowerCase().replace(/\s/g,'');
+        return (!q.plate || plate.includes(q.plate)) &&
+          (!q.name || name.includes(q.name)) &&
+          (!q.phone || phone.includes(q.phone)) &&
+          (!q.serial || serial.includes(q.serial));
+      }).slice(0,20);
+      if (!matches.length) {
+        box.innerHTML = '<span style="font-size:.85rem">لا توجد نتائج مطابقة في الأرشيف.</span>';
+        return;
+      }
+      box.innerHTML = matches.map((item, index) => {
+        const name = archiveValue(item,['clientName','name']) || 'عميل بدون اسم';
+        const plate = archivePlate(item) || 'بدون لوحة';
+        const serial = archiveSerial(item) || 'بدون سيريال';
+        return `<button type="button" class="archive-bubble" onclick="showArchivedClient(${index})" data-archive-index="${index}"><strong>${escapeArchiveText(name)}</strong><br><small>لوحة: ${escapeArchiveText(plate)} | ${escapeArchiveText(serial)}</small></button>`;
+      }).join('');
+      window.currentArchiveSearchResults = matches;
+    }
+    function escapeArchiveText(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function showArchivedClient(index) {
+      const item = (window.currentArchiveSearchResults || [])[index];
+      if (!item) return;
+      selectedArchivedClient = item;
+      const fields = [
+        ['اسم العميل',archiveValue(item,['clientName','name'])],
+        ['رقم الهاتف (واتساب)',archiveValue(item,['clientPhone','phone'])],
+        ['رقم اللوحة المعدنية',archivePlate(item)],
+        ['السيريال نمبر',archiveSerial(item)],
+        ['نوع / ماركة السيارة',archiveValue(item,['brand','carBrand'])],
+        ['الموديل',archiveValue(item,['model','carModel'])],
+        ['بلد المنشأ',archiveValue(item,['origin','carOrigin'])],
+        ['اللون',archiveValue(item,['color','carColor'])],
+        ['سنة الصنع',archiveValue(item,['year','carYear'])],
+        ['رقم الشاسيه',archiveValue(item,['chassis','chassisNo','vin'])],
+        ['تفاصيل السيارة',archiveValue(item,['carDetails'])],
+        ['الملاحظات / العطل السابق',archiveValue(item,['notes','issue','receptionComplaint'])],
+        ['تاريخ التسجيل / الأرشفة',archiveValue(item,['createdAt','archiveDateTag','date'])],
+        ['المبلغ',archiveValue(item,['paymentAmount','amount'])]
+      ].filter(pair => pair[1]);
+      document.getElementById('archiveClientDetails').innerHTML =
+        `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">${fields.map(([k,v])=>`<div style="background:var(--table-header);padding:10px;border-radius:8px"><strong>${escapeArchiveText(k)}:</strong><div style="margin-top:4px;overflow-wrap:anywhere">${escapeArchiveText(v)}</div></div>`).join('')}</div>`;
+      document.getElementById('archiveClientModal').style.display='flex';
+    }
+    function closeArchiveClientModal() {
+      document.getElementById('archiveClientModal').style.display='none';
+    }
+    function registerNewFaultFromArchive() {
+      const item = selectedArchivedClient;
+      if (!item) return;
+      clearForm();
+      const mapped = {
+        name: archiveValue(item,['clientName','name']),
+        phone: archiveValue(item,['clientPhone','phone']),
+        plate: archivePlate(item),
+        serialNo: ''
+      };
+      // Populate the known customer and vehicle information without reusing the old repair serial.
+      if (item.brand || item.model || item.origin || item.color || item.year || item.chassis) {
+        fillFormWithCarData({
+          name:mapped.name, phone:mapped.phone, plate:mapped.plate,
+          origin:item.origin || item.carOrigin || '',
+          brand:item.brand || item.carBrand || '',
+          model:item.model || item.carModel || '',
+          color:item.color || item.carColor || '',
+          year:item.year || item.carYear || '',
+          engine:item.engine || item.engineCapacity || '1600 CC',
+          chassis:item.chassis || item.chassisNo || item.vin || '',
+          issue:''
+        });
+      } else {
+        document.getElementById('clientName').value = mapped.name;
+        document.getElementById('clientPhone').value = mapped.phone;
+        const plate = mapped.plate;
+        const parts = plate.split('-');
+        if (parts.length === 2) {
+          [...parts[0].trim()].slice(0,3).forEach((v,i)=>document.getElementById(['p_char1','p_char2','p_char3'][i]).value=v);
+          [...parts[1].trim()].slice(0,4).forEach((v,i)=>document.getElementById(['p_num1','p_num2','p_num3','p_num4'][i]).value=v);
+        }
+      }
+      document.getElementById('carIssue').value = '';
+      document.getElementById('editingDocId').value = '';
+      document.getElementById('autoSerialToggle').checked = true;
+      document.getElementById('serialNo').value = '';
+      generateDefaultSerialNumber();
+      document.getElementById('formTitle').querySelector('span').innerHTML = '<i class="fa-solid fa-circle-plus"></i> تسجيل عطل جديد لعميل سابق';
+      document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تسجيل العطل الجديد';
+      closeArchiveClientModal();
+      document.getElementById('clientName').scrollIntoView({behavior:'smooth',block:'center'});
+    }
+
+    // السيريال دائمًا يبدأ بالبادئة الثابتة S/N-
+    function normalizeSerialPrefix() {
+      const input = document.getElementById('serialNo');
+      if (!input) return;
+      const raw = input.value.trim();
+      if (raw && !/^S\/N-/i.test(raw)) input.value = 'S/N-' + raw.replace(/^S\/N-/i,'');
+      else if (raw) input.value = 'S/N-' + raw.substring(4);
     }
 
     function tryNextImageFormat(imgElement) {
@@ -656,7 +807,7 @@
       } else {
         serialInput.removeAttribute('readonly');
         serialInput.style.backgroundColor = 'var(--card-bg)';
-        serialInput.value = '';
+        serialInput.value = 'S/N-';
         serialInput.focus();
       }
     }
@@ -1174,6 +1325,7 @@
         return;
       }
 
+      normalizeSerialPrefix();
       const serialNoVal = document.getElementById('serialNo').value.trim();
       
       if (!editingId) {
