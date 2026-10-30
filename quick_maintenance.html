@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أوتو نون - الصيانة السريعة</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+<style>
+:root{--bg-color:#f8fafc;--card-bg:#fff;--primary-orange:#ea580c;--text-main:#0f172a;--border-color:#e2e8f0;--input-bg:#fff;--btn-blue:#0284c7;--btn-green:#10b981;--danger-red:#dc2626;--btn-yellow:#f59e0b}
+body.dark-mode{--bg-color:#0f172a;--card-bg:#1e293b;--text-main:#f8fafc;--border-color:#334155;--input-bg:#334155}
+*{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+html,body{direction:rtl;text-align:right;background:var(--bg-color);color:var(--text-main);padding:10px;margin:0;font-size:.9rem;transition:.25s}
+header,.panel,.stat{background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 15px;margin-bottom:12px}
+h1,h2{margin:0;color:var(--primary-orange)}h1{font-size:1.1rem}h2{font-size:.95rem;margin-bottom:12px}
+button,a{border:0;border-radius:8px;padding:9px 12px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-flex;gap:7px;align-items:center;font-size:.82rem}
+.orange{background:var(--primary-orange);color:#fff}.blue{background:var(--btn-blue);color:#fff}.green{background:var(--btn-green);color:#fff}.gray{background:#334155;color:#fff}
+.grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px}
+.search,input,textarea,select{width:100%;padding:9px 10px;border:1px solid var(--border-color);border-radius:7px;background:var(--input-bg);color:var(--text-main)}
+.car{padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--input-bg);margin-top:8px;cursor:pointer;line-height:1.7}
+.car.active{border:2px solid var(--primary-orange);background:rgba(234,88,12,.05)}
+.muted{font-size:.78rem;color:#64748b}.stats{display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.stat{padding:11px;flex:1;min-width:120px}.stat b{display:block;color:var(--primary-orange);font-size:1.3rem;margin-top:3px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{padding:10px;border:1px solid var(--border-color);border-radius:8px;overflow-wrap:anywhere;background:var(--card-bg)}
+.field label{display:block;color:#64748b;font-size:.76rem;margin-bottom:6px}.wide{grid-column:1/-1}
+.panel{padding:14px;margin-bottom:12px}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.empty{padding:22px;text-align:center;color:#64748b;border:1px dashed var(--border-color);border-radius:9px}
+.media-box{background:rgba(2,132,199,.035);border:1px solid var(--btn-blue);border-radius:10px;padding:11px;margin-top:12px}
+.photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.photo-item{position:relative;width:90px;height:70px}.photo-item img{width:100%;height:100%;object-fit:cover;border-radius:7px;border:1px solid var(--border-color)}.photo-item button{position:absolute;top:-5px;left:-5px;border-radius:50%;padding:0;width:21px;height:21px;background:var(--danger-red);color:white}
+.photo-stage{display:grid;grid-template-columns:1fr 1fr;gap:9px}.photo-stage-card{border:1px dashed var(--border-color);border-radius:9px;padding:10px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}}@media(max-width:550px){.fields,.photo-stage{grid-template-columns:1fr}body{padding:6px}.wide{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><h1><i class="fa-solid fa-screwdriver-wrench"></i> قسم الصيانة السريعة - NON</h1>
+<div style="display:flex;gap:7px;flex-wrap:wrap">
+<a class="gray" href="diagnosis(2).html">العودة للتشخيص</a>
+<button class="gray" onclick="toggleDarkMode()">الوضع الليلي</button>
+<button class="blue" onclick="loadCars()">تحديث</button></div></header>
+<div class="stats"><div class="stat">سيارات بالقسم<b id="total">0</b></div><div class="stat">قيد التنفيذ<b id="working">0</b></div><div class="stat">بانتظار البدء<b id="waiting">0</b></div></div>
+<div class="grid">
+<section class="panel"><h2>السيارات المحولة للقسم</h2><input id="search" class="search" placeholder="بحث بالعميل أو اللوحة أو الخدمة" oninput="render()"><div id="list" class="empty">جاري التحميل...</div></section>
+<section class="panel"><h2>بيانات السيارة وأمر الصيانة</h2><div id="empty" class="empty">اختر سيارة من القائمة لعرض بياناتها.</div>
+<div id="details" hidden><div class="fields">
+<div class="field"><label>اسم العميل</label><b id="client">—</b></div><div class="field"><label>الهاتف</label><b id="phone">—</b></div>
+<div class="field"><label>السيارة</label><b id="vehicle">—</b></div><div class="field"><label>رقم اللوحة</label><b id="plate">—</b></div>
+<div class="field"><label>رقم الدور</label><b id="queue">—</b></div><div class="field"><label>قراءة العداد</label><b id="odo">—</b></div>
+<div class="field"><label>الخدمة المطلوبة</label><b id="service">—</b></div><div class="field"><label>الحالة</label><b id="status">—</b></div>
+<div class="field wide"><label>شكوى العميل</label><div id="complaint">—</div></div><div class="field wide"><label>تقرير التشخيص</label><div id="diagnosis">—</div></div>
+<div class="field wide"><label>ملاحظات فني الصيانة السريعة</label><textarea id="notes" rows="4" placeholder="اكتب الأعمال التي تم تنفيذها والملاحظات..."></textarea></div>
+</div>
+<div class="media-box">
+ <h2><i class="fa-solid fa-camera-retro"></i> تصوير السيارة قبل وبعد الصيانة</h2>
+ <div class="photo-stage">
+  <div class="photo-stage-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><b>📷 قبل الصيانة</b><button class="blue" onclick="captureStagePhoto('before')">تصوير</button></div>
+   <input type="file" id="beforeMaintenanceInput" accept="image/*" capture="environment" multiple hidden onchange="handleStagePhotos(this,'before')"><div id="beforeMaintenancePreview" class="photo-grid"></div>
+  </div>
+  <div class="photo-stage-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><b>📷 بعد الصيانة</b><button class="green" onclick="captureStagePhoto('after')">تصوير</button></div>
+   <input type="file" id="afterMaintenanceInput" accept="image/*" capture="environment" multiple hidden onchange="handleStagePhotos(this,'after')"><div id="afterMaintenancePreview" class="photo-grid"></div>
+  </div>
+ </div>
+ <div class="buttons">
+  <button class="blue" onclick="document.getElementById('quickAttachmentInput').click()">إرفاق صور إضافية</button>
+  <input type="file" id="quickAttachmentInput" accept="image/*" multiple hidden onchange="handleQuickAttachments(this)">
+  <button class="blue" onclick="openPhotoDataPage()">فتح ملف الميديا</button>
+  <button class="green" onclick="sendPhotoPageWhatsAppLink()">إرسال ملف الميديا واتساب</button>
+ </div>
+ <div id="quickAttachmentsPreview" class="photo-grid"></div>
+</div>
+
+<div class="buttons"><button class="orange" onclick="startWork()">بدء الصيانة</button><button class="blue" onclick="saveQuickData().then(()=>alert('تم حفظ البيانات والصور'))">حفظ التحديثات</button><button class="green" onclick="finishWork()">إنهاء الصيانة وإعادة السيارة للتشخيص</button><button class="blue" onclick="whatsapp()">واتساب العميل</button></div></div>
+<div class="muted" id="msg">القائمة مرتبطة مباشرة بقاعدة بيانات Firebase الخاصة بالمركز.</div></section></div>
+<script>
+const firebaseConfig={apiKey:"AIzaSyAo4cdiLNInZoVPA6kFkDUl1tWaxcLVtKk",authDomain:"auto-non-b841f.firebaseapp.com",projectId:"auto-non-b841f",storageBucket:"auto-non-b841f.firebasestorage.app",messagingSenderId:"512423300329",appId:"1:512423300329:web:190310e1c4b80c9921b478",measurementId:"G-ZG5RQBB3GL"};
+if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore(),storage=firebase.storage();
+let cars=[],selected=null,carsUnsubscribe=null,beforePhotos=[],afterPhotos=[],extraPhotos=[];
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function tech(){try{const x=JSON.parse(localStorage.getItem("autonon_engineer_session")||"{}");return x.name||localStorage.getItem("currentUser")||"فني الصيانة السريعة"}catch(e){return localStorage.getItem("currentUser")||"فني الصيانة السريعة"}}
+
+function toggleDarkMode(){document.body.classList.toggle("dark-mode");localStorage.setItem("non_quick_dark",document.body.classList.contains("dark-mode")?"1":"0")}
+if(localStorage.getItem("non_quick_dark")==="1")document.body.classList.add("dark-mode");
+function captureStagePhoto(stage){if(!selected)return alert("اختر سيارة أولاً.");document.getElementById(stage==="before"?"beforeMaintenanceInput":"afterMaintenanceInput").click()}
+async function uploadQuickImages(files,folder){const urls=[];for(const file of files){if(!file.type.startsWith("image/"))continue;const name=Date.now()+"_"+Math.random().toString(36).slice(2)+".jpg";const ref=storage.ref().child("quick_maintenance_media/"+selected+"/"+folder+"/"+name);const snap=await ref.put(file);urls.push(await snap.ref.getDownloadURL())}return urls}
+async function saveQuickData(){if(!selected)return;await db.collection("cars").doc(selected).set({quickMaintenanceNotes:document.getElementById("notes").value,quickMaintenanceBeforePhotos:beforePhotos,quickMaintenanceAfterPhotos:afterPhotos,quickMaintenanceAttachments:extraPhotos,quickMaintenanceTechnician:tech(),updatedAt:new Date().toISOString()},{merge:true})}
+async function handleStagePhotos(input,stage){if(!selected)return alert("اختر سيارة أولاً.");const files=[...input.files];try{const urls=await uploadQuickImages(files,stage);if(stage==="before")beforePhotos.push(...urls);else afterPhotos.push(...urls);await saveQuickData();renderQuickPhotos()}catch(e){alert("تعذر رفع الصور: "+e.message)}finally{input.value=""}}
+async function handleQuickAttachments(input){if(!selected)return alert("اختر سيارة أولاً.");try{extraPhotos.push(...await uploadQuickImages([...input.files],"attachments"));await saveQuickData();renderQuickPhotos()}catch(e){alert("تعذر رفع المرفقات: "+e.message)}finally{input.value=""}}
+function renderPhotoList(id,arr,stage){document.getElementById(id).innerHTML=arr.length?arr.map((u,i)=>`<div class="photo-item"><a href="${esc(u)}" target="_blank"><img src="${esc(u)}"></a><button onclick="removeQuickPhoto('${stage}',${i})">×</button></div>`).join(""):'<small class="muted">لا توجد صور.</small>'}
+function renderQuickPhotos(){renderPhotoList("beforeMaintenancePreview",beforePhotos,"before");renderPhotoList("afterMaintenancePreview",afterPhotos,"after");renderPhotoList("quickAttachmentsPreview",extraPhotos,"extra")}
+async function removeQuickPhoto(stage,i){const arr=stage==="before"?beforePhotos:stage==="after"?afterPhotos:extraPhotos;const url=arr[i];if(!confirm("حذف الصورة؟"))return;arr.splice(i,1);try{await storage.refFromURL(url).delete()}catch(e){}await saveQuickData();renderQuickPhotos()}
+function mediaPageUrl(){return selected?new URL("quick_maintenance_media.html?carId="+encodeURIComponent(selected),location.href).href:""}
+function openPhotoDataPage(){if(!selected)return alert("اختر سيارة أولاً.");window.open(mediaPageUrl(),"_blank")}
+function sendPhotoPageWhatsAppLink(){if(!selected)return alert("اختر سيارة أولاً.");const c=cars.find(x=>x.id===selected);let p=String(c?.phone||c?.clientPhone||"").replace(/\D/g,"");if(p.startsWith("0"))p="2"+p;else if(p.startsWith("1")&&p.length===10)p="20"+p;if(!p)return alert("رقم الهاتف غير مسجل.");window.open("https://wa.me/"+p+"?text="+encodeURIComponent("ملف صور وبيانات سيارتكم من مركز أوتو نون (NON):\\n"+mediaPageUrl()),"_blank")}
+
+function loadCars(){
+ if(carsUnsubscribe)carsUnsubscribe();
+ carsUnsubscribe=db.collection("cars").onSnapshot(s=>{
+  cars=[];s.forEach(d=>{const c={id:d.id,...d.data()};if(c.targetDepartment==="quick_maintenance"&&!["COMPLETED","ARCHIVED","PAID_AWAITING_DELIVERY"].includes(c.status))cars.push(c)});
+  render();if(selected){const c=cars.find(x=>x.id===selected);if(c)show(c);else clearDetails()}
+ },e=>{console.error(e);document.getElementById("list").textContent="تعذر تحميل البيانات. تحقق من الاتصال والصلاحيات."});
+}
+function render(){const q=(document.getElementById("search").value||"").toLowerCase();const filtered=cars.filter(c=>[c.clientName,c.name,c.plate,c.carPlate,c.brand,c.model,c.serviceType,c.queueNo].join(" ").toLowerCase().includes(q));document.getElementById("total").textContent=cars.length;document.getElementById("working").textContent=cars.filter(c=>c.status==="IN_PROGRESS").length;document.getElementById("waiting").textContent=cars.filter(c=>c.status!=="IN_PROGRESS").length;document.getElementById("list").innerHTML=filtered.length?filtered.map(c=>`<div class="car ${selected===c.id?"active":""}" onclick="choose('${c.id}')"><b>${esc(c.clientName||c.name||"عميل")} — ${esc((c.brand||"")+" "+(c.model||""))}</b><div class="muted">اللوحة: ${esc(c.plate||c.carPlate||"—")} | الدور: ${esc(c.queueNo||"—")}</div><div class="muted">الخدمة: ${esc(c.serviceType||"غير محددة")}</div><b class="muted">${esc(c.statusLabel||"محولة للقسم")}</b></div>`).join(""):'<div class="empty">لا توجد سيارات محولة إلى الصيانة السريعة حالياً.</div>'}
+function choose(id){selected=id;const c=cars.find(x=>x.id===id);if(c)show(c);render()}
+function show(c){document.getElementById("empty").hidden=true;document.getElementById("details").hidden=false;const vals={client:c.clientName||c.name||"—",phone:c.phone||c.clientPhone||"—",vehicle:((c.brand||"")+" "+(c.model||"")).trim()||c.carInfo||"—",plate:c.plate||c.carPlate||"—",queue:c.queueNo||"—",odo:c.currentOdo?c.currentOdo+" كم":"—",service:c.serviceType||"—",status:c.statusLabel||c.status||"—",complaint:c.receptionComplaint||c.complaint||"—",diagnosis:c.diagnosisDetails||"—"};Object.entries(vals).forEach(([k,v])=>document.getElementById(k).textContent=v);document.getElementById("notes").value=c.quickMaintenanceNotes||"";
+ beforePhotos=c.quickMaintenanceBeforePhotos||[];afterPhotos=c.quickMaintenanceAfterPhotos||[];extraPhotos=c.quickMaintenanceAttachments||[];
+ renderQuickPhotos();
+}
+function clearDetails(){selected=null;document.getElementById("details").hidden=true;document.getElementById("empty").hidden=false;beforePhotos=[];afterPhotos=[];extraPhotos=[];renderQuickPhotos()}
+async function startWork(){if(!selected)return alert("اختر سيارة أولاً.");try{await db.collection("cars").doc(selected).update({status:"IN_PROGRESS",statusLabel:"جاري تنفيذ الصيانة السريعة",quickMaintenanceStartedAt:new Date().toISOString(),quickMaintenanceTechnician:tech(),updatedAt:new Date().toISOString()});alert("تم بدء الصيانة وتسجيل الفني المسؤول.")}catch(e){alert("تعذر بدء الصيانة: "+e.message)}}
+async function finishWork(){if(!selected)return alert("اختر سيارة أولاً.");if(!confirm("إنهاء الصيانة السريعة وإعادة السيارة إلى التشخيص؟"))return;try{const stamp=new Date().toISOString(),c=cars.find(x=>x.id===selected);await saveQuickData();await db.collection("cars").doc(selected).update({status:"IN_DIAGNOSIS",statusLabel:"انتهت الصيانة السريعة — عادت إلى التشخيص",targetDepartment:"diagnosis",lastDepartment:"quick_maintenance",lastServiceType:c?.serviceType||"",quickMaintenanceCompletedAt:stamp,displayStatus:"IN_DIAGNOSIS",updatedAt:stamp});alert("تم إنهاء الصيانة وإعادة السيارة للتشخيص.");clearDetails()}catch(e){alert("تعذر إنهاء الصيانة: "+e.message)}}
+function whatsapp(){const c=cars.find(x=>x.id===selected);if(!c)return alert("اختر سيارة أولاً.");let p=String(c.phone||c.clientPhone||"").replace(/[^0-9+]/g,"");if(p.startsWith("+20"))p=p.slice(1);else if(p.startsWith("0"))p="2"+p;else if(!p.startsWith("20"))p="20"+p;if(!p)return alert("رقم هاتف العميل غير مسجل.");const m=`أهلاً ${c.clientName||c.name||"عميلنا العزيز"}، سيارتكم لدى قسم الصيانة السريعة بمركز أوتو نون (NON).\nملف الصور والبيانات: ${mediaPageUrl()}`;window.open(`https://wa.me/${p}?text=${encodeURIComponent(m)}`,"_blank")}
+loadCars();const requested=new URLSearchParams(location.search).get("carId");if(requested){const timer=setInterval(()=>{if(cars.some(c=>c.id===requested)){choose(requested);clearInterval(timer)}},250);setTimeout(()=>clearInterval(timer),10000)}
+</script>
+<script id="non-system-control-guard">
+(function(){
+  const NON_SECTION_KEY = "quick_maintenance";
+  const NON_CONTROL_DOC = "system_control/main";
+  function showBlock(title, message){
+    if(document.getElementById("nonSystemBlock")) return;
+    const overlay=document.createElement("div");
+    overlay.id="nonSystemBlock";
+    overlay.style.cssText="position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.96);display:flex;align-items:center;justify-content:center;padding:22px;font-family:Tahoma,Arial,sans-serif;direction:rtl;color:#fff;text-align:center";
+    overlay.innerHTML='<div style="max-width:520px;background:#1e293b;border:1px solid #475569;border-radius:18px;padding:28px;box-shadow:0 20px 70px #0008"><div style="font-size:42px;margin-bottom:12px">🔒</div><h2 style="margin:0 0 12px;color:#fb923c">'+title+'</h2><p style="line-height:1.9;margin:0 0 18px">'+message+'</p><a href="admin.html" style="display:inline-block;background:#ea580c;color:white;text-decoration:none;padding:11px 20px;border-radius:9px;font-weight:bold">لوحة مسؤول النظام</a></div>';
+    document.body.appendChild(overlay);
+  }
+  function applyControl(data){
+    data=data||{};
+    const sections=data.sections||{};
+    if(data.systemLocked===true){
+      showBlock("النظام متوقف مؤقتًا","قام مسؤول النظام بإيقاف النظام بالكامل. تواصل مع المسؤول لإعادة التشغيل.");
+      return;
+    }
+    if(data.maintenanceMode===true){
+      showBlock("النظام في وضع الصيانة","النظام متوقف مؤقتًا لإجراء أعمال الصيانة والتحديث. حاول مرة أخرى لاحقًا.");
+      return;
+    }
+    if(sections[NON_SECTION_KEY]===false){
+      showBlock("القسم مغلق حاليًا","تم إيقاف هذا القسم من لوحة مسؤول النظام. يمكن للمسؤول إعادة فتحه من لوحة التحكم.");
+      return;
+    }
+    const banner=document.getElementById("nonSystemNotice");
+    if(banner) banner.remove();
+  }
+  function start(){
+    if(!window.firebase || !firebase.apps || !firebase.apps.length || !firebase.firestore) return;
+    firebase.firestore().collection("system_control").doc("main").onSnapshot(
+      snap=>applyControl(snap.exists?snap.data():{}),
+      err=>console.warn("NON system control unavailable:",err)
+    );
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start,{once:true}); else start();
+})();
+</script>
+
+</body></html>

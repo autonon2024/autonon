@@ -1705,5 +1705,47 @@
       }
     }
   </script>
+
+<script id="non-system-control-guard">
+(function(){
+  const NON_SECTION_KEY = "upholstery";
+  const NON_CONTROL_DOC = "system_control/main";
+  function showBlock(title, message){
+    if(document.getElementById("nonSystemBlock")) return;
+    const overlay=document.createElement("div");
+    overlay.id="nonSystemBlock";
+    overlay.style.cssText="position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.96);display:flex;align-items:center;justify-content:center;padding:22px;font-family:Tahoma,Arial,sans-serif;direction:rtl;color:#fff;text-align:center";
+    overlay.innerHTML='<div style="max-width:520px;background:#1e293b;border:1px solid #475569;border-radius:18px;padding:28px;box-shadow:0 20px 70px #0008"><div style="font-size:42px;margin-bottom:12px">🔒</div><h2 style="margin:0 0 12px;color:#fb923c">'+title+'</h2><p style="line-height:1.9;margin:0 0 18px">'+message+'</p><a href="admin.html" style="display:inline-block;background:#ea580c;color:white;text-decoration:none;padding:11px 20px;border-radius:9px;font-weight:bold">لوحة مسؤول النظام</a></div>';
+    document.body.appendChild(overlay);
+  }
+  function applyControl(data){
+    data=data||{};
+    const sections=data.sections||{};
+    if(data.systemLocked===true){
+      showBlock("النظام متوقف مؤقتًا","قام مسؤول النظام بإيقاف النظام بالكامل. تواصل مع المسؤول لإعادة التشغيل.");
+      return;
+    }
+    if(data.maintenanceMode===true){
+      showBlock("النظام في وضع الصيانة","النظام متوقف مؤقتًا لإجراء أعمال الصيانة والتحديث. حاول مرة أخرى لاحقًا.");
+      return;
+    }
+    if(sections[NON_SECTION_KEY]===false){
+      showBlock("القسم مغلق حاليًا","تم إيقاف هذا القسم من لوحة مسؤول النظام. يمكن للمسؤول إعادة فتحه من لوحة التحكم.");
+      return;
+    }
+    const banner=document.getElementById("nonSystemNotice");
+    if(banner) banner.remove();
+  }
+  function start(){
+    if(!window.firebase || !firebase.apps || !firebase.apps.length || !firebase.firestore) return;
+    firebase.firestore().collection("system_control").doc("main").onSnapshot(
+      snap=>applyControl(snap.exists?snap.data():{}),
+      err=>console.warn("NON system control unavailable:",err)
+    );
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start,{once:true}); else start();
+})();
+</script>
+
 </body>
 </html>
