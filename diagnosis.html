@@ -602,7 +602,7 @@
       const legacyUser = localStorage.getItem('currentUser');
       
       if (!sessionRaw && !legacyUser) { 
-        window.location.replace('login_2.html'); 
+        window.location.replace('login.html'); 
         return; 
       }
       
@@ -623,7 +623,7 @@
     window.logoutEngineer = function() {
       localStorage.removeItem('autonon_engineer_session');
       localStorage.removeItem('currentUser');
-      window.location.replace('login_2.html');
+      window.location.replace('login.html');
     };
 
     window.openJobOrderPreview = function() {
