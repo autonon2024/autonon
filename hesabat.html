@@ -756,6 +756,7 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       <button class="btn-action btn-green" data-quick="expenses" onclick="openExpensesModal()"><i class="fa-solid fa-money-bill-wave"></i> المصاريف</button>
       <button class="btn-action btn-purple" data-quick="workers" onclick="openWorkersModal()"><i class="fa-solid fa-users-gear"></i> العمال والأقسام</button>
       <button class="btn-action btn-green" data-quick="clients" onclick="openClientAccountsModal()"><i class="fa-solid fa-address-book"></i> كشف العملاء</button>
+      <button class="btn-action btn-orange" onclick="openClientLifeStatement()"><i class="fa-solid fa-file-lines"></i> كشف العميل</button>
       <button class="btn-action btn-green" data-quick="collections" onclick="openCollectionsModal()"><i class="fa-solid fa-hand-holding-dollar"></i> التحصيلات</button>
       <button class="btn-action btn-blue" data-quick="archive" onclick="openArchiveModal()"><i class="fa-solid fa-box-archive"></i> الأرشيف</button>
       <button class="btn-action btn-orange" data-quick="suppliers" onclick="openServiceModal('suppliersServiceModal')"><i class="fa-solid fa-truck-field"></i> الموردون والتجار</button>
@@ -1901,10 +1902,7 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       document.getElementById('managerDiscountSum').textContent = discount;
       document.getElementById('grandTotalSum').textContent = netFinalTotal;
       
-      const paidInput = document.getElementById('amountPaidInput');
-      if (!paidInput.dataset.manualEdited) {
-        paidInput.value = netFinalTotal;
-      }
+      // المبلغ المدفوع فعلياً يُدخله المحاسب يدوياً ولا يُملأ تلقائياً من الإجمالي.
       onAmountPaidInput();
     }
 
@@ -2168,8 +2166,9 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
           updateOriginalDepartmentUI(dept);
           prepareArchivedInvoice(item);
           document.getElementById('activeClientTitle').textContent = `العميل #${item.invoiceSerial || '---'} — تم فتحه في الحسابات من الأرشيف`;
-          document.getElementById('amountPaidInput').value = item.paidAmount || 0;
-          document.getElementById('amountPaidInput').dataset.manualEdited = 'true';
+          document.getElementById('amountPaidInput').value = '';
+          document.getElementById('amountPaidInput').dataset.manualEdited = '';
+          onAmountPaidInput();
           document.getElementById('paymentMethod').value = item.method || item.paymentMethod || 'نقدي (كاش)';
           document.getElementById('returnToDepartmentBtn').style.display = 'inline-flex';
           closeReturnCustomerReview();
@@ -3892,7 +3891,8 @@ window.showClientStatement=async function(clientName){
     const rows=docs.map((x,i)=>{const total=num(x.totalAmount||x.grandTotal),paid=num(x.paidAmount),rem=num(x.remainingAmount||(total-paid));return '<tr><td>'+(i+1)+'</td><td>'+esc(x.date||x.timestamp||x.createdAt||'')+'</td><td>'+esc(x.invoiceSerial||x.invoiceNumber||'')+'</td><td>'+esc(x.carInfo||'')+'</td><td>'+money(total)+'</td><td>'+money(paid)+'</td><td>'+money(rem)+'</td></tr>';}).join('');
     const total=docs.reduce((a,x)=>a+num(x.totalAmount||x.grandTotal),0),paid=docs.reduce((a,x)=>a+num(x.paidAmount),0),rem=docs.reduce((a,x)=>a+num(x.remainingAmount||(num(x.totalAmount||x.grandTotal)-num(x.paidAmount))),0);
     const w=window.open('','_blank','width=1000,height=750');if(!w)return;
-    w.document.write('<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>كشف حساب '+esc(clientName)+'</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;color:#111}.head{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px}.meta{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;margin-bottom:10px}.meta div{border:1px solid #cbd5e1;padding:6px}.bank{width:100%;border-collapse:collapse;font-size:10px}.bank th,.bank td{border:1px solid #cbd5e1;padding:5px}.bank th{background:#0f172a;color:#fff}.tot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.tot div{border:1px solid #cbd5e1;padding:7px;font-weight:900}</style></head><body><div class="head"><div><h2 style="margin:0">كشف حساب عميل</h2><div>حركة مالية تفصيلية</div></div><div>'+new Date().toLocaleDateString('ar-EG')+'</div></div><div class="meta"><div><b>العميل:</b> '+esc(clientName)+'</div><div><b>عدد الزيارات:</b> '+docs.length+'</div><div><b>الرصيد:</b> '+money(rem)+'</div></div><table class="bank"><thead><tr><th>م</th><th>التاريخ</th><th>رقم الفاتورة</th><th>البيان / السيارة</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>'+rows+'</tbody></table><div class="tot"><div>إجمالي المدين<br>'+money(total)+'</div><div>إجمالي المدفوع<br>'+money(paid)+'</div><div>الرصيد المستحق<br>'+money(rem)+'</div></div></body></html>');w.document.close();setTimeout(()=>{w.print();setTimeout(()=>w.close(),500)},250);
+    w.document.write('<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>كشف حساب '+esc(clientName)+'</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;color:#111}.head{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px}.meta{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;margin-bottom:10px}.meta div{border:1px solid #cbd5e1;padding:6px}.bank{width:100%;border-collapse:collapse;font-size:10px}.bank th,.bank td{border:1px solid #cbd5e1;padding:5px}.bank th{background:#0f172a;color:#fff}.tot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.tot div{border:1px solid #cbd5e1;padding:7px;font-weight:900}</style></head><body><div class="head"><div><h2 style="margin:0">كشف حساب عميل</h2><div>حركة مالية تفصيلية</div></div><div>'+new Date().toLocaleDateString('ar-EG')+'</div></div><div class="meta"><div><b>العميل:</b> '+esc(clientName)+'</div><div><b>عدد الزيارات:</b> '+docs.length+'</div><div><b>الرصيد:</b> '+money(rem)+'</div></div><table class="bank"><thead><tr><th>م</th><th>التاريخ</th><th>رقم الفاتورة</th><th>البيان / السيارة</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>'+rows+'</tbody></table><div class="tot"><div>إجمالي المدين<br>'+money(total)+'</div><div>إجمالي المدفوع<br>'+money(paid)+'</div><div>الرصيد المستحق<br>'+money(rem)+'</div></div></body></html>');
+    w.document.close();setTimeout(()=>{w.print();setTimeout(()=>w.close(),500)},250);
   };
 })();
 </script>
@@ -4315,5 +4315,43 @@ window.addEventListener('load', function () {
  };
 })();
 </script>
+
+<div id="clientLifeStatementModal" class="non-service-overlay no-print" style="z-index:7000" onclick="if(event.target===this)closeClientLifeStatement()">
+ <div class="non-service-window" style="max-width:1200px">
+  <div class="non-service-window-head"><h2>كشف العميل — سجل التعامل الكامل بالمركز</h2><button class="non-service-close" onclick="closeClientLifeStatement()">إغلاق ✕</button></div>
+  <div class="card-box" style="box-shadow:none">
+   <div class="form-grid"><div class="form-field"><label>ابحث باسم العميل أو رقم الهاتف أو اللوحة</label><input id="clientLifeSearch" placeholder="اكتب الاسم أو الهاتف أو رقم اللوحة"></div><div class="form-field" style="justify-content:end"><button class="btn-action btn-blue" onclick="searchClientLifeStatement()">بحث وعرض السجل</button></div></div>
+   <div id="clientLifeStatementContent"><p>اكتب اسم العميل أو رقم هاتفه ثم اضغط بحث لعرض سجل تعاملاته المتاح في قاعدة البيانات.</p></div>
+   <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn-action btn-green" onclick="printClientLifeStatement()"><i class="fa-solid fa-print"></i> طباعة كشف العميل</button><button class="btn-action btn-blue" onclick="closeClientLifeStatement()">رجوع</button></div>
+  </div>
+ </div>
+</div>
+<script>
+function openClientLifeStatement(){document.getElementById('clientLifeStatementModal').classList.add('is-open');document.getElementById('clientLifeSearch').focus();}
+function closeClientLifeStatement(){document.getElementById('clientLifeStatementModal').classList.remove('is-open');}
+function clientLifeEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function clientLifeVal(d,keys){for(const k of keys){if(d[k]!==undefined&&d[k]!==null&&d[k]!=='')return d[k]}return '—'}
+async function searchClientLifeStatement(){
+ const q=(document.getElementById('clientLifeSearch').value||'').trim().toLowerCase(); const out=document.getElementById('clientLifeStatementContent');
+ if(!q){alert('اكتب اسم العميل أو رقم الهاتف أو اللوحة أولاً');return}
+ out.innerHTML='<p>جاري جمع بيانات العميل من سجلات المركز...</p>';
+ try{
+  const sources=['invoices_archive','workshop_archive','client_accounts','client_collection_receipts','treasury_transactions','cars','accounting_queue'];
+  const records=[];
+  for(const col of sources){try{const snap=await db.collection(col).get();snap.forEach(doc=>{const d=doc.data()||{};const hay=[d.clientName,d.name,d.customerName,d.phone,d.clientPhone,d.carPlate,d.plate,d.carInfo,d.invoiceSerial,d.carId].map(x=>String(x??'').toLowerCase()).join(' | ');if(hay.includes(q))records.push({source:col,id:doc.id,...d});});}catch(e){console.warn('تعذر قراءة '+col,e)}}
+  const unique=new Map(); records.forEach(r=>{const key=[r.source,r.id].join(':');unique.set(key,r)});
+  const rows=[...unique.values()].sort((a,b)=>new Date(b.dateStr||b.date||b.createdAt||b.timestamp||0)-new Date(a.dateStr||a.date||a.createdAt||a.timestamp||0));
+  if(!rows.length){out.innerHTML='<p>لم يتم العثور على سجلات مطابقة. جرّب الاسم الكامل أو رقم الهاتف المسجل.</p>';return}
+  const first=rows[0];const name=clientLifeVal(first,['clientName','customerName','name']);const phone=clientLifeVal(first,['clientPhone','phone']);
+  let html=`<div class="card-box"><h3>البيانات الأساسية</h3><p><b>اسم العميل:</b> ${clientLifeEsc(name)} &nbsp; <b>الهاتف:</b> ${clientLifeEsc(phone)}</p><p><b>عدد السجلات المطابقة:</b> ${rows.length} &nbsp; <b>مصادر السجل:</b> الفواتير والأرشيف والحسابات والتحصيلات والسيارات المتاحة بالنظام.</p></div>`;
+  html+='<div class="table-responsive"><table><thead><tr><th>التاريخ</th><th>نوع السجل</th><th>رقم الفاتورة/الإذن</th><th>السيارة / اللوحة</th><th>الإصلاحات / التفاصيل</th><th>الإجمالي</th><th>المدفوع المسجل</th><th>المتبقي</th><th>ملاحظات</th></tr></thead><tbody>';
+  for(const d of rows){const date=clientLifeVal(d,['dateFormatted','dateStr','date','createdAt','timestamp']);const details=clientLifeVal(d,['repairDetails','repairs','services','parts','items','description','workDescription','notes']);const total=clientLifeVal(d,['totalAmount','grandTotal','total','totalSum']);const paid=clientLifeVal(d,['paidAmount','amountPaid','paymentAmount','amount']);const rem=clientLifeVal(d,['remainingAmount','remaining','debt']);html+=`<tr><td>${clientLifeEsc(date)}</td><td>${clientLifeEsc(d.source)}</td><td>${clientLifeEsc(clientLifeVal(d,['invoiceSerial','receiptNo','orderNo','id']))}</td><td>${clientLifeEsc(clientLifeVal(d,['carInfo','carPlate','plate','vehicle']))}</td><td>${clientLifeEsc(typeof details==='object'?JSON.stringify(details):details)}<br><small>قطع الغيار: ${clientLifeEsc(typeof d.parts==='object'?JSON.stringify(d.parts):clientLifeVal(d,['parts','partNames']))} — الخدمات: ${clientLifeEsc(typeof d.services==='object'?JSON.stringify(d.services):clientLifeVal(d,['services','serviceNames']))}</small></td><td>${clientLifeEsc(total)}</td><td>${clientLifeEsc(paid)}</td><td>${clientLifeEsc(rem)}</td><td>${clientLifeEsc(clientLifeVal(d,['notes','description','managerDiscountReason']))}</td></tr>`}
+  html+='</tbody></table></div><p style="margin-top:10px;color:#64748b">يعرض الكشف السجلات المتوفرة فعلياً في قاعدة البيانات؛ إذا كانت إصلاحات قديمة غير مسجلة بالنظام فلن تظهر هنا.</p>';
+  out.innerHTML=html;
+ }catch(e){out.innerHTML='<p style="color:#b91c1c">تعذر تحميل كشف العميل: '+clientLifeEsc(e.message)+'</p>'}
+}
+function printClientLifeStatement(){const content=document.getElementById('clientLifeStatementContent');if(!content||!content.innerText.trim()){alert('اعرض بيانات العميل أولاً قبل الطباعة');return}const w=window.open('','_blank','width=1100,height=800');if(!w){alert('اسمح بفتح النوافذ المنبثقة حتى تتمكن من الطباعة');return}w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>كشف العميل</title><style>body{font-family:Tahoma,Arial;padding:20px;color:#111}h2{text-align:center}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #777;padding:6px;text-align:right;vertical-align:top;word-break:break-word}th{background:#eee}.card-box{border:1px solid #aaa;padding:10px;margin-bottom:12px}.table-responsive{overflow:visible}small{font-size:10px}@page{size:A4 landscape;margin:10mm}</style></head><body><h2>مركز أوتو نون — كشف العميل</h2>${content.innerHTML}</body></html>`);w.document.close();w.focus();}
+</script>
+
 </body>
 </html>
