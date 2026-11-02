@@ -560,6 +560,22 @@
             <tbody id="deptRequestsTbody"><tr><td colspan="9" style="text-align:center;">جاري التحميل...</td></tr></tbody>
           </table>
         </div>
+        <div class="card-box" id="missingPartsOrdersCard" style="margin-top:14px;border:2px solid #d97706;background:#fffbeb;">
+          <div class="card-title" style="color:#b45309;">
+            <span><i class="fa-solid fa-cart-flatbed"></i> طلبات النواقص — أصناف غير موجودة بالمخزن</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn-action-sm btn-blue" type="button" onclick="loadDeptRequests()">تحديث النواقص</button>
+              <button class="btn-action-sm btn-success" type="button" onclick="sendSelectedShortagesBySuppliers()">إرسال المحدد حسب التاجر</button>
+            </div>
+          </div>
+          <p style="margin:5px 0 10px;color:#92400e;font-size:.85rem;">اختر تاجرًا لكل قطعة، أو حدد عدة قطع ووزّعها على تاجر واحد أو أكثر. يمكن إرسال كل قطعة منفردة أو إرسال مجموعة كل تاجر برسالة واحدة.</p>
+          <div style="overflow-x:auto;">
+            <table id="missingPartsRequestsTable">
+              <thead><tr><th><input type="checkbox" onchange="toggleAllMissingRequests(this)"></th><th>الصنف المطلوب</th><th>الكمية</th><th>القسم</th><th>العميل / السيارة</th><th>التاجر ورقم الهاتف</th><th>الحالة</th><th>إجراء</th></tr></thead>
+              <tbody id="missingPartsRequestsTbody"><tr><td colspan="8" style="text-align:center;">جاري التحميل...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <div class="card-box" id="tableIssueOrdersCard" style="display: none;">
@@ -1534,6 +1550,8 @@
 
     async function loadDeptRequests() {
       let requests = await getData("dept_requests");
+      renderMissingPartRequests(requests.filter(r => r.requestType === 'MISSING_PART'));
+      requests = requests.filter(r => r.requestType !== 'MISSING_PART');
       const tbody = document.getElementById('deptRequestsTbody');
       if(!tbody) return;
       tbody.innerHTML = '';
@@ -1598,6 +1616,85 @@
           </tr>
         `;
       });
+    }
+
+
+    function escapeMissingHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function renderMissingPartRequests(requests) {
+      const tbody = document.getElementById('missingPartsRequestsTbody');
+      if (!tbody) return;
+      const suppliers = JSON.parse(localStorage.getItem('suppliers_list') || '[]');
+      if (!requests.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748b;">لا توجد طلبات نواقص حالياً.</td></tr>'; return; }
+      tbody.innerHTML = requests.sort((a,b) => String(b.createdAt || b.dateStr || '').localeCompare(String(a.createdAt || a.dateStr || ''))).map(req => {
+        const supplierOptions = '<option value="">اختر التاجر...</option>' + suppliers.map(s =>
+          `<option value="${escapeMissingHtml(s.id)}" ${s.id === req.supplierId ? 'selected' : ''}>${escapeMissingHtml(s.name)} — ${escapeMissingHtml(s.phone || 'بدون رقم')}</option>`).join('');
+        const sent = req.supplierSent === true;
+        return `<tr>
+          <td><input type="checkbox" class="missing-request-check" value="${escapeMissingHtml(req.id)}"></td>
+          <td><b>${escapeMissingHtml(req.itemName || 'صنف غير محدد')}</b></td><td>${Number(req.qty || 1)}</td>
+          <td>${escapeMissingHtml(req.department || '—')}</td>
+          <td>${escapeMissingHtml(req.clientName || '—')}<br><small>${escapeMissingHtml(req.carInfo || req.carType || '')} ${escapeMissingHtml(req.carPlate || '')}</small></td>
+          <td><select class="missing-supplier-select" data-request-id="${escapeMissingHtml(req.id)}" onchange="assignMissingRequestSupplier(this)">${supplierOptions}</select></td>
+          <td><span class="alert-badge" style="${sent?'background:#dcfce7;color:#166534':'background:#fef3c7;color:#92400e'}">${sent?'تم الإرسال للتاجر':'بانتظار اختيار التاجر / الإرسال'}</span></td>
+          <td><button type="button" class="btn-action-sm btn-success" onclick="sendOneMissingRequest('${escapeMissingHtml(req.id)}')">إرسال القطعة</button></td></tr>`;
+      }).join('');
+    }
+    async function updateMissingRequestRecord(id, patch) {
+      if (useLocalFallback) {
+        const arr = JSON.parse(localStorage.getItem('dept_requests') || '[]'), i = arr.findIndex(x => x.id === id);
+        if (i >= 0) { arr[i] = {...arr[i], ...patch}; localStorage.setItem('dept_requests', JSON.stringify(arr)); }
+        return;
+      }
+      await db.collection('dept_requests').doc(id).set(patch, {merge:true});
+    }
+    async function assignMissingRequestSupplier(select) {
+      const supplier = JSON.parse(localStorage.getItem('suppliers_list') || '[]').find(s => s.id === select.value);
+      if (!supplier) return;
+      try { await updateMissingRequestRecord(select.dataset.requestId, {supplierId:supplier.id,supplierName:supplier.name,supplierPhone:supplier.phone||''}); }
+      catch(e) { alert('تعذر حفظ التاجر: '+e.message); }
+    }
+    async function sendMissingRequestBatch(requests, supplier) {
+      if (!supplier || !supplier.phone) throw new Error('رقم هاتف التاجر غير مسجل.');
+      const lines = requests.map(r => `• ${r.itemName || 'صنف غير محدد'} — الكمية: ${Number(r.qty||1)}${r.clientName?' — العميل: '+r.clientName:''}${r.carInfo?' — السيارة: '+r.carInfo:''}`).join('\n');
+      const phone = String(supplier.phone).replace(/\D/g,'');
+      if (!phone) throw new Error('رقم هاتف التاجر غير صالح.');
+      const msg = `السلام عليكم ${supplier.name||''}\nطلب نواقص من مركز أوتو نون (NON):\n${lines}\nبرجاء تأكيد التوفر والسعر.`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+      for (const r of requests) await updateMissingRequestRecord(r.id, {supplierId:supplier.id,supplierName:supplier.name,supplierPhone:supplier.phone,supplierSent:true,supplierSentAt:new Date().toISOString(),status:'تم إرسال طلب النقص للتاجر'});
+    }
+    async function sendOneMissingRequest(id) {
+      const req = (await getData('dept_requests')).find(r => r.id === id);
+      if (!req) { alert('طلب النقص غير موجود. حدّث القائمة.'); return; }
+      const select = [...document.querySelectorAll('.missing-supplier-select')].find(x => x.dataset.requestId === id);
+      const sid = select?.value || req.supplierId;
+      const supplier = JSON.parse(localStorage.getItem('suppliers_list') || '[]').find(s => s.id === sid);
+      if (!supplier) { alert('اختر التاجر أولاً.'); return; }
+      try { await sendMissingRequestBatch([req],supplier); await loadDeptRequests(); }
+      catch(e) { alert('تعذر إرسال الطلب: '+e.message); }
+    }
+    function toggleAllMissingRequests(master) {
+      document.querySelectorAll('.missing-request-check').forEach(ch => ch.checked = master.checked);
+    }
+    async function sendSelectedShortagesBySuppliers() {
+      const ids = [...document.querySelectorAll('.missing-request-check:checked')].map(x => x.value);
+      if (!ids.length) { alert('حدد قطعة واحدة على الأقل.'); return; }
+      const requests = (await getData('dept_requests')).filter(r => ids.includes(r.id));
+      const suppliers = JSON.parse(localStorage.getItem('suppliers_list') || '[]'), groups = {};
+      for (const req of requests) {
+        const select = [...document.querySelectorAll('.missing-supplier-select')].find(x => x.dataset.requestId === req.id);
+        const sid = select?.value || req.supplierId || '';
+        if (!sid) { alert('اختر التاجر للصنف: '+(req.itemName||'غير محدد')); return; }
+        const supplier = suppliers.find(s => s.id === sid);
+        if (!supplier) { alert('أحد التجار المختارين غير موجود في سجل التجار.'); return; }
+        (groups[sid] ||= {supplier,requests:[]}).requests.push(req);
+      }
+      try {
+        for (const group of Object.values(groups)) await sendMissingRequestBatch(group.requests,group.supplier);
+        await loadDeptRequests();
+        alert(`تم تجهيز ${requests.length} طلب وإرسالها موزعة على ${Object.keys(groups).length} تاجر. اسمح بالنوافذ المنبثقة إذا منع المتصفح فتح رسالة لأي تاجر.`);
+      } catch(e) { alert('تعذر إكمال الإرسال: '+e.message); }
     }
 
     let currentActiveClientGroup = null;
