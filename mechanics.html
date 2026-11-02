@@ -462,12 +462,13 @@ body.dept-mechanics .department-identity small {display:block;color:#ffffffd9;ma
                   <th>التاريخ</th>
                   <th>التصنيف</th>
                   <th>تقرير المهندس</th>
+                  <th>اسم الفني</th>
                   <th>تقرير الفني</th>
                   <th>الحالة</th>
                 </tr>
               </thead>
               <tbody id="mechanicsHistoryTbody">
-                <tr><td colspan="5" style="text-align:center; color:#64748b;">لا توجد سجلات مسجلة بعد.</td></tr>
+                <tr><td colspan="6" style="text-align:center; color:#64748b;">لا توجد سجلات مسجلة بعد.</td></tr>
               </tbody>
             </table>
           </div>
@@ -1505,44 +1506,51 @@ body.dept-mechanics .department-identity small {display:block;color:#ffffffd9;ma
 
     async function saveMechanicsWorkData() {
       if (!currentSelectedCarId) { alert("اختر سيارة أولاً!"); return; }
-      const subCat = document.getElementById('detailSubCategory').value;
-      const itemStatus = document.getElementById('detailItemStatus').value;
-      const techNotes = document.getElementById('detailTechNotes').value;
-      const isDisplayed = document.getElementById('displayToggleCheckbox').checked;
-      const techName = document.getElementById('testDriveTester').value || loggedUser || 'فني غير محدد';
-      const testDriveStatusVal = document.getElementById('testDriveStatus').value;
-
+      const valueOf = id => document.getElementById(id)?.value || '';
+      const checkedOf = id => !!document.getElementById(id)?.checked;
+      const subCat = valueOf('detailSubCategory');
+      const itemStatus = valueOf('detailItemStatus') || 'قيد العمل';
+      const techNotes = valueOf('detailTechNotes').trim();
+      const techName = valueOf('testDriveTester').trim() || loggedUser || 'فني غير محدد';
+      const testDriveStatusVal = valueOf('testDriveStatus');
+      const now = new Date();
+      const workData = {
+        mechanicsSubCategory: subCat, mechanicsItemStatus: itemStatus,
+        mechanicsTechNotes: techNotes, assignedTechnician: techName,
+        requiredPartsList: currentRequiredParts || [],
+        installationServicesList: selectedInstallationServices || [],
+        attachments: currentCarAttachments || [],
+        beforeMaintenancePhotos: beforeMaintenancePhotos || [],
+        afterMaintenancePhotos: afterMaintenancePhotos || [],
+        showOnDisplay: checkedOf('displayToggleCheckbox'),
+        updatedAt: now.toISOString(), updatedBy: techName
+      };
+      if (document.getElementById('testDriveStatus')) workData.testDriveStatus = testDriveStatusVal;
+      if (document.getElementById('testDriveTester')) workData.testDriveTester = techName;
+      if (document.getElementById('testDriveNotes')) workData.testDriveNotes = valueOf('testDriveNotes');
+      const historyRecord = {
+        date: now.toLocaleString('ar-EG'), subCategory: subCat || '—',
+        diagnosisNotes: valueOf('detailDiagnosisNotes'),
+        techNotes: techNotes || 'لا يوجد تقرير فني', technician: techName,
+        status: itemStatus, testDriveStatus: testDriveStatusVal,
+        timestamp: now.toISOString()
+      };
+      const saveButton = document.querySelector('button[onclick="saveMechanicsWorkData()"]');
+      if (saveButton) { saveButton.disabled = true; saveButton.dataset.oldText = saveButton.innerHTML; saveButton.textContent = 'جاري الحفظ...'; }
       try {
-        await db.collection('cars').doc(currentSelectedCarId).set({
-          mechanicsSubCategory: subCat,
-          mechanicsItemStatus: itemStatus,
-          mechanicsTechNotes: techNotes,
-          assignedTechnician: techName,
-          requiredPartsList: currentRequiredParts,
-          installationServicesList: selectedInstallationServices,
-          attachments: currentCarAttachments,
-          beforeMaintenancePhotos: beforeMaintenancePhotos,
-          afterMaintenancePhotos: afterMaintenancePhotos,
-          showOnDisplay: isDisplayed,
-          testDriveStatus: testDriveStatusVal,
-          testDriveTester: document.getElementById('testDriveTester').value,
-          testDriveNotes: document.getElementById('testDriveNotes').value
-        }, { merge: true });
-
-        await db.collection('cars').doc(currentSelectedCarId).collection('mechanics_history').add({
-          date: new Date().toLocaleString('ar-EG'),
-          subCategory: subCat,
-          diagnosisNotes: document.getElementById('detailDiagnosisNotes').value,
-          techNotes: techNotes,
-          technician: techName,
-          status: itemStatus,
-          testDriveStatus: testDriveStatusVal,
-          timestamp: new Date().toISOString()
-        });
-
-        alert("✅ تم حفظ التحديثات وتسجيل بيانات الميكانيكا بنجاح وتحديث الحسابات المرتبطة!");
-        loadMechanicsHistory(currentSelectedCarId);
-      } catch (err) { alert("خطأ: " + err.message); }
+        await db.collection('cars').doc(currentSelectedCarId).set(workData, {merge:true});
+        await db.collection('cars').doc(currentSelectedCarId).collection('mechanics_history').add(historyRecord);
+        const car = allMechanicsCars.find(c => c.id === currentSelectedCarId);
+        if (car) Object.assign(car,workData);
+        await loadMechanicsHistory(currentSelectedCarId);
+        renderCarsList();
+        alert('✅ تم حفظ التحديثات بنجاح، وتم تسجيل اسم الفني وتقريره في سجل العمليات السابقة.');
+      } catch(err) {
+        console.error('Mechanics save error:',err);
+        alert('تعذر حفظ التحديثات: '+(err.message||err));
+      } finally {
+        if (saveButton) { saveButton.disabled = false; saveButton.innerHTML = saveButton.dataset.oldText || '<i class="fa-solid fa-floppy-disk"></i> حفظ التحديثات'; }
+      }
     }
 
     async function handleApprovalOrResumeAction() {
@@ -1617,16 +1625,16 @@ body.dept-mechanics .department-identity small {display:block;color:#ffffffd9;ma
 
     async function loadMechanicsHistory(carId) {
       const tbody = document.getElementById('mechanicsHistoryTbody');
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>`;
       try {
         const snap = await db.collection('cars').doc(carId).collection('mechanics_history').orderBy('timestamp', 'desc').get();
-        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">لا توجد سجلات.</td></tr>`; return; }
+        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد سجلات.</td></tr>`; return; }
         tbody.innerHTML = '';
         snap.forEach(doc => {
           const h = doc.data();
-          tbody.innerHTML += `<tr><td>${h.date || '-'}</td><td><b>${h.subCategory || '-'}</b></td><td>${h.diagnosisNotes || '-'}</td><td>${h.techNotes || '-'} (${h.technician || '-'})</td><td>${h.status} ${h.testDriveStatus ? ' | ' + h.testDriveStatus : ''}</td></tr>`;
+          tbody.innerHTML += `<tr><td>${h.date || '-'}</td><td><b>${h.subCategory || '-'}</b></td><td>${h.diagnosisNotes || '-'}</td><td><b>${h.technician || 'فني غير محدد'}</b></td><td>${h.techNotes || '-'}</td><td>${h.status || '-'} ${h.testDriveStatus ? ' | ' + h.testDriveStatus : ''}</td></tr>`;
         });
-      } catch (e) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">خطأ في التحميل</td></tr>`; }
+      } catch (e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">خطأ في التحميل</td></tr>`; }
     }
 
     async function handleStageWorkflowAction() {
