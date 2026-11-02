@@ -5,7 +5,25 @@
 <meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
 <title>أوتو نون - الصيانة السريعة</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js">
+const QUICK_TIMER_FIELDS={total:"quickMaintenanceTimerTotalSeconds",started:"quickMaintenanceTimerStartedAt",startedBy:"quickMaintenanceTimerStartedBy",last:"quickMaintenanceTimerLastAction",updated:"quickMaintenanceTimerUpdatedAt",finished:"quickMaintenanceTimerFinishedAt"};
+let quickMaintenanceTimerInterval=null;
+function getQuickMaintenanceElapsed(c){if(!c)return 0;const t=Math.max(0,Number(c[QUICK_TIMER_FIELDS.total]||0));if(!c[QUICK_TIMER_FIELDS.started])return Math.floor(t);return Math.floor(t+Math.max(0,(Date.now()-new Date(c[QUICK_TIMER_FIELDS.started]).getTime())/1000));}
+function formatQuickMaintenanceDuration(n){n=Math.max(0,Math.floor(Number(n)||0));return [Math.floor(n/3600),Math.floor(n%3600/60),n%60].map(x=>String(x).padStart(2,"0")).join(":");}
+function renderQuickMaintenanceTimer(c){
+ const d=document.getElementById("maintenanceTimerDisplay"),t=document.getElementById("maintenanceTimerTotal"),s=document.getElementById("maintenanceTimerStatus"),techEl=document.getElementById("maintenanceTimerTechnician"),start=document.getElementById("maintenanceTimerStartBtn"),pause=document.getElementById("maintenanceTimerPauseBtn");
+ if(!c){if(d)d.textContent="00:00:00";if(t)t.textContent="00:00:00";if(s)s.textContent="لم يبدأ";if(techEl)techEl.textContent="—";if(start)start.style.display="inline-flex";if(pause)pause.style.display="none";if(quickMaintenanceTimerInterval){clearInterval(quickMaintenanceTimerInterval);quickMaintenanceTimerInterval=null;}return;}
+ const running=!!c[QUICK_TIMER_FIELDS.started],elapsed=getQuickMaintenanceElapsed(c);if(d)d.textContent=formatQuickMaintenanceDuration(elapsed);if(t)t.textContent=formatQuickMaintenanceDuration(elapsed);
+ if(s){s.textContent=running?"● يعمل الآن":(elapsed?"متوقف مؤقتاً / محفوظ":"لم يبدأ");s.style.color=running?"var(--btn-green)":"var(--btn-yellow)";}
+ if(techEl)techEl.textContent=c[QUICK_TIMER_FIELDS.startedBy]||c.quickMaintenanceTechnician||c.activeTechnician||"—";
+ if(start)start.style.display=running?"none":"inline-flex";if(pause)pause.style.display=running?"inline-flex":"none";
+ if(quickMaintenanceTimerInterval){clearInterval(quickMaintenanceTimerInterval);quickMaintenanceTimerInterval=null;}
+ if(running)quickMaintenanceTimerInterval=setInterval(()=>{if(!selected||selected!==c.id)return;const latest=cars.find(x=>x.id===c.id)||c,v=formatQuickMaintenanceDuration(getQuickMaintenanceElapsed(latest));if(d)d.textContent=v;if(t)t.textContent=v;},1000);
+}
+async function startQuickMaintenanceTimer(){if(!selected)return;const c=cars.find(x=>x.id===selected);if(!c)return;const f=QUICK_TIMER_FIELDS;if(c[f.started]){renderQuickMaintenanceTimer(c);return;}const now=new Date().toISOString(),who=tech();try{await db.collection("cars").doc(selected).set({[f.started]:now,[f.startedBy]:who,[f.last]:"started",[f.updated]:now},{merge:true});c[f.started]=now;c[f.startedBy]=who;renderQuickMaintenanceTimer(c);}catch(e){alert("تعذر بدء التايمر: "+e.message);}}
+async function pauseQuickMaintenanceTimer(){if(!selected)return;const c=cars.find(x=>x.id===selected),f=QUICK_TIMER_FIELDS;if(!c||!c[f.started])return;const elapsed=getQuickMaintenanceElapsed(c),now=new Date().toISOString();try{await db.collection("cars").doc(selected).set({[f.total]:elapsed,[f.started]:null,[f.last]:"paused",[f.updated]:now},{merge:true});c[f.total]=elapsed;c[f.started]=null;renderQuickMaintenanceTimer(c);}catch(e){alert("تعذر حفظ وقت التوقف: "+e.message);}}
+async function finishQuickMaintenanceTimer(){if(!selected)return;const c=cars.find(x=>x.id===selected);if(!c)return;const f=QUICK_TIMER_FIELDS;if(c[f.started])await pauseQuickMaintenanceTimer();const latest=cars.find(x=>x.id===selected)||c,elapsed=getQuickMaintenanceElapsed(latest),now=new Date().toISOString();try{await db.collection("cars").doc(selected).set({[f.total]:elapsed,[f.started]:null,[f.finished]:now,[f.last]:"finished",[f.updated]:now},{merge:true});latest[f.total]=elapsed;latest[f.started]=null;latest[f.finished]=now;renderQuickMaintenanceTimer(latest);alert("تم حفظ وقت الصيانة: "+formatQuickMaintenanceDuration(elapsed));}catch(e){alert("تعذر إنهاء التايمر: "+e.message);}}
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 <style>
@@ -84,6 +102,11 @@ body.dept-quick_maintenance .department-identity .identity-icon {
 }
 body.dept-quick_maintenance .department-identity small {display:block;color:#ffffffd9;margin-top:3px;}
 
+
+.maintenance-timer-box{border:2px solid var(--primary-orange);background:linear-gradient(135deg,rgba(234,88,12,.09),rgba(2,132,199,.04));border-radius:12px;padding:13px;margin:0 0 12px}
+.maintenance-timer-display{font-size:2rem;font-weight:900;letter-spacing:2px;color:var(--primary-orange);font-variant-numeric:tabular-nums;text-align:center;padding:5px}
+.maintenance-timer-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.78rem;color:#64748b}
+.maintenance-timer-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:8px}
 </style>
 </head>
 <body class="dept-quick_maintenance">
@@ -104,6 +127,18 @@ body.dept-quick_maintenance .department-identity small {display:block;color:#fff
 <div class="field"><label>الخدمة المطلوبة</label><b id="service">—</b></div><div class="field"><label>الحالة</label><b id="status">—</b></div>
 <div class="field wide"><label>شكوى العميل</label><div id="complaint">—</div></div><div class="field wide"><label>تقرير التشخيص</label><div id="diagnosis">—</div></div>
 <div class="field wide"><label>ملاحظات فني الصيانة السريعة</label><textarea id="notes" placeholder="اكتب الأعمال التي تم تنفيذها والملاحظات..." rows="4"></textarea></div>
+</div>
+
+
+<div class="maintenance-timer-box">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><strong style="color:var(--primary-orange)"><i class="fa-solid fa-stopwatch"></i> تايمر وقت الصيانة للفني</strong><span id="maintenanceTimerStatus" style="font-weight:800;color:var(--btn-yellow)">لم يبدأ</span></div>
+ <div id="maintenanceTimerDisplay" class="maintenance-timer-display">00:00:00</div>
+ <div class="maintenance-timer-meta"><span>الفني: <b id="maintenanceTimerTechnician">—</b></span><span>الوقت المسجل: <b id="maintenanceTimerTotal">00:00:00</b></span></div>
+ <div class="maintenance-timer-actions">
+  <button type="button" class="green" id="maintenanceTimerStartBtn" onclick="startQuickMaintenanceTimer()"><i class="fa-solid fa-play"></i> بدء حساب وقت الصيانة</button>
+  <button type="button" class="orange" id="maintenanceTimerPauseBtn" onclick="pauseQuickMaintenanceTimer()" style="display:none"><i class="fa-solid fa-pause"></i> إيقاف مؤقت</button>
+  <button type="button" class="blue" onclick="finishQuickMaintenanceTimer()"><i class="fa-solid fa-flag-checkered"></i> إنهاء وحفظ الوقت</button>
+ </div><small style="display:block;text-align:center;color:#64748b;margin-top:7px">الوقت محفوظ مع السيارة ويستمر بعد تحديث الصفحة أو فتحها من جهاز آخر.</small>
 </div>
 
 <div class="buttons"><button class="orange" onclick="startWork()">بدء الصيانة</button><button class="blue" onclick="saveQuickData().then(()=&gt;alert('تم حفظ البيانات والصور'))">حفظ التحديثات</button><button class="green" onclick="finishWork()">إنهاء الصيانة وإعادة السيارة للتشخيص</button><button class="blue" onclick="whatsapp()">واتساب العميل</button></div></div>
@@ -137,15 +172,31 @@ function loadCars(){
   render();if(selected){const c=cars.find(x=>x.id===selected);if(c)show(c);else clearDetails()}
  },e=>{console.error(e);document.getElementById("list").textContent="تعذر تحميل البيانات. تحقق من الاتصال والصلاحيات."});
 }
-function render(){const q=(document.getElementById("search").value||"").toLowerCase();const filtered=cars.filter(c=>[c.clientName,c.name,c.plate,c.carPlate,c.brand,c.model,c.serviceType,c.queueNo].join(" ").toLowerCase().includes(q));document.getElementById("total").textContent=cars.length;document.getElementById("working").textContent=cars.filter(c=>c.status==="IN_PROGRESS").length;document.getElementById("waiting").textContent=cars.filter(c=>c.status!=="IN_PROGRESS").length;document.getElementById("list").innerHTML=filtered.length?filtered.map(c=>`<div class="car ${selected===c.id?"active":""}" onclick="choose('${c.id}')"><b>${esc(c.clientName||c.name||"عميل")} — ${esc((c.brand||"")+" "+(c.model||""))}</b><div class="muted">اللوحة: ${esc(c.plate||c.carPlate||"—")} | الدور: ${esc(c.queueNo||"—")}</div><div class="muted">الخدمة: ${esc(c.serviceType||"غير محددة")}</div><b class="muted">${esc(c.statusLabel||"محولة للقسم")}</b></div>`).join(""):'<div class="empty">لا توجد سيارات محولة إلى الصيانة السريعة حالياً.</div>'}
-function choose(id){selected=id;const c=cars.find(x=>x.id===id);if(c)show(c);render()}
+function render(){const q=(document.getElementById("search").value||"").toLowerCase();const filtered=cars.filter(c=>[c.clientName,c.name,c.plate,c.carPlate,c.brand,c.model,c.serviceType,c.queueNo].join(" ").toLowerCase().includes(q));document.getElementById("total").textContent=cars.length;document.getElementById("working").textContent=cars.filter(c=>c.status==="IN_PROGRESS").length;document.getElementById("waiting").textContent=cars.filter(c=>c.status!=="IN_PROGRESS").length;document.getElementById("list").innerHTML=filtered.length?filtered.map(c=>`<div class="car ${selected===c.id?"active":""}" onclick="choose('${c.id}')"><b>${esc(c.clientName||c.name||"عميل")} — ${esc((c.brand||"")+" "+(c.model||""))}</b><div class="muted">اللوحة: ${esc(c.plate||c.carPlate||"—")} | الدور: ${esc(c.queueNo||"—")}</div><div class="muted">الخدمة: ${esc(c.serviceType||"غير محددة")}</div>
+<div class="muted">الكوريك: ${esc(c.assignedLift||c.liftName||c.liftNumber||c.lift||"غير محدد")} | الفني: ${esc(c.activeTechnician||c.assignedTechnician||c.quickMaintenanceTechnician||"لم يبدأ")}</div>
+${c.claimedByUser && c.claimedByUser!==tech() ? `<b style="color:#dc2626">🔒 محجوز للفني ${esc(c.claimedByUser)}</b>` : ''}<b class="muted">${esc(c.statusLabel||"محولة للقسم")}</b></div>`).join(""):'<div class="empty">لا توجد سيارات محولة إلى الصيانة السريعة حالياً.</div>'}
+function choose(id){const c=cars.find(x=>x.id===id);if(c?.claimedByUser && c.claimedByUser!==tech()){alert("السيارة محجوزة بالفعل للفني: "+c.claimedByUser);return;}selected=id;if(c)show(c);render()}
 function show(c){document.getElementById("empty").hidden=true;document.getElementById("details").hidden=false;const vals={client:c.clientName||c.name||"—",phone:c.phone||c.clientPhone||"—",vehicle:((c.brand||"")+" "+(c.model||"")).trim()||c.carInfo||"—",plate:c.plate||c.carPlate||"—",queue:c.queueNo||"—",odo:c.currentOdo?c.currentOdo+" كم":"—",service:c.serviceType||"—",status:c.statusLabel||c.status||"—",complaint:c.receptionComplaint||c.complaint||"—",diagnosis:c.diagnosisDetails||"—"};Object.entries(vals).forEach(([k,v])=>document.getElementById(k).textContent=v);document.getElementById("notes").value=c.quickMaintenanceNotes||"";
  beforePhotos=c.quickMaintenanceBeforePhotos||[];afterPhotos=c.quickMaintenanceAfterPhotos||[];extraPhotos=c.quickMaintenanceAttachments||[];
  renderQuickPhotos();
+ renderQuickMaintenanceTimer(c);
 }
-function clearDetails(){selected=null;document.getElementById("details").hidden=true;document.getElementById("empty").hidden=false;beforePhotos=[];afterPhotos=[];extraPhotos=[];renderQuickPhotos()}
-async function startWork(){if(!selected)return alert("اختر سيارة أولاً.");try{await db.collection("cars").doc(selected).update({status:"IN_PROGRESS",statusLabel:"جاري تنفيذ الصيانة السريعة",quickMaintenanceStartedAt:new Date().toISOString(),quickMaintenanceTechnician:tech(),updatedAt:new Date().toISOString()});alert("تم بدء الصيانة وتسجيل الفني المسؤول.")}catch(e){alert("تعذر بدء الصيانة: "+e.message)}}
-async function finishWork(){if(!selected)return alert("اختر سيارة أولاً.");if(!confirm("إنهاء الصيانة السريعة وإعادة السيارة إلى التشخيص؟"))return;try{const stamp=new Date().toISOString(),c=cars.find(x=>x.id===selected);await saveQuickData();await db.collection("cars").doc(selected).update({status:"IN_DIAGNOSIS",statusLabel:"انتهت الصيانة السريعة — عادت إلى التشخيص",targetDepartment:"diagnosis",lastDepartment:"quick_maintenance",lastServiceType:c?.serviceType||"",quickMaintenanceCompletedAt:stamp,displayStatus:"IN_DIAGNOSIS",updatedAt:stamp});alert("تم إنهاء الصيانة وإعادة السيارة للتشخيص.");clearDetails()}catch(e){alert("تعذر إنهاء الصيانة: "+e.message)}}
+function clearDetails(){renderQuickMaintenanceTimer(null);selected=null;document.getElementById("details").hidden=true;document.getElementById("empty").hidden=false;beforePhotos=[];afterPhotos=[];extraPhotos=[];renderQuickPhotos()}
+async function startWork(){
+ if(!selected)return alert("اختر سيارة أولاً.");
+ const technician=tech(),ref=db.collection("cars").doc(selected);
+ try{
+  await db.runTransaction(async tx=>{
+   const snap=await tx.get(ref);if(!snap.exists)throw new Error("السيارة غير موجودة");
+   const data=snap.data()||{};
+   if(data.claimedByUser && data.claimedByUser!==technician)throw new Error("السيارة محجوزة بالفعل للفني "+data.claimedByUser);
+   tx.set(ref,{status:"IN_PROGRESS",statusLabel:"جاري تنفيذ الصيانة السريعة",quickMaintenanceStartedAt:new Date().toISOString(),quickMaintenanceTechnician:technician,activeTechnician:technician,assignedTechnician:technician,claimedByUser:technician,departmentWorkStarted:true,updatedAt:new Date().toISOString()},{merge:true});
+  });
+  const c=cars.find(x=>x.id===selected);if(c)Object.assign(c,{status:"IN_PROGRESS",statusLabel:"جاري تنفيذ الصيانة السريعة",quickMaintenanceTechnician:technician,activeTechnician:technician,assignedTechnician:technician,claimedByUser:technician});
+  await startQuickMaintenanceTimer();render();alert("تم حجز السيارة للفني وبدء الصيانة وحساب الوقت تلقائياً.");
+ }catch(e){alert("تعذر بدء الصيانة: "+e.message)}
+}
+async function finishWork(){if(!selected)return alert("اختر سيارة أولاً.");if(!confirm("إنهاء الصيانة السريعة وإعادة السيارة إلى التشخيص؟"))return;try{const stamp=new Date().toISOString(),c=cars.find(x=>x.id===selected);await pauseQuickMaintenanceTimer();await saveQuickData();await db.collection("cars").doc(selected).update({status:"IN_DIAGNOSIS",statusLabel:"انتهت الصيانة السريعة — عادت إلى التشخيص",targetDepartment:"diagnosis",lastDepartment:"quick_maintenance",lastServiceType:c?.serviceType||"",quickMaintenanceCompletedAt:stamp,displayStatus:"IN_DIAGNOSIS",departmentWorkStarted:false,activeTechnician:"",assignedTechnician:"",claimedByUser:"",departmentReleasedAt:stamp,updatedAt:stamp});alert("تم إنهاء الصيانة وإعادة السيارة للتشخيص.");clearDetails()}catch(e){alert("تعذر إنهاء الصيانة: "+e.message)}}
 function whatsapp(){const c=cars.find(x=>x.id===selected);if(!c)return alert("اختر سيارة أولاً.");let p=String(c.phone||c.clientPhone||"").replace(/[^0-9+]/g,"");if(p.startsWith("+20"))p=p.slice(1);else if(p.startsWith("0"))p="2"+p;else if(!p.startsWith("20"))p="20"+p;if(!p)return alert("رقم هاتف العميل غير مسجل.");const m=`أهلاً ${c.clientName||c.name||"عميلنا العزيز"}، سيارتكم لدى قسم الصيانة السريعة بمركز أوتو نون (NON).\nملف الصور والبيانات: ${mediaPageUrl()}`;window.open(`https://wa.me/${p}?text=${encodeURIComponent(m)}`,"_blank")}
 loadCars();const requested=new URLSearchParams(location.search).get("carId");if(requested){const timer=setInterval(()=>{if(cars.some(c=>c.id===requested)){choose(requested);clearInterval(timer)}},250);setTimeout(()=>clearInterval(timer),10000)}
 </script></body></html>
