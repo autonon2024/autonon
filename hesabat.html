@@ -2303,6 +2303,36 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
       return String(value || '').toUpperCase().replace(/[\s\-_.\/\\]+/g,'').replace(/[أإآ]/g,'ا').trim();
     }
 
+    // تحرير الكوريك المرتبط بالسيارة بعد نجاح تحصيل الفاتورة وإصدار إذن الاستلام.
+    async function releaseLiftAfterPayment(item) {
+      const normalizeLiftKey = value => String(value || '').toUpperCase()
+        .replace(/[\s\-_.\/\\]+/g, '').replace(/[أإآ]/g, 'ا').trim();
+      const carData = item || {};
+      const identifiers = [
+        carData.carId, carData.sourceCarId, carData.carPlate, carData.plate,
+        carData.licensePlate, carData.clientName, carData.name
+      ].map(normalizeLiftKey).filter(Boolean);
+      if (!identifiers.length) return 0;
+      const snap = await db.collection('lifts').get();
+      const matched = snap.docs.filter(doc => {
+        const lift = doc.data() || {};
+        if (lift.status !== 'busy' && !lift.carId && !lift.carClientName) return false;
+        const liftIdentifiers = [lift.carId, lift.carPlate, lift.plate, lift.carClientName,
+          lift.clientName, lift.carName].map(normalizeLiftKey).filter(Boolean);
+        return liftIdentifiers.some(key => identifiers.includes(key));
+      });
+      if (!matched.length) return 0;
+      const batch = db.batch();
+      matched.forEach(doc => batch.update(doc.ref, {
+        status: 'idle', active: true, carId: null, carClientName: null,
+        busySince: null, lastUpdatedAt: new Date().toISOString(),
+        releaseReason: 'تحصيل الفاتورة وإصدار إذن استلام السيارة',
+        releasedAt: new Date().toISOString()
+      }));
+      await batch.commit();
+      return matched.length;
+    }
+
     async function finalizePaymentAndPrint() {
       if (!currentSelectedQueueItem) { alert("الرجاء اختيار عميل أولاً!"); return; }
       const paidAmount = parseFloat(document.getElementById('amountPaidInput').value) || 0;
@@ -2486,8 +2516,19 @@ body.dark-mode{background:#0b1420!important;color:#e5edf6!important}body.dark-mo
             showOnDisplay:false, paidAt:new Date().toISOString()
           },{merge:true});
         }
+        let releasedLifts = 0;
+        try {
+          releasedLifts = await releaseLiftAfterPayment({
+            ...item,
+            carId: item.carId || item.sourceCarId || carDocData.id || '',
+            carPlate: item.carPlate || item.plate || carDocData.carPlate || carDocData.plate || '',
+            clientName: item.clientName || carDocData.clientName || carDocData.name || ''
+          });
+        } catch (liftErr) {
+          console.warn('تم التحصيل لكن تعذر تحرير الكوريك تلقائياً:', liftErr);
+        }
         if (item.id) await db.collection('accounting_queue').doc(item.id).delete().catch(()=>{});
-        alert(`✅ تم تسجيل التحصيل وإصدار الفاتورة رقم #${invoiceSerial}. رقم إذن استلام السيارة: ${carReceiptNo}. السيارة عادت إلى التشخيص لحين التسليم.`);
+        alert(`✅ تم تسجيل التحصيل وإصدار الفاتورة رقم #${invoiceSerial}. رقم إذن استلام السيارة: ${carReceiptNo}. ${releasedLifts ? `تم تحرير الكوريك المرتبط بالسيارة (${releasedLifts}).` : 'لم يتم العثور على كوريك مرتبط بهذه السيارة لتحريره.'} السيارة عادت إلى التشخيص لحين التسليم.`);
         window.window.printInvoiceBySize('A4');
         if(clientPhone){let p=String(clientPhone).replace(/\D/g,'');if(p.startsWith('0'))p='2'+p;const msg=`مرحباً ${clientName}، تم تسجيل الدفع بمركز أوتو نون. رقم إذن استلام السيارة الخاص بك هو: ${carReceiptNo}. برجاء إبراز رقم الإذن عند استلام السيارة. رقم الفاتورة: ${invoiceSerial}.`;setTimeout(()=>window.open(`https://wa.me/${p}?text=${encodeURIComponent(msg)}`,'_blank'),500);}
         setTimeout(() => location.reload(), 1200);
@@ -4274,36 +4315,88 @@ window.addEventListener('load', function () {
   const ref=db.collection('settings').doc('invoice_counter');
   return await db.runTransaction(async tx=>{const d=await tx.get(ref);const n=d.exists?Math.max(99,Number((d.data()||{}).lastSerial)||99)+1:100;tx.set(ref,{lastSerial:n},{merge:true});return n;});
  }
+ let isSavingCollection=false;
  window.saveClientCollection=async function(mode){
+  if(isSavingCollection){alert('جاري تنفيذ عملية التحصيل، انتظر لحظة.');return}
   if(!selected){alert('اختر العميل أولاً');return}
-  const amount=num($('collectionAmount').value), treasuryId=$('collectionTreasury').value, method=$('collectionMethod').value;
+  const treasuryId=$('collectionTreasury').value, method=$('collectionMethod').value;
   if(!treasuryId){alert('اختر الخزينة التي ستستقبل المبلغ');return}
-  if(amount<=0){alert('أدخل مبلغاً صحيحاً');return}
-  if(amount>selected.remaining+0.001){alert('مبلغ التحصيل أكبر من المديونية المتبقية');return}
-  if(mode==='full' && Math.abs(amount-selected.remaining)>0.01){if(!confirm('المبلغ المدخل أقل من إجمالي المتبقي. هل تريد تحصيل المبلغ المدخل فقط؟'))return}
-  if(mode==='full') $('collectionAmount').value=selected.remaining.toFixed(2);
-  const paid=mode==='full'?selected.remaining:amount;
-  const treasury=$('collectionTreasury'), treasuryName=treasury.options[treasury.selectedIndex]?.text.split(' — ')[0]||'الخزينة';
-  const receipt={invoiceSerial:null,date:new Date().toISOString(),dateFormatted:new Date().toLocaleString('ar-EG'),clientName:selected.name,clientPhone:selected.phone,carInfo:selected.cars.join('، '),totalAmount:selected.remaining,paidAmount:paid,remainingAmount:Math.max(0,selected.remaining-paid),method,treasuryId,treasuryName,notes:$('collectionNotes').value,type:'تحصيل من حساب عميل',direction:'in',cashier:(JSON.parse(localStorage.getItem('currentUser')||'{}').name||'مسؤول الحسابات')};
+  const outstanding=num(selected.remaining);
+  const enteredAmount=num($('collectionAmount').value);
+  const paid=mode==='full'?outstanding:enteredAmount;
+  if(paid<=0){alert(mode==='full'?'لا توجد مديونية متبقية على العميل.':'أدخل مبلغاً صحيحاً للتحصيل');return}
+  if(paid>outstanding+0.001){alert('مبلغ التحصيل أكبر من المديونية المتبقية');return}
+  if(!['partial','full'].includes(mode)){alert('نوع التحصيل غير صحيح');return}
+
+  // فتح نافذة الطباعة أثناء ضغطة المستخدم نفسها حتى لا يمنعها المتصفح بعد انتهاء عمليات Firebase.
+  let printWindow=null;
+  try{printWindow=window.open('about:blank','_blank','width=800,height=700')}catch(_){}
+  isSavingCollection=true;
+  const buttons=$('collectionSelectedPanel').querySelectorAll('button');
+  buttons.forEach(b=>b.disabled=true);
+  const treasury=$('collectionTreasury');
+  const treasuryName=treasury.options[treasury.selectedIndex]?.text.split(' — ')[0]||'الخزينة';
+  const cashierData=(()=>{try{return JSON.parse(localStorage.getItem('currentUser')||'{}')}catch(_){return {}}})();
+  const receipt={
+   invoiceSerial:null,date:new Date().toISOString(),dateFormatted:new Date().toLocaleString('ar-EG'),
+   clientName:selected.name,clientPhone:selected.phone,carInfo:selected.cars.join('، '),
+   totalAmount:outstanding,paidAmount:paid,remainingAmount:Math.max(0,outstanding-paid),
+   method,treasuryId,treasuryName,notes:$('collectionNotes').value,
+   type:'تحصيل من حساب عميل',direction:'in',
+   cashier:cashierData.name||'مسؤول الحسابات'
+  };
   try{
+   if(typeof db==='undefined'||!db)throw new Error('الاتصال بقاعدة البيانات غير متاح');
    receipt.invoiceSerial=await nextReceiptSerial();
    const batch=db.batch();
    let remainingToApply=paid;
    const docs=[...selected.docs].sort((a,b)=>String(a.date||a.timestamp||'').localeCompare(String(b.date||b.timestamp||'')));
-   for(const d of docs){if(remainingToApply<=0)break;const rem=num(d.remainingAmount);if(rem<=0)continue;const part=Math.min(rem,remainingToApply);batch.update(db.collection('client_accounts').doc(d.id),{paidAmount:num(d.paidAmount)+part,remainingAmount:Math.max(0,rem-part),updatedAt:new Date().toISOString(),lastCollectionSerial:receipt.invoiceSerial});remainingToApply-=part;}
-   const tRef=db.collection('treasuries').doc(treasuryId);batch.update(tRef,{balance:firebase.firestore.FieldValue.increment(paid),updatedAt:new Date().toISOString()});
+   for(const d of docs){
+    if(remainingToApply<=0.0001)break;
+    const rem=num(d.remainingAmount);
+    if(rem<=0)continue;
+    const part=Math.min(rem,remainingToApply);
+    batch.update(db.collection('client_accounts').doc(d.id),{
+     paidAmount:num(d.paidAmount)+part,
+     remainingAmount:Math.max(0,rem-part),
+     updatedAt:new Date().toISOString(),
+     lastCollectionSerial:receipt.invoiceSerial
+    });
+    remainingToApply-=part;
+   }
+   if(remainingToApply>0.01)throw new Error('تعذر توزيع كامل مبلغ التحصيل على مديونيات العميل؛ حدّث البيانات وحاول مرة أخرى');
+   const tRef=db.collection('treasuries').doc(treasuryId);
+   batch.update(tRef,{balance:firebase.firestore.FieldValue.increment(paid),updatedAt:new Date().toISOString()});
    batch.set(db.collection('treasury_transactions').doc(),{...receipt,amount:paid,paidAmount:paid,remainingAmount:receipt.remainingAmount});
    batch.set(db.collection('client_collection_receipts').doc(String(receipt.invoiceSerial)),receipt);
-   await batch.commit();lastReceipt=receipt;
+   await batch.commit();
+
+   lastReceipt=receipt;
+   $('collectionAmount').value=mode==='full'?'0.00':$('collectionAmount').value;
    alert('تم تسجيل التحصيل بنجاح. رقم فاتورة السداد: '+receipt.invoiceSerial);
-   await window.openCollectionsModal();$('collectionSearch').value=receipt.clientName;window.renderCollectionCustomers();
-   const match=customers.find(c=>c.name===receipt.clientName&&c.phone===receipt.clientPhone);if(match)window.selectCollectionCustomer(encodeURIComponent(match.key));
-   printCollectionReceipt();
-  }catch(e){alert('تعذر حفظ التحصيل: '+e.message)}
+
+   // تحديث بيانات العميل والخزائن، مع الاحتفاظ بالفاتورة الحالية للطباعة.
+   await window.openCollectionsModal();
+   lastReceipt=receipt;
+   $('collectionSearch').value=receipt.clientName;
+   window.renderCollectionCustomers();
+   const match=customers.find(c=>c.name===receipt.clientName&&c.phone===receipt.clientPhone);
+   if(match)window.selectCollectionCustomer(encodeURIComponent(match.key));
+   if(printWindow&&!printWindow.closed)window.printCollectionReceipt(printWindow);
+   else alert('تم تسجيل التحصيل، لكن المتصفح منع نافذة الطباعة. اضغط «إصدار / طباعة فاتورة سداد» لطباعة الفاتورة.');
+  }catch(e){
+   if(printWindow&&!printWindow.closed)try{printWindow.close()}catch(_){}
+   console.error('Client collection failed:',e);
+   alert('تعذر حفظ التحصيل: '+(e&&e.message?e.message:e));
+  }finally{
+   isSavingCollection=false;
+   buttons.forEach(b=>b.disabled=false);
+  }
  };
- window.printCollectionReceipt=function(){
+
+ window.printCollectionReceipt=function(existingWindow){
   const r=lastReceipt;if(!r){alert('سجل التحصيل أولاً لإصدار فاتورة سداد');return}
-  const w=window.open('','_blank','width=800,height=700');if(!w){alert('اسمح بفتح النوافذ المنبثقة لطباعة الفاتورة');return}
+  const w=existingWindow||window.open('','_blank','width=800,height=700');if(!w){alert('اسمح بفتح النوافذ المنبثقة لطباعة الفاتورة');return}
   w.document.write(`<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>فاتورة سداد ${r.invoiceSerial}</title><style>body{font-family:Tahoma,Arial;padding:28px;color:#17283a}h2{text-align:center;border-bottom:2px solid #17283a;padding-bottom:12px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.line{padding:10px;border:1px solid #ddd}strong{color:#10243a}.paid{text-align:center;font-size:24px;font-weight:bold;margin:25px;padding:20px;border:2px solid #17856f}footer{margin-top:35px;display:flex;justify-content:space-between}@media print{button{display:none}}</style><h2>مركز أوتو نون لصيانة السيارات<br><small>فاتورة سداد حساب عميل</small></h2><div class="meta"><div class="line">رقم الفاتورة: <strong>${esc(r.invoiceSerial)}</strong></div><div class="line">التاريخ: ${esc(r.dateFormatted)}</div><div class="line">اسم العميل: ${esc(r.clientName)}</div><div class="line">رقم الهاتف: ${esc(r.clientPhone||'---')}</div><div class="line">السيارة / اللوحة: ${esc(r.carInfo||'---')}</div><div class="line">الخزينة: ${esc(r.treasuryName)}</div><div class="line">طريقة السداد: ${esc(r.method)}</div></div><div class="paid">المبلغ المستلم: ${money(r.paidAmount)} جنيه</div><div class="meta"><div class="line">المتبقي بعد السداد: <strong>${money(r.remainingAmount)} جنيه</strong></div><div class="line">مسؤول التحصيل: ${esc(r.cashier||'---')}</div></div><p>ملاحظات: ${esc(r.notes||'لا يوجد')}</p><footer><span>توقيع المحاسب: ....................</span><span>توقيع العميل: ....................</span></footer><script>window.onload=()=>window.print()<\/script></html>`);w.document.close();
  };
  window.sendCollectionWhatsApp=function(){
