@@ -218,62 +218,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-
-  <style id="modern-diagnosis-refresh">
-    body{background:radial-gradient(circle at 8% 0%,rgba(2,132,199,.10),transparent 28%),linear-gradient(145deg,var(--bg-color),#eef4fb);padding:18px}
-    .header-top-bar,.card-box,.top-search-card{border-radius:18px!important;box-shadow:0 10px 28px rgba(15,23,42,.07)!important}
-    .header-top-bar{padding:16px 20px!important}
-    .card-box{padding:18px!important}
-    .diag-tab{border-radius:999px!important;padding:10px 18px!important}
-    .diag-tab.active{box-shadow:0 8px 18px rgba(2,132,199,.22)!important}
-    .btn-action-sm{border-radius:10px!important;box-shadow:0 3px 8px rgba(15,23,42,.08)}
-    input,select,textarea{border-radius:10px!important}
-    .main-layout{grid-template-columns:minmax(320px, .85fr) minmax(0,1.5fr)!important}
-    @media(max-width:1100px){.main-layout{grid-template-columns:1fr!important}}
-    body.dark-mode{background:radial-gradient(circle at 8% 0%,rgba(2,132,199,.12),transparent 28%),var(--bg-color)}
-  </style>
-
-
-<style id="engineer-modern-ui">
-:root{--bg-color:#f3f6fb;--card-bg:#fff;--primary-orange:#e56b2f;--text-main:#172338;--border-color:#e5eaf2;--input-bg:#fff}
-*{scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
-body{background:#f3f6fb!important;color:#172338!important;padding:22px!important;font-family:"Segoe UI",Tahoma,Arial,sans-serif!important}
-.header-top-bar{background:linear-gradient(120deg,#101d35,#1d3557)!important;color:#fff!important;border:0!important;border-radius:20px!important;padding:20px 24px!important;box-shadow:0 16px 38px #10213c20!important}
-.brand-logo{color:#fff!important}.engineer-badge-header{background:#ffffff18!important;border-color:#ffffff35!important}
-.top-search-card,.card-box,.client-info-box{background:#fff!important;border:1px solid #e6ebf3!important;border-radius:18px!important;box-shadow:0 8px 24px rgba(22,42,75,.055)!important}
-.main-layout{grid-template-columns:minmax(340px,.9fr) minmax(0,1.35fr)!important;gap:20px!important}
-.card-title{color:#233b5d!important;font-size:1.08rem!important}
-.diag-tab{border-radius:12px!important;background:#fff!important}.diag-tab.active{background:#1f6feb!important;border-color:#1f6feb!important}
-.btn-action-sm{border-radius:10px!important;padding:10px 14px!important;transition:transform .18s,box-shadow .18s!important}
-.btn-action-sm:hover,.engineer-shortcut:hover{transform:translateY(-2px);box-shadow:0 8px 18px #17233818}
-input,select,textarea{border:1px solid #dce4ef!important;background:#fbfcfe!important;color:#172338!important;border-radius:10px!important;padding:11px 12px!important}
-.engineer-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0 18px}
-.engineer-shortcut{display:flex;align-items:center;gap:14px;text-align:right;border:1px solid #e2e9f3;background:#fff;border-radius:17px;padding:17px 18px;cursor:pointer;color:#172338;box-shadow:0 8px 22px #142b4b0b;min-width:0}
-.engineer-shortcut b{display:block;font-size:.98rem;color:#1e3555}.engineer-shortcut small{display:block;color:#75839a;margin-top:5px;font-size:.78rem}
-.shortcut-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;color:#fff;font-size:1.2rem;flex:0 0 auto}
-.incoming-shortcut .shortcut-icon{background:linear-gradient(135deg,#6d55d9,#8c78ed)}.archive-shortcut .shortcut-icon{background:linear-gradient(135deg,#087e8b,#12a5a1)}
-.shortcut-arrow{margin-right:auto;color:#98a6ba}
-.engineer-modal{display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:18px}
-.engineer-modal.is-open{display:flex}.engineer-modal-backdrop{position:absolute;inset:0;background:rgba(9,20,38,.62);backdrop-filter:blur(5px)}
-.engineer-modal-card{position:relative;width:min(1100px,100%);max-height:min(88vh,900px);overflow:auto;background:#fff;border-radius:22px;padding:22px;box-shadow:0 28px 90px #07132655;animation:modalIn .2s ease}
-@keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
-.engineer-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:1px solid #edf1f6;padding-bottom:16px;margin-bottom:16px}
-.engineer-modal-head h2{font-size:1.2rem;color:#172d4b;margin:4px 0}.modal-kicker{font-size:.72rem;color:#6d55d9;font-weight:800}
-.modal-close{width:40px;height:40px;border:0;border-radius:12px;background:#f1f4f8;color:#52627a;cursor:pointer;font-size:1.1rem}
-.modal-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.modal-hint{font-size:.83rem;color:#77859a}
-.modal-table-wrap{overflow:auto;border:1px solid #e8edf4;border-radius:13px}.modal-table-wrap table{min-width:760px;margin:0}.modal-table-wrap th{background:#f4f7fb;color:#445a78}.modal-table-wrap td{padding:12px}.modal-table-wrap small{color:#7c8ba1}.table-actions{white-space:nowrap}.empty-table{text-align:center!important;color:#8190a5;padding:30px!important}
-.archive-search{display:flex;align-items:center;gap:10px;border:1px solid #e3eaf3;background:#f8fafd;border-radius:12px;padding:0 12px}.archive-search i{color:#8392a8}.archive-search input{border:0!important;background:transparent!important;flex:1;outline:none!important}
-.archive-count{font-size:.78rem;color:#718198;margin:12px 2px}.archive-list{display:grid;gap:10px}.archive-item{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px;border:1px solid #e8edf4;border-radius:14px;background:#fff}.archive-item-main b,.archive-item-main span,.archive-item-main small{display:block}.archive-item-main b{color:#1d3557}.archive-item-main span{font-size:.85rem;margin:5px 0;color:#53657d}.archive-item-main small{color:#8996a8}.archive-item-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.archive-item-meta span{font-size:.72rem;color:#718198;background:#f2f5f9;padding:6px 9px;border-radius:20px}.archive-empty{display:grid;justify-items:center;gap:8px;padding:40px;color:#8492a6}.archive-empty i{font-size:2rem}.archive-empty b{color:#40536e}
-.transfer-modal-card{width:min(760px,100%)}.transfer-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.transfer-report-field{grid-column:1/-1}.transfer-report-field textarea{min-height:110px}.required-star{color:#dc2626}.transfer-actions{display:flex;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid #edf1f6}.btn-neutral{background:#edf1f6;color:#46566d}
-body.modal-open{overflow:hidden}
-body.dark-mode{--bg-color:#0d1728;--card-bg:#17243a;--text-main:#e8eef8;--border-color:#2b3a52;--input-bg:#1d2c43;background:#0d1728!important}
-body.dark-mode .engineer-modal-card,body.dark-mode .engineer-shortcut,body.dark-mode .archive-item{background:#17243a;color:#e8eef8;border-color:#2b3a52}
-body.dark-mode .engineer-modal-head h2,body.dark-mode .engineer-shortcut b,body.dark-mode .archive-item-main b{color:#e8eef8}
-body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
-@media(max-width:900px){.main-layout{grid-template-columns:1fr!important}.header-top-bar{align-items:flex-start}.header-tools{width:100%}}
-@media(max-width:620px){body{padding:10px!important}.engineer-shortcuts{grid-template-columns:1fr}.engineer-modal{padding:8px}.engineer-modal-card{padding:15px;border-radius:17px;max-height:94vh}.engineer-modal-head h2{font-size:1rem}.transfer-form-grid{grid-template-columns:1fr}.transfer-report-field{grid-column:auto}.archive-item{align-items:flex-start;flex-direction:column}.archive-item-meta{width:100%;justify-content:space-between}.modal-toolbar{align-items:flex-start;flex-direction:column}.header-tools .btn-action-sm{font-size:.75rem}}
-</style>
-
 </head>
 <body>
 
@@ -325,73 +269,7 @@ body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
     <div class="diag-tab active">لا توجد سيارة مفتوحة حالياً</div>
   </div>
 
-  
-<div style="display:flex;justify-content:flex-start;margin:12px 0">
- <button class="btn-action-sm btn-primary" type="button" onclick="toggleEngineerTools()"><i class="fa-solid fa-user-gear"></i> إدارة المهندس — الاختبار والصور وإعادة التوجيه <i class="fa-solid fa-chevron-down"></i></button>
-</div>
-<div class="engineer-shortcuts">
- <button class="engineer-shortcut incoming-shortcut" type="button" onclick="openEngineerIncomingModal()">
-  <span class="shortcut-icon"><i class="fa-solid fa-inbox"></i></span><span><b>السيارات الواردة من الأقسام</b><small>عرض ومتابعة السيارات المحولة للمهندس</small></span><span class="shortcut-arrow"><i class="fa-solid fa-chevron-left"></i></span>
- </button>
- <button class="engineer-shortcut archive-shortcut" type="button" onclick="openEngineerArchiveModal()">
-  <span class="shortcut-icon"><i class="fa-solid fa-box-archive"></i></span><span><b>أرشيف العملاء السابقين</b><small>سجل العملاء والسيارات والتقارير السابقة</small></span><span class="shortcut-arrow"><i class="fa-solid fa-chevron-left"></i></span>
- </button>
-</div>
-<div id="engineerIncomingModal" class="engineer-modal" aria-hidden="true">
- <div class="engineer-modal-backdrop" onclick="closeEngineerModal('engineerIncomingModal')"></div>
- <section class="engineer-modal-card" role="dialog" aria-modal="true" aria-labelledby="incomingModalTitle">
-  <header class="engineer-modal-head"><div><span class="modal-kicker">متابعة التحويلات</span><h2 id="incomingModalTitle">السيارات الواردة من الأقسام إلى المهندس</h2></div><button class="modal-close" onclick="closeEngineerModal('engineerIncomingModal')" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></header>
-  <div class="modal-toolbar"><span class="modal-hint">اختر السيارة لفتح تقريرها أو إعادة توجيهها</span><button class="btn-action-sm btn-primary" onclick="refreshEngineerIncoming()"><i class="fa-solid fa-rotate"></i> تحديث</button></div>
-  <div class="modal-table-wrap"><table><thead><tr><th>العميل / السيارة</th><th>القسم المحوّل</th><th>الفني</th><th>الإجراءات</th></tr></thead><tbody id="engineerIncomingTbody"><tr><td colspan="4">جاري التحميل...</td></tr></tbody></table></div>
- </section>
-</div>
-<div id="engineerArchiveModal" class="engineer-modal" aria-hidden="true">
- <div class="engineer-modal-backdrop" onclick="closeEngineerModal('engineerArchiveModal')"></div>
- <section class="engineer-modal-card archive-modal-card" role="dialog" aria-modal="true" aria-labelledby="engineerArchiveTitle">
-  <header class="engineer-modal-head"><div><span class="modal-kicker">سجل تاريخي</span><h2 id="engineerArchiveTitle">أرشيف العملاء السابقين</h2></div><button class="modal-close" onclick="closeEngineerModal('engineerArchiveModal')" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></header>
-  <div class="archive-search"><i class="fa-solid fa-magnifying-glass"></i><input id="engineerArchiveSearch" placeholder="ابحث باسم العميل أو الهاتف أو اللوحة أو السيريال..." oninput="renderEngineerArchive()"></div>
-  <div id="engineerArchiveCount" class="archive-count"></div><div id="engineerArchiveList" class="archive-list"></div>
- </section>
-</div>
-<div id="engineerTransferModal" class="engineer-modal" aria-hidden="true">
- <div class="engineer-modal-backdrop" onclick="closeEngineerModal('engineerTransferModal')"></div>
- <section class="engineer-modal-card transfer-modal-card" role="dialog" aria-modal="true" aria-labelledby="engineerTransferTitle">
-  <header class="engineer-modal-head"><div><span class="modal-kicker">إعادة توجيه السيارة</span><h2 id="engineerTransferTitle">القسم المحوّل إليه</h2><p id="engineerTransferCarLabel" class="modal-hint"></p></div><button class="modal-close" onclick="closeEngineerModal('engineerTransferModal')" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></header>
-  <div class="transfer-form-grid">
-   <div class="form-field"><label>القسم المحوّل إليه</label><select id="engineerTransferDepartment" onchange="updateEngineerTransferServices()"></select></div>
-   <div class="form-field"><label>الخدمة المطلوبة</label><select id="engineerTransferService"><option value="">اختر الخدمة</option></select></div>
-   <div class="form-field"><label>تخصيص الكوريك</label><select id="engineerTransferLift"><option value="">بدون كوريك</option></select></div>
-   <div class="form-field"><label>الفني المسؤول</label><input id="engineerTransferTechnician" readonly placeholder="يظهر حسب الكوريك المختار"></div>
-   <div class="form-field transfer-report-field"><label>تقرير التحويل وملاحظات المهندس <span class="required-star">*</span></label><textarea id="engineerTransferReport" rows="4" placeholder="اكتب سبب التحويل، نتيجة الفحص، المطلوب من القسم، وأي تعليمات للفني..."></textarea></div>
-  </div>
-  <footer class="transfer-actions"><button class="btn-action-sm btn-primary" onclick="saveEngineerDepartmentTransfer()"><i class="fa-solid fa-paper-plane"></i> تأكيد التحويل</button><button class="btn-action-sm btn-neutral" onclick="closeEngineerModal('engineerTransferModal')">إلغاء</button></footer>
- </section>
-</div>
-<div class="card-box" id="engineerExtraTools" style="border:2px solid #0284c7;display:none">
- <div class="card-title">إدارة المهندس — الاختبار والصور وإعادة التوجيه</div>
- <div class="form-field"><label>العمل الإضافي المطلوب من العميل:</label><textarea id="engineerExtraWorkNotes" rows="2" placeholder="اكتب طلب العميل أو العمل الإضافي"></textarea></div>
- <div class="form-grid">
-  <div class="form-field"><label>اسم الفني للعمل الإضافي:</label><input id="engineerExtraTechnician" placeholder="اكتب اسم الفني"></div>
-  <div class="form-field"><label>الكوريك:</label><select id="engineerExtraLift"><option value="">غير محدد</option></select></div>
- </div>
- <div class="form-field"><label>نتيجة اختبار السيارة بعد الإصلاح:</label><select id="engineerTestDriveStatus"><option>لم يتم الاختبار بعد</option><option>السيارة تحت الاختبار</option><option>تم الاختبار بنجاح</option><option>العطل ما زال مستمراً</option></select></div>
- <div class="form-field"><label>ملاحظات اختبار الجودة:</label><textarea id="engineerTestDriveNotes" rows="2"></textarea></div>
- <button class="btn-action-sm btn-primary" onclick="assignEngineerExtraWork()">تعيين الفني والكوريك للعمل الإضافي</button>
- <button class="btn-action-sm btn-primary" onclick="saveEngineerTestDrive()">حفظ اختبار السيارة</button>
- <hr style="margin:12px 0">
- <div class="form-grid">
-  <div class="form-field"><label>📷 تصوير قبل الصيانة</label><input type="file" id="engineerBeforePhotos" accept="image/*" capture="environment" multiple></div>
-  <div class="form-field"><label>📷 تصوير بعد الصيانة</label><input type="file" id="engineerAfterPhotos" accept="image/*" capture="environment" multiple></div>
- </div>
- <div class="form-field"><label>تصوير إضافي / إرفاق صور وملفات</label><input type="file" id="engineerExtraFiles" multiple></div>
- <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-  <button class="btn-action-sm btn-primary" onclick="saveEngineerPhotos()">حفظ الصور والمرفقات</button>
-  <button class="btn-action-sm btn-whatsapp" onclick="shareEngineerPhotoLink()">إرسال رابط ملف الصور والبيانات واتساب</button>
-  <button class="btn-action-sm btn-print" onclick="openEngineerPhotoData()">فتح ملف الصور والبيانات</button>
-  <button class="btn-action-sm btn-lift" onclick="engineerSendAccounting()">توجيه العميل للحسابات</button>
- </div><div id="engineerPhotoStatus" class="app-status"></div>
-</div>
-<div class="main-layout">
+  <div class="main-layout">
     <div>
       <div class="card-box">
         <div id="urgencyBanner" class="urgency-banner">
@@ -577,6 +455,9 @@ body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
           </div>
           
           <div style="display:flex; gap:8px; margin-top: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-action-sm btn-whatsapp" style="flex:1; background:#0284c7; justify-content: center;" onclick="navigateToAssignedDepartmentPage()">
+              <i class="fa-solid fa-arrow-left"></i> الذهاب المباشر للقسم المختص
+            </button>
             <button type="button" class="btn-action-sm" style="background:#0ea5e9; color:white;" onclick="sendDirectWashCall('فوري')">
               <i class="fa-solid fa-water"></i> 🚿 استدعاء فوري للمغسلة
             </button>
@@ -988,7 +869,7 @@ body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
         document.getElementById('waitingCountBadge').innerText = `${waitingCount} سيارة`;
         document.getElementById('suspendedCountBadge').innerText = `${suspendedCount} سيارة`;
 
-        renderTabs(); if(typeof refreshEngineerIncoming==="function") refreshEngineerIncoming(); if(typeof renderEngineerLiftOptions==="function") renderEngineerLiftOptions();
+        renderTabs();
 
         if (!currentSelectedCarDocId && allCarsLocalData.length > 0) {
           const firstValid = allCarsLocalData.find(c => c.status !== 'COMPLETED' && c.status !== 'ARCHIVED');
@@ -1048,16 +929,8 @@ body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
       document.getElementById('receptionComplaintText').value = car.receptionComplaint || car.complaint || '';
       document.getElementById('diagIssueText').value = car.diagnosisDetails || '';
       document.getElementById('diagSerialInput').value = car.serialNo || car.serial || '';
-      const testStatusEl=document.getElementById('engineerTestDriveStatus');
-      if(testStatusEl) testStatusEl.value=car.testDriveStatus||'لم يتم الاختبار بعد';
-      const testNotesEl=document.getElementById('engineerTestDriveNotes');
-      if(testNotesEl) testNotesEl.value=car.testDriveNotes||'';
-      const extraTechEl=document.getElementById('engineerExtraTechnician');
-      if(extraTechEl) extraTechEl.value=car.activeTechnician||'';
-      const extraNoteEl=document.getElementById('engineerExtraWorkNotes'); if(extraNoteEl) extraNoteEl.value=car.engineerExtraWorkNotes||'';
 
-
-      renderTabs(); if(typeof refreshEngineerIncoming==="function") refreshEngineerIncoming(); if(typeof renderEngineerLiftOptions==="function") renderEngineerLiftOptions();
+      renderTabs();
     }
 
     window.updateClientDataInSystem = async function() {
@@ -1286,8 +1159,8 @@ body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
       db.collection('lifts').onSnapshot((snapshot) => {
         liftsLocalData = [];
         snapshot.forEach(doc => liftsLocalData.push({id:doc.id, ...doc.data()}));
-        renderLiftSelect(); if(typeof renderEngineerLiftOptions==="function") renderEngineerLiftOptions();
-      }, (error) => { console.error('خطأ تحميل الكواريك:', error); renderLiftSelect(); if(typeof renderEngineerLiftOptions==="function") renderEngineerLiftOptions(); });
+        renderLiftSelect();
+      }, (error) => { console.error('خطأ تحميل الكواريك:', error); renderLiftSelect(); });
     }
 
     function renderLiftSelect() {
@@ -1493,177 +1366,6 @@ body.dark-mode .modal-table-wrap th{background:#22334d;color:#dce7f7}
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start,{once:true}); else start();
 })();
-
-let engineerIncomingCars=[];
-let engineerArchiveCars=[];
-let engineerTransferCarId=null;
-function openEngineerModal(id){const el=document.getElementById(id);if(!el)return;el.classList.add('is-open');el.setAttribute('aria-hidden','false');document.body.classList.add('modal-open');}
-function closeEngineerModal(id){const el=document.getElementById(id);if(!el)return;el.classList.remove('is-open');el.setAttribute('aria-hidden','true');if(!document.querySelector('.engineer-modal.is-open'))document.body.classList.remove('modal-open');}
-function openEngineerIncomingModal(){openEngineerModal('engineerIncomingModal');refreshEngineerIncoming();}
-function refreshEngineerIncoming(){
- const body=document.getElementById('engineerIncomingTbody');if(!body)return;
- const rows=allCarsLocalData.filter(c=>c.status==='RETURNED_TO_ENGINEER'||(c.targetDepartment==='diagnosis'&&c.repairDepartment));
- engineerIncomingCars=rows;
- if(!rows.length){body.innerHTML='<tr><td colspan="4" class="empty-table">لا توجد سيارات واردة من الأقسام حالياً</td></tr>';return;}
- body.innerHTML=rows.map(c=>`<tr><td><b>${escapeHtml(c.clientName||c.name||'بدون اسم')}</b><br><small>${escapeHtml((c.brand||'')+' '+(c.model||''))} — ${escapeHtml(c.plate||'بدون لوحة')}</small></td><td>${escapeHtml(c.repairDepartmentName||getDepartmentArabicName(c.repairDepartment)||'قسم')}</td><td>${escapeHtml(c.repairCompletedBy||c.activeTechnician||'غير محدد')}</td><td class="table-actions"><button class="btn-action-sm btn-primary" onclick="openEngineerCarReport('${c.id}')">التقرير</button> <button class="btn-action-sm btn-lift" onclick="engineerRouteDepartment('${c.id}')">قسم آخر</button> <button class="btn-action-sm btn-dz" onclick="engineerSendAccounting('${c.id}')">حسابات</button> <button class="btn-action-sm btn-green" onclick="engineerRunTest('${c.id}')">اختبار</button></td></tr>`).join('');
-}
-function openEngineerArchiveModal(){
- openEngineerModal('engineerArchiveModal');
- const current=allCarsLocalData.filter(c=>c.diagnosisEngineer||c.diagnosisDetails||c.diagnosisReport||c.engineerReroutedAt||c.departmentTransferredAt);
- const merged=[...archiveCarsLocalData,...workshopArchiveLocalData,...current];
- const seen=new Set();engineerArchiveCars=merged.filter(c=>{const k=c.id||c.serialNo||c.plate;if(!k||seen.has(k))return false;seen.add(k);return true;});
- renderEngineerArchive();
-}
-function renderEngineerArchive(){
- const q=(document.getElementById('engineerArchiveSearch')?.value||'').trim().toLowerCase();
- const list=document.getElementById('engineerArchiveList');if(!list)return;
- const rows=engineerArchiveCars.filter(c=>[c.clientName,c.name,c.phone,c.clientPhone,c.plate,c.carPlate,c.serialNo,c.serial,c.brand,c.model].join(' ').toLowerCase().includes(q));
- document.getElementById('engineerArchiveCount').textContent=`${rows.length} سجل`;
- if(!rows.length){list.innerHTML='<div class="archive-empty"><i class="fa-solid fa-folder-open"></i><b>لا توجد سجلات مطابقة</b><span>ستظهر هنا السيارات المسجلة سابقاً في المهندس والأرشيف.</span></div>';return;}
- list.innerHTML=rows.map(c=>`<article class="archive-item"><div class="archive-item-main"><b>${escapeHtml(c.clientName||c.name||'عميل بدون اسم')}</b><span>${escapeHtml((c.brand||'')+' '+(c.model||''))} · ${escapeHtml(c.plate||c.carPlate||'بدون لوحة')}</span><small>${escapeHtml(c.phone||c.clientPhone||'بدون هاتف')} · ${escapeHtml(c.serialNo||c.serial||'بدون VIN')}</small></div><div class="archive-item-meta"><span>${escapeHtml(c.statusLabel||'سجل سابق')}</span><button class="btn-action-sm btn-primary" onclick="openArchivedEngineerRecord('${c.id}')">فتح السجل</button></div></article>`).join('');
-}
-function openArchivedEngineerRecord(id){
- const c=engineerArchiveCars.find(x=>x.id===id);if(!c)return;
- const idx=allCarsLocalData.find(x=>x.id===id);
- if(idx){closeEngineerModal('engineerArchiveModal');startDiagnosisForCar(id);return;}
- openEngineerCarReport(id,c);
-}
-function toggleEngineerTools(){
- const panel=document.getElementById('engineerExtraTools');if(!panel)return;
- panel.style.display=panel.style.display==='none'?'block':'none';
- if(panel.style.display==='block')panel.scrollIntoView({behavior:'smooth',block:'start'});
-}
-function showEngineerRepairReport(id){openEngineerCarReport(id);}
-function openEngineerCarReport(id,providedCar){
- const c=providedCar||allCarsLocalData.find(x=>x.id===id)||engineerArchiveCars.find(x=>x.id===id)||{};
- const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
- const parts=(c.repairParts||c.requiredPartsList||[]).map(x=>(x.name||x.itemName||'صنف')+' × '+(x.quantityNeeded||x.qty||1)).join('، ')||'لا توجد بضاعة مسجلة';
- const services=(c.repairServices||c.installationServicesList||[]).map(x=>x.name||x.serviceName||'').join('، ')||'لا توجد إصلاحات/خدمات مسجلة';
- const w=window.open('','_blank');if(!w){alert('اسمح بفتح النوافذ المنبثقة لعرض التقرير');return;}
- w.document.write('<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8"><title>تقرير السيارة</title><style>body{font-family:Segoe UI,Tahoma;padding:24px;background:#f1f5f9;color:#0f172a}.card{background:white;border:1px solid #cbd5e1;border-radius:12px;padding:16px;margin:12px 0}button{padding:12px 18px;border:0;border-radius:8px;background:#ea580c;color:white;font-weight:bold;cursor:pointer}</style><h2>تقرير السيارة والإصلاحات</h2><div class="card"><b>العميل:</b> '+esc(c.clientName||c.name)+'<br><b>السيارة:</b> '+esc((c.brand||'')+' '+(c.model||''))+'<br><b>اللوحة:</b> '+esc(c.plate)+'<br><b>السيريال:</b> '+esc(c.serialNo||c.serial||'')+'</div><div class="card"><h3>تقرير التشخيص والإصلاح</h3>'+esc(c.engineerTransferReport||c.repairReport||c.diagnosisReport||c.diagnosisDetails||'لا يوجد تقرير')+'</div><div class="card"><h3>البضاعة وقطع الغيار</h3>'+esc(parts)+'</div><div class="card"><h3>الخدمات والإصلاحات</h3>'+esc(services)+'</div><div class="card"><b>الفني:</b> '+esc(c.repairCompletedBy||c.activeTechnician||'غير محدد')+'</div></html>');
- w.document.close();
-}
-async function engineerLogNewFault(id){
- const c=allCarsLocalData.find(x=>x.id===id)||{};
- const fault=prompt('اكتب العطل الجديد أو الملاحظة المطلوب تسجيلها:');if(!fault)return;
- try{
-  await db.collection('cars').doc(id).set({additionalFaults:firebase.firestore.FieldValue.arrayUnion({description:fault,createdAt:new Date().toISOString(),by:getEngineerName()}),lastAdditionalFault:fault,status:'IN_PROGRESS',targetDepartment:'diagnosis',statusLabel:'تم تسجيل عطل إضافي — عاد للمهندس',updatedAt:new Date().toISOString()},{merge:true});
-  const phone=c.phone||c.clientPhone||c.mobile;
-  if(phone){const msg='أهلاً '+(c.clientName||c.name||'عميلنا')+'، تم تسجيل عطل/ملاحظة إضافية على السيارة وإعادة توجيهها إلى المهندس لمتابعة العمل.\nالتفاصيل: '+fault+'\nمركز أوتو نون';window.open('https://wa.me/'+normalizeEgyptPhone(phone)+'?text='+encodeURIComponent(msg),'_blank');}
-  alert('تم تسجيل العطل وإعادة السيارة للمهندس.');
- }catch(e){alert('تعذر تسجيل العطل: '+e.message);}
-}
-function engineerRunTest(id){closeEngineerModal('engineerIncomingModal');startDiagnosisForCar(id);toggleEngineerTools();}
-function engineerRouteDepartment(id){
- engineerTransferCarId=id;
- const c=allCarsLocalData.find(x=>x.id===id)||engineerIncomingCars.find(x=>x.id===id)||{};
- const source=document.getElementById('diagTargetDepartment');
- const dept=document.getElementById('engineerTransferDepartment');
- dept.innerHTML=source?source.innerHTML:'';
- if(c.repairDepartment&&Array.from(dept.options).some(o=>o.value===c.repairDepartment))dept.value=c.repairDepartment;
- const lift=document.getElementById('engineerTransferLift');
- lift.innerHTML='<option value="">بدون كوريك</option>'+liftsLocalData.filter(x=>x.active!==false&&x.status==='idle').map(x=>`<option value="${x.id}">${escapeHtml(x.name)} — ${escapeHtml(x.technicianName||'فني غير محدد')}</option>`).join('');
- document.getElementById('engineerTransferTechnician').value='';
- document.getElementById('engineerTransferReport').value='';
- document.getElementById('engineerTransferCarLabel').textContent=`${c.clientName||c.name||'عميل'} — ${c.brand||''} ${c.model||''} — ${c.plate||''}`;
- updateEngineerTransferServices();closeEngineerModal('engineerIncomingModal');openEngineerModal('engineerTransferModal');
-}
-function updateEngineerTransferServices(){
- const dept=document.getElementById('engineerTransferDepartment')?.value;
- const sel=document.getElementById('engineerTransferService');if(!sel)return;
- const services=departmentServicesMap[dept]||[];
- sel.innerHTML='<option value="">بدون تحديد خدمة</option>'+services.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');
-}
-document.addEventListener('change',e=>{
- if(e.target?.id==='engineerTransferLift'){
-  const lift=liftsLocalData.find(x=>x.id===e.target.value);
-  document.getElementById('engineerTransferTechnician').value=lift?.technicianName||'';
- }
-});
-async function saveEngineerDepartmentTransfer(){
- const id=engineerTransferCarId;if(!id){alert('لم يتم تحديد السيارة');return;}
- const dept=document.getElementById('engineerTransferDepartment').value;
- const service=document.getElementById('engineerTransferService').value;
- const liftId=document.getElementById('engineerTransferLift').value;
- const lift=liftsLocalData.find(x=>x.id===liftId);
- const report=document.getElementById('engineerTransferReport').value.trim();
- if(!dept){alert('اختر القسم المحوّل إليه');return;}
- if(!report){alert('اكتب تقرير التحويل قبل التأكيد');document.getElementById('engineerTransferReport').focus();return;}
- if(!['wash','quick_maintenance'].includes(dept)&&(!lift||lift.status!=='idle')){alert('اختر كوريك متاحاً أو اختر الصيانة السريعة/المغسلة');return;}
- const c=allCarsLocalData.find(x=>x.id===id)||engineerIncomingCars.find(x=>x.id===id)||{};
- const now=new Date().toISOString(),deptName=getDepartmentArabicName(dept),technician=lift?.technicianName||'';
- try{
-  await db.collection('cars').doc(id).set({
-   status:dept==='wash'?'IN_WASH':'IN_PROGRESS',targetDepartment:dept,serviceType:service,
-   statusLabel:'إعادة توجيه بواسطة المهندس إلى '+deptName,
-   assignedLift:lift?.name||'',assignedLiftId:lift?.id||'',assignedTechnician:technician,
-   engineerTransferReport:report,engineerReroutedAt:now,engineerReroutedBy:getEngineerName(),
-   diagnosisEngineer:getEngineerName(),updatedAt:now
-  },{merge:true});
-  if(lift&& !['wash','quick_maintenance'].includes(dept))await db.collection('lifts').doc(lift.id).set({status:'busy',carId:id,carClientName:c.clientName||c.name||'',busySince:now,lastUpdatedAt:now},{merge:true});
-  const phone=c.phone||c.clientPhone||c.mobile;
-  if(phone){const msg='أهلاً '+(c.clientName||c.name||'عميلنا')+'، تم تحويل سيارتكم إلى قسم '+deptName+(service?' لتنفيذ '+service:'')+'.\nتقرير التحويل: '+report+'\nشكراً لثقتكم في مركز أوتو نون.';window.open('https://wa.me/'+normalizeEgyptPhone(phone)+'?text='+encodeURIComponent(msg),'_blank');}
-  closeEngineerModal('engineerTransferModal');alert('تم تحويل السيارة إلى '+deptName+' وحفظ تقرير التحويل.');refreshEngineerIncoming();
- }catch(e){alert('تعذر تحويل السيارة: '+e.message);}
-}
-async function engineerSendAccounting(id){
- id=id||currentSelectedCarDocId;if(!id){alert('اختر سيارة أولاً');return;}
- const c=allCarsLocalData.find(x=>x.id===id)||{};
- if(!confirm('توجيه العميل للحسابات؟'))return;
- try{
-  await db.collection('accounting_queue').doc(id).set({carId:id,clientName:c.clientName||c.name||document.getElementById('diagClientName').value,phone:c.phone||c.clientPhone||document.getElementById('diagPhone').value,carInfo:(c.brand||'')+' '+(c.model||''),carPlate:c.plate||'',fromDepartment:'التشخيص / المهندس',originalDepartment:c.repairDepartment||'diagnosis',repairDetails:c.repairReport||c.diagnosisDetails||'',requiredParts:c.repairParts||c.requiredPartsList||[],status:'متوجه للحسابات للدفع',dateStr:new Date().toISOString()},{merge:true});
-  const carRef=db.collection('cars').doc(id);
-   await carRef.set({status:'SENT_TO_TREASURY',statusLabel:'انتهى العمل — في انتظار الدفع',targetDepartment:'hesabat',treasurySentAt:new Date().toISOString()},{merge:true});
-   const liftId=c.assignedLiftId;
-   if(liftId){const lr=db.collection('lifts').doc(liftId);const ld=await lr.get();if(ld.exists){const lv=ld.data()||{};if(!lv.carId||lv.carId===id)await lr.update({status:'idle',active:true,carId:null,carClientName:null,busySince:null,lastUpdatedAt:new Date().toISOString()});}}
-   const phone=c.phone||c.clientPhone||c.mobile||document.getElementById('diagPhone')?.value;
-   if(phone){const msg='أهلاً '+(c.clientName||c.name||'عميلنا')+'، تم الانتهاء من العمل على سيارتكم، وهي الآن في انتظار إتمام الدفع بالحسابات. شكراً لثقتكم في مركز أوتو نون.';window.open('https://wa.me/'+normalizeEgyptPhone(phone)+'?text='+encodeURIComponent(msg),'_blank');}
-   alert('تم توجيه العميل للحسابات وتحرير الكوريك وتجهيز رسالة واتساب.');
- }catch(e){alert('تعذر التوجيه: '+e.message);}
-}
-async function saveEngineerTestDrive(){
- if(!currentSelectedCarDocId){alert('اختر سيارة أولاً');return;}
- try{await db.collection('cars').doc(currentSelectedCarDocId).set({testDriveStatus:document.getElementById('engineerTestDriveStatus').value,testDriveTester:getEngineerName(),testDriveNotes:document.getElementById('engineerTestDriveNotes').value,testDriveUpdatedAt:new Date().toISOString()},{merge:true});alert('تم حفظ الاختبار.');}catch(e){alert(e.message);}
-}
-async function saveEngineerPhotos(){
- if(!currentSelectedCarDocId){alert('اختر سيارة أولاً');return;}
- const read=el=>Promise.all(Array.from(el.files||[]).map(f=>new Promise((ok,no)=>{let r=new FileReader();r.onload=()=>ok({name:f.name,type:f.type,data:r.result});r.onerror=no;r.readAsDataURL(f)})));
- try{
-  const before=await read(document.getElementById('engineerBeforePhotos')),after=await read(document.getElementById('engineerAfterPhotos')),extra=await read(document.getElementById('engineerExtraFiles'));
-  await db.collection('cars').doc(currentSelectedCarDocId).set({beforeMaintenancePhotos:before,afterMaintenancePhotos:after,engineerExtraAttachments:extra,engineerPhotosUpdatedAt:new Date().toISOString()},{merge:true});
-  document.getElementById('engineerPhotoStatus').textContent=`تم حفظ ${before.length} صور قبل و${after.length} بعد و${extra.length} مرفقات.`;
- }catch(e){alert('تعذر حفظ الصور: '+e.message);}
-}
-function openEngineerPhotoData(){
- const c=allCarsLocalData.find(x=>x.id===currentSelectedCarDocId);if(!c){alert('اختر سيارة');return;}
- const w=window.open('','_blank');if(!w)return;const imgs=[...(c.beforeMaintenancePhotos||[]),...(c.afterMaintenancePhotos||[]),...(c.engineerExtraAttachments||[])];
- w.document.write('<html dir="rtl"><meta charset="utf-8"><h2>ملف صور وبيانات السيارة</h2><p>'+(c.clientName||c.name||'')+' — '+(c.plate||'')+'</p>'+imgs.map(x=>x.data?'<img src="'+x.data+'" style="max-width:220px;margin:8px">':'<p>'+x.name+'</p>').join('')+'</html>');
-}
-function shareEngineerPhotoLink(){
- if(!currentSelectedCarDocId){alert('اختر سيارة');return;}const c=allCarsLocalData.find(x=>x.id===currentSelectedCarDocId)||{};const phone=c.phone||c.clientPhone||document.getElementById('diagPhone').value;
- const url=location.origin+location.pathname+'?carId='+encodeURIComponent(currentSelectedCarDocId)+'#engineerExtraTools';const msg='ملف صور وبيانات السيارة '+(c.brand||'')+' '+(c.model||'')+' — '+(c.plate||'')+'\n'+url;
- window.open(phone?'https://wa.me/'+normalizeEgyptPhone(phone)+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-}
-document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshEngineerIncoming,1500));
-
-async function assignEngineerExtraWork(){
- if(!currentSelectedCarDocId){alert('اختر السيارة أولاً');return;}
- const technician=document.getElementById('engineerExtraTechnician').value.trim();
- const liftId=document.getElementById('engineerExtraLift').value;
- const lift=liftsLocalData.find(x=>x.id===liftId);
- if(!technician){alert('اكتب اسم الفني الذي سيعمل على السيارة');return;}
- try{
-  const update={activeTechnician:technician,assignedTechnician:technician,engineerExtraWork:true,engineerExtraWorkNotes:document.getElementById('engineerExtraWorkNotes').value,engineerExtraAssignedAt:new Date().toISOString()};
-  if(lift){update.assignedLift=lift.name;update.assignedLiftId=lift.id;}
-  await db.collection('cars').doc(currentSelectedCarDocId).set(update,{merge:true});
-  if(lift){await db.collection('lifts').doc(lift.id).set({status:'busy',carId:currentSelectedCarDocId,carClientName:document.getElementById('diagClientName').value,busySince:new Date().toISOString()},{merge:true});}
-  alert('تم تعيين الفني'+(lift?' وتخصيص '+lift.name:'')+' للسيارة.');
- }catch(e){alert('تعذر التعيين: '+e.message);}
-}
-function renderEngineerLiftOptions(){
- const sel=document.getElementById('engineerExtraLift');if(!sel)return;
- sel.innerHTML='<option value="">بدون كوريك</option>'+liftsLocalData.filter(x=>x.active!==false&&x.status==='idle').map(x=>`<option value="${x.id}">${x.name} — ${x.technicianName||'فني غير محدد'}</option>`).join('');
-}
 </script>
 
 </body>
