@@ -229,8 +229,36 @@ body.dept-tires .department-identity .identity-icon {
 }
 body.dept-tires .department-identity small {display:block;color:#ffffffd9;margin-top:3px;}
 
+
+.maintenance-timer-box{border:2px solid var(--primary-orange);background:linear-gradient(135deg,rgba(234,88,12,.09),rgba(2,132,199,.04));border-radius:12px;padding:13px;margin:0 0 12px}
+.maintenance-timer-display{font-size:2rem;font-weight:900;letter-spacing:2px;color:var(--primary-orange);font-variant-numeric:tabular-nums;text-align:center;padding:5px}
+.maintenance-timer-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.78rem;color:#64748b}
+.maintenance-timer-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js">
+const DEPT_TIMER_PREFIX="tires";
+const DEPT_CARS_ARRAY=()=>allTiresCars;
+let departmentTimerInterval=null;
+function departmentTimerFields(){const p=DEPT_TIMER_PREFIX;return {total:p+"TimerTotalSeconds",started:p+"TimerStartedAt",startedBy:p+"TimerStartedBy",last:p+"TimerLastAction",updated:p+"TimerUpdatedAt",finished:p+"TimerFinishedAt"};}
+function getDepartmentTimerElapsed(car){if(!car)return 0;const f=departmentTimerFields(),total=Math.max(0,Number(car[f.total]||0));if(!car[f.started])return Math.floor(total);const started=new Date(car[f.started]).getTime();return Math.floor(total+Math.max(0,(Date.now()-started)/1000));}
+function formatDepartmentTimer(seconds){seconds=Math.max(0,Math.floor(Number(seconds)||0));const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;return [h,m,s].map(v=>String(v).padStart(2,"0")).join(":");}
+function renderDepartmentTimer(car){
+ const display=document.getElementById("maintenanceTimerDisplay"),total=document.getElementById("maintenanceTimerTotal"),status=document.getElementById("maintenanceTimerStatus"),technician=document.getElementById("maintenanceTimerTechnician"),start=document.getElementById("maintenanceTimerStartBtn"),pause=document.getElementById("maintenanceTimerPauseBtn");
+ if(!car){if(display)display.textContent="00:00:00";if(total)total.textContent="00:00:00";if(status)status.textContent="لم يبدأ";if(technician)technician.textContent="—";if(start)start.style.display="inline-flex";if(pause)pause.style.display="none";if(departmentTimerInterval){clearInterval(departmentTimerInterval);departmentTimerInterval=null;}return;}
+ const f=departmentTimerFields(),running=!!car[f.started],elapsed=getDepartmentTimerElapsed(car);
+ if(display)display.textContent=formatDepartmentTimer(elapsed);if(total)total.textContent=formatDepartmentTimer(elapsed);
+ if(status){status.textContent=running?"● يعمل الآن":(elapsed?"متوقف مؤقتاً / محفوظ":"لم يبدأ");status.style.color=running?"var(--btn-green)":"var(--btn-yellow)";}
+ if(technician)technician.textContent=car[f.startedBy]||car.activeTechnician||car.assignedTechnician||"—";
+ if(start)start.style.display=running?"none":"inline-flex";if(pause)pause.style.display=running?"inline-flex":"none";
+ if(departmentTimerInterval){clearInterval(departmentTimerInterval);departmentTimerInterval=null;}
+ if(running)departmentTimerInterval=setInterval(()=>{if(currentSelectedCarId!==car.id)return;const latest=DEPT_CARS_ARRAY().find(x=>x.id===car.id)||car;const v=formatDepartmentTimer(getDepartmentTimerElapsed(latest));if(display)display.textContent=v;if(total)total.textContent=v;},1000);
+}
+async function startDepartmentTimer(){if(!currentSelectedCarId){alert("اختر سيارة أولاً.");return;}const car=DEPT_CARS_ARRAY().find(x=>x.id===currentSelectedCarId);if(!car){alert("تعذر العثور على السيارة.");return;}const f=departmentTimerFields();if(car[f.started]){renderDepartmentTimer(car);return;}const now=new Date().toISOString(),technician=loggedUser||car.activeTechnician||car.assignedTechnician||"فني غير محدد";try{await db.collection("cars").doc(currentSelectedCarId).set({[f.started]:now,[f.startedBy]:technician,[f.last]:"started",[f.updated]:now},{merge:true});car[f.started]=now;car[f.startedBy]=technician;renderDepartmentTimer(car);renderCarsList();}catch(e){alert("تعذر بدء التايمر: "+e.message);}}
+async function pauseDepartmentTimer(){if(!currentSelectedCarId)return;const car=DEPT_CARS_ARRAY().find(x=>x.id===currentSelectedCarId),f=departmentTimerFields();if(!car||!car[f.started])return;const elapsed=getDepartmentTimerElapsed(car),now=new Date().toISOString();try{await db.collection("cars").doc(currentSelectedCarId).set({[f.total]:elapsed,[f.started]:null,[f.last]:"paused",[f.updated]:now},{merge:true});car[f.total]=elapsed;car[f.started]=null;renderDepartmentTimer(car);}catch(e){alert("تعذر حفظ وقت التوقف: "+e.message);}}
+async function finishDepartmentTimer(){if(!currentSelectedCarId){alert("اختر سيارة أولاً.");return;}let car=DEPT_CARS_ARRAY().find(x=>x.id===currentSelectedCarId);if(!car)return;const f=departmentTimerFields();if(car[f.started])await pauseDepartmentTimer();car=DEPT_CARS_ARRAY().find(x=>x.id===currentSelectedCarId)||car;const elapsed=getDepartmentTimerElapsed(car),now=new Date().toISOString();try{await db.collection("cars").doc(currentSelectedCarId).set({[f.total]:elapsed,[f.started]:null,[f.finished]:now,[f.last]:"finished",[f.updated]:now},{merge:true});car[f.total]=elapsed;car[f.started]=null;car[f.finished]=now;renderDepartmentTimer(car);alert("تم إنهاء وحفظ وقت الصيانة: "+formatDepartmentTimer(elapsed));}catch(e){alert("تعذر إنهاء الوقت: "+e.message);}}
+
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="dept-tires" id="pageBody">
@@ -291,6 +319,18 @@ body.dept-tires .department-identity small {display:block;color:#ffffffd9;margin
 <button class="btn-action btn-green" onclick="returnDepartmentCar()" type="button"><i class="fa-solid fa-arrow-rotate-left"></i> إنهاء العمل وإرجاع السيارة للمهندس</button>
 </div>
 </div>
+
+<div class="maintenance-timer-box">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><strong style="color:var(--primary-orange)"><i class="fa-solid fa-stopwatch"></i> تايمر وقت الصيانة للفني</strong><span id="maintenanceTimerStatus" style="font-weight:800;color:var(--btn-yellow)">لم يبدأ</span></div>
+ <div id="maintenanceTimerDisplay" class="maintenance-timer-display">00:00:00</div>
+ <div class="maintenance-timer-meta"><span>الفني: <b id="maintenanceTimerTechnician">—</b></span><span>الوقت المسجل: <b id="maintenanceTimerTotal">00:00:00</b></span></div>
+ <div class="maintenance-timer-actions">
+  <button type="button" class="btn-action btn-green" id="maintenanceTimerStartBtn" onclick="startDepartmentTimer()"><i class="fa-solid fa-play"></i> بدء حساب وقت الصيانة</button>
+  <button type="button" class="btn-action btn-yellow" id="maintenanceTimerPauseBtn" onclick="pauseDepartmentTimer()" style="display:none"><i class="fa-solid fa-pause"></i> إيقاف مؤقت</button>
+  <button type="button" class="btn-action btn-blue" onclick="finishDepartmentTimer()"><i class="fa-solid fa-flag-checkered"></i> إنهاء وحفظ الوقت</button>
+ </div><small style="display:block;text-align:center;color:#64748b;margin-top:7px">الوقت محفوظ مع السيارة ويستمر بعد تحديث الصفحة أو فتحها من جهاز آخر.</small>
+</div>
+
 <div class="display-toggle-container">
 <div>
 <strong style="display: block; font-size: 0.9rem; color: var(--primary-orange);"><i class="fa-solid fa-display"></i> عرض السيارة واسم القسم على شاشة العرض (Display)</strong>
@@ -838,6 +878,8 @@ body.dept-tires .department-identity small {display:block;color:#ffffffd9;margin
 
       filtered.forEach(car => {
         const isSelected = car.id === currentSelectedCarId;
+        const isClaimedByOther = !!(car.claimedByUser && car.claimedByUser !== loggedUser);
+        const claimLabel = isClaimedByOther ? `🔒 محجوز للفني ${car.claimedByUser}` : '';
         const isMissingWaiting = car.missingPartPending === true && car.status === 'WAITING_FOR_PARTS';
         const isSuspended = car.status === 'PENDING_APPROVAL' || car.status === 'SUSPENDED' || (car.status === 'WAITING_FOR_PARTS' && !isMissingWaiting);
         
@@ -860,14 +902,14 @@ body.dept-tires .department-identity small {display:block;color:#ffffffd9;margin
         container.innerHTML += `
           <div class="car-list-item ${isSelected ? 'active' : ''} ${itemClass}" onclick="selectCar('${car.id}')">
             <div style="display:flex; justify-content:space-between; font-weight:bold;">
-              <span>${car.name || 'بدون اسم'}</span>
+              <span>${car.name || 'بدون اسم'} ${claimLabel}</span>
               <span style="color:${badgeColor}; font-size:0.75rem;">${statusBadgeText}</span>
             </div>
             <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
               ${car.brand || ''} ${car.model || ''} (لوحة: ${car.plate || 'بدون'})
             </div>
             <div style="margin-top:4px; font-size:0.75rem; color:var(--btn-blue);">
-              التصنيف: ${car.tiresSubCategory || 'عام'} | الكوريك: ${car.liftNumber || car.lift || 'غير محدد'}
+              التصنيف: ${car.tiresSubCategory || 'عام'} | الكوريك: ${car.assignedLift || car.liftName || car.liftNumber || car.lift || 'غير محدد'} | الفني: ${car.activeTechnician || car.assignedTechnician || 'لم يبدأ'}
             </div>
           </div>
         `;
@@ -959,7 +1001,9 @@ body.dept-tires .department-identity small {display:block;color:#ffffffd9;margin
     }
 
     function selectCar(carId) {
-      currentSelectedCarId = carId;
+      const requestedCar=allTiresCars.find(c=>c.id===carId);
+      if(requestedCar?.claimedByUser && requestedCar.claimedByUser!==loggedUser){alert('السيارة محجوزة بالفعل للفني: '+requestedCar.claimedByUser);return;}
+      currentSelectedCarId=carId;
       const car = allTiresCars.find(c => c.id === carId);
       if (!car) return;
 
@@ -982,6 +1026,7 @@ body.dept-tires .department-identity small {display:block;color:#ffffffd9;margin
       
       document.getElementById('detailTechNotes').value = car.tiresTechNotes || '';
       document.getElementById('activeCarTitle').textContent = `العميل: ${car.name || 'بدون اسم'}`;
+      renderDepartmentTimer(car);
 
       document.getElementById('testDriveStatus').value = car.testDriveStatus || 'لم يتم الاختبار بعد';
       const testerInput = document.getElementById('testDriveTester');
@@ -1748,7 +1793,8 @@ async function claimDepartmentCar(){
     const car=(allTiresCars||[]).find(x=>x.id===currentSelectedCarId);
     if(car)Object.assign(car,{activeTechnician:technician,assignedTechnician:technician,claimedByUser:technician,departmentWorkStarted:true});
     if(typeof renderCarsList==='function')renderCarsList();
-    alert('تم استلام السيارة وتسجيل الفني المسؤول: '+technician);
+    await startDepartmentTimer();
+    alert('تم استلام السيارة وتسجيل الفني المسؤول وبدأ حساب وقت الصيانة تلقائياً: '+technician);
   }catch(e){alert('تعذر استلام السيارة: '+e.message);}
 }
 async function returnDepartmentCar(){
@@ -1757,6 +1803,7 @@ async function returnDepartmentCar(){
   if(!report){alert('اكتب تقرير الأعمال المنفذة قبل إرجاع السيارة للمهندس.');return;}
   if(!confirm('تأكيد إنهاء عمل القسم وإرجاع السيارة للمهندس بالتقرير؟'))return;
   try{
+    const timerCar=allTiresCars.find(x=>x.id===currentSelectedCarId);if(timerCar&&timerCar[departmentTimerFields().started])await pauseDepartmentTimer();
     const car=(allTiresCars||[]).find(x=>x.id===currentSelectedCarId)||{};
     const data={
       repairReport:report,
