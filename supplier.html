@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123653"><title>حساب المورد | مركز أوتو نون</title>
+<style>
+:root{--navy:#123653;--blue:#1d5b83;--orange:#ef8b2c;--bg:#f3f6fa;--ink:#182433;--muted:#64748b;--line:#dce4ed;--green:#087443;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Tahoma,Arial,sans-serif}header{background:linear-gradient(125deg,#102e49,#1d5b83);color:#fff;padding:22px 15px 26px;text-align:center}header img{width:86px;height:86px;object-fit:contain;background:#fff;border-radius:16px;padding:6px;margin-bottom:8px}header h1{font-size:22px;margin:5px 0}header p{margin:5px 0;color:#dceaf5;font-size:13px}.wrap{max-width:1050px;margin:18px auto;padding:0 12px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 5px 18px #15334b0a}.status{text-align:center;color:var(--muted);padding:22px}.profile{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.profile h2{margin:0 0 6px;font-size:21px}.muted{color:var(--muted);font-size:13px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:15px}.stat{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fbfdff}.stat small{display:block;color:var(--muted);margin-bottom:7px}.stat strong{font-size:19px}.due{color:var(--red)}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tabs button,.print{border:0;border-radius:8px;padding:10px 15px;background:#e8eff5;color:var(--navy);font-weight:bold;cursor:pointer}.tabs button.active,.print{background:var(--navy);color:#fff}.section{display:none}.section.active{display:block}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}th{background:#f1f5f9;color:#334155;white-space:nowrap}.empty{text-align:center;padding:25px;color:var(--muted)}.tag{display:inline-block;padding:4px 8px;border-radius:20px;background:#e8f3fb;color:#17537a;font-size:12px}.foot{text-align:center;color:var(--muted);font-size:12px;padding:12px 0 25px}.error{color:var(--red);line-height:1.8}.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.hidden{display:none!important}@media(max-width:650px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat strong{font-size:17px}.panel{padding:12px}header h1{font-size:19px}}
+@media print{body{background:#fff}header{background:#fff!important;color:#111;padding:8px}header p{color:#444}.panel{box-shadow:none;break-inside:avoid}.tabs,.print{display:none!important}.section{display:block!important}.wrap{max-width:none;margin:0}.table-wrap{overflow:visible}table{min-width:0}th,td{font-size:10px;padding:6px}}
+</style>
+</head>
+<body>
+<header><img src="non.png" alt="شعار مركز أوتو نون" onerror="this.style.display='none'"><h1>مركز أوتو نون لصيانة السيارات</h1><p>بوابة الموردين والتجار — عرض الفواتير وكشف الحساب</p></header>
+<main class="wrap">
+ <div id="loading" class="panel status">جاري تحميل بيانات الحساب...</div>
+ <div id="error" class="panel error hidden"></div>
+ <div id="content" class="hidden">
+  <section class="panel">
+   <div class="profile"><div><span class="tag" id="kind">مورد</span><h2 id="supplierName">—</h2><div class="muted" id="supplierMeta"></div></div><button class="print" onclick="window.print()">طباعة الكشف</button></div>
+   <div class="stats">
+    <div class="stat"><small>إجمالي التوريدات</small><strong id="total">0.00 ج.م</strong></div>
+    <div class="stat"><small>المرتجعات والتالف</small><strong id="returns">0.00 ج.م</strong></div>
+    <div class="stat"><small>إجمالي المدفوع</small><strong id="paid">0.00 ج.م</strong></div>
+    <div class="stat"><small>الرصيد المتبقي</small><strong class="due" id="due">0.00 ج.م</strong></div>
+   </div>
+  </section>
+  <section class="panel">
+   <div class="tabs"><button class="active" data-tab="invoices">فواتير التوريد</button><button data-tab="ledger">كشف الحساب والحركات</button><button data-tab="returnsTab">المرتجعات والتالف</button></div>
+   <div class="section active" id="invoices"><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>رقم الفاتورة/الإذن</th><th>الأصناف</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody id="invoiceRows"></tbody></table></div></div>
+   <div class="section" id="ledger"><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>نوع الحركة</th><th>رقم المرجع</th><th>البيان</th><th>القيمة</th></tr></thead><tbody id="ledgerRows"></tbody></table></div></div>
+   <div class="section" id="returnsTab"><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>نوع الحركة</th><th>الصنف</th><th>الكمية</th><th>القيمة</th></tr></thead><tbody id="returnRows"></tbody></table></div></div>
+  </section>
+  <p class="muted" style="text-align:center">هذه الصفحة للعرض فقط، ولا تتيح تعديل الفواتير أو بيانات الحساب.</p>
+ </div>
+ <div class="foot">مركز أوتو نون لصيانة السيارات</div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script>
+(function(){
+ const firebaseConfig={apiKey:"AIzaSyAo4cdiLNInZoVPA6kDUl1tWaxcLVtKk",authDomain:"auto-non-b841f.firebaseapp.com",projectId:"auto-non-b841f",storageBucket:"auto-non-b841f.firebasestorage.app",messagingSenderId:"512423300329",appId:"1:512423300329:web:190310e1c4b80c9921b478",measurementId:"G-ZG5RQBB3GL"};
+ const $=id=>document.getElementById(id), num=v=>Number(v)||0;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=v=>num(v).toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2})+' ج.م';
+ function dateText(x){let v=x?.date||x?.dateStr||x?.createdAt||x?.timestamp||x?.created_at||'';if(v&&typeof v==='object'&&v.seconds)v=v.seconds*1000;let d=new Date(v);return isNaN(d)?'—':d.toLocaleDateString('ar-EG');}
+ function typeName(s){let v=String(s.accountType||s.type||s.kind||'').toLowerCase();return /تاجر|trader|merchant/.test(v)?'تاجر':'مورد';}
+ function emptyRow(cols,msg){return `<tr><td class="empty" colspan="${cols}">${msg}</td></tr>`;}
+ async function readBySupplier(name,id){try{let snap=await firebase.firestore().collection(name).where('supplierId','==',id).get();return snap.docs.map(d=>({id:d.id,...d.data()}));}catch(err){console.warn('تعذر قراءة '+name,err);return [];}}
+ async function start(){
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id){$('loading').classList.add('hidden');$('error').classList.remove('hidden');$('error').textContent='رابط الحساب غير مكتمل. امسح كود QR الخاص بالمورد مرة أخرى.';return;}
+  try{
+   if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+   const db=firebase.firestore();
+   const doc=await db.collection('suppliers').doc(id).get();
+   if(!doc.exists)throw new Error('لم يتم العثور على حساب المورد. تأكد أن الحساب موجود على السيرفر.');
+   const supplier={id:doc.id,...doc.data()};
+   const [orders,ledger,returns,payments]=await Promise.all([
+    readBySupplier('supplier_issue_orders',id),readBySupplier('supplier_ledger',id),readBySupplier('supplier_returns',id),readBySupplier('supplier_payment_archive',id)
+   ]);
+   const total=orders.reduce((a,x)=>a+num(x.total??x.totalAmount??x.grandTotal??x.amount),0);
+   const ret=returns.filter(x=>String(x.type||'').includes('مرتجع')).reduce((a,x)=>a+num(x.value??num(x.qty)*num(x.buyPrice??x.price)),0);
+   const damaged=returns.filter(x=>String(x.type||'').includes('تالف')).reduce((a,x)=>a+num(x.value??num(x.qty)*num(x.buyPrice??x.price)),0);
+   const paidOrders=orders.reduce((a,x)=>a+num(x.paid??x.paidAmount??x.amountPaid),0);
+   const paidLedger=ledger.filter(x=>/سداد|دفع|دفعة|payment/i.test(String(x.type||''))).reduce((a,x)=>a+num(x.value??x.amount),0);
+   const paid=Math.max(paidOrders,paidLedger);
+   const due=Math.max(0,total-ret-damaged-paid);
+   $('supplierName').textContent=supplier.name||supplier.fullName||'حساب المورد';$('kind').textContent=typeName(supplier);
+   $('supplierMeta').textContent='كود الحساب: '+(supplier.code||'—')+'　 |　 الهاتف: '+(supplier.phone||supplier.phoneNumber||supplier.mobile||'—');
+   $('total').textContent=money(total);$('returns').textContent=money(ret+damaged);$('paid').textContent=money(paid);$('due').textContent=money(due);
+   orders.sort((a,b)=>new Date(b.date||b.dateStr||b.createdAt||0)-new Date(a.date||a.dateStr||a.createdAt||0));
+   $('invoiceRows').innerHTML=orders.length?orders.map(x=>{let lines=x.lines||x.items||[];let items=lines.map(l=>(l.name||l.itemName||'صنف')+' × '+num(l.qty??l.quantity)).join('، ')||x.notes||'—';let t=num(x.total??x.totalAmount??x.grandTotal??x.amount),p=num(x.paid??x.paidAmount??x.amountPaid),r=num(x.remainingAmount??x.balance??Math.max(0,t-p));return `<tr><td>${esc(dateText(x))}</td><td>${esc(x.orderNo||x.invoiceNo||x.code||x.id)}</td><td>${esc(items)}</td><td>${money(t)}</td><td>${money(p)}</td><td>${money(r)}</td></tr>`}).join(''):emptyRow(6,'لا توجد فواتير توريد مسجلة لهذا الحساب.');
+   $('ledgerRows').innerHTML=ledger.length?ledger.sort((a,b)=>new Date(b.date||b.dateStr||b.createdAt||0)-new Date(a.date||a.dateStr||a.createdAt||0)).map(x=>`<tr><td>${esc(dateText(x))}</td><td>${esc(x.type||x.action||'حركة حساب')}</td><td>${esc(x.orderNo||x.reference||x.ref||'—')}</td><td>${esc(x.itemName||x.notes||x.description||'—')}</td><td>${money(x.value??x.amount)}</td></tr>`).join(''):emptyRow(5,'لا توجد حركات مسجلة.');
+   $('returnRows').innerHTML=returns.length?returns.map(x=>`<tr><td>${esc(dateText(x))}</td><td>${esc(x.type||'مرتجع/تالف')}</td><td>${esc(x.itemName||x.name||'—')}</td><td>${num(x.qty??x.quantity)}</td><td>${money(x.value??x.amount??num(x.qty)*num(x.buyPrice??x.price))}</td></tr>`).join(''):emptyRow(5,'لا توجد مرتجعات أو تالف مسجل.');
+   $('loading').classList.add('hidden');$('content').classList.remove('hidden');
+  }catch(err){console.error(err);$('loading').classList.add('hidden');$('error').classList.remove('hidden');$('error').textContent='تعذر تحميل كشف الحساب: '+(err.message||'تحقق من اتصال الإنترنت وصلاحيات قراءة بيانات Firebase.');}
+ }
+ document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));}));
+ start();
+})();
+</script>
+</body></html>
